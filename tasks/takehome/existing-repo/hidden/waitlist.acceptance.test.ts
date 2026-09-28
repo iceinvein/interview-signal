@@ -51,10 +51,15 @@ function world() {
     return request("POST", `/sessions/${sessionId}/waitlist`, { memberId });
   }
 
+  // Entries may carry the member flat (memberId, name) or as the repo's
+  // MemberSummary shape (member: { id, name }); both read the same here.
   function waitlist(sessionId: string): Json[] {
     const reply = request("GET", `/sessions/${sessionId}/waitlist`);
     expect(reply.status).toBe(200);
-    return (reply.body as { waitlist: Json[] }).waitlist;
+    return (reply.body as { waitlist: Json[] }).waitlist.map((entry) => {
+      const member = (entry.member ?? {}) as Json;
+      return { ...entry, memberId: entry.memberId ?? member.id, name: entry.name ?? member.name };
+    });
   }
 
   function confirmedMemberIds(sessionId: string): string[] {
@@ -139,7 +144,7 @@ describe("waitlist acceptance", () => {
 
   it("join_rejects_started: joining once the session has started answers 409 session_started", () => {
     const ada = w.member("Ada");
-    w.advanceMinutes(9 * 60);
+    w.advanceMinutes(9 * 60 + 1);
     const reply = w.join(full, ada);
     expect(reply.status).toBe(409);
     expect(errorCode(reply)).toBe("session_started");

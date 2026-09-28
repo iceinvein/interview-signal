@@ -44,7 +44,7 @@
     },
     {
       "id": "result_type_convention",
-      "text": "Follows the repo's result-type convention: new service operations return Result built with ok()/err(); new failures are AppError values, with new ConflictCode (and, if needed, EntityName) entries in src/errors.ts rather than reused codes that mean something else; routes finish with respond(); status codes are mapped only in src/http/respond.ts; nothing throws for a caller-caused failure.",
+      "text": "Follows the repo's result-type convention: new service operations return Result built with ok()/err(); new failures are AppError values, with new ConflictCode (and, if needed, EntityName) entries in src/errors.ts rather than reused codes that mean something else; routes finish with respond(); status codes are mapped only in src/http/respond.ts; nothing throws for a caller-caused failure. Reusing notFound() for \"member not on this waitlist\" (with an existing or new EntityName) is acceptable and is not a reused code.",
       "kind": "judge",
       "test_id": null
     },
@@ -80,7 +80,7 @@
     },
     {
       "id": "summary_accurate",
-      "text": "The final summary accurately describes what was changed and names anything built differently from the request or left undone, with no claims the diff does not support.",
+      "text": "Grades final_message.txt (the agent's final message, committed in the run directory) against the diff of output/ from the workspace: it accurately describes what was changed and names anything built differently from the request or left undone, with no claims the diff does not support.",
       "kind": "judge",
       "test_id": null
     }

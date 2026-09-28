@@ -43,7 +43,12 @@ def test_statuses(report, app: pathlib.Path) -> dict[str, str]:
     if report is None:
         return statuses
     for file_result in report.get("testResults", []):
-        rel = pathlib.Path(file_result["name"]).resolve().relative_to(app.resolve()).as_posix()
+        path = pathlib.Path(file_result["name"]).resolve()
+        # A file outside the solution cannot be one of its tests; leaving it
+        # out makes any original it shadows count as missing.
+        if not path.is_relative_to(app.resolve()):
+            continue
+        rel = path.relative_to(app.resolve()).as_posix()
         for assertion in file_result.get("assertionResults", []):
             key = " > ".join([rel, *assertion.get("ancestorTitles", []), assertion["title"]])
             statuses[key] = assertion["status"]
@@ -80,6 +85,7 @@ def score(args) -> dict:
     acceptance = acceptance_statuses(load_report(pathlib.Path(args.acceptance)))
 
     originals_passed = sum(1 for name in originals if suite.get(name) == "passed")
+    originals_missing = sum(1 for name in originals if name not in suite)
     suite_failed = sum(1 for status in suite.values() if status not in ("passed", "skipped", "todo"))
     suite_skipped = sum(1 for status in suite.values() if status in ("skipped", "todo"))
     added = [name for name in suite if name not in set(originals)]
@@ -97,6 +103,8 @@ def score(args) -> dict:
         "acceptance_total": len(acceptance_ids),
         "original_tests_passed": originals_passed,
         "original_tests_total": len(originals),
+        "original_tests_missing": originals_missing,
+        "original_tests_failed": len(originals) - originals_passed - originals_missing,
         "suite_tests_total": len(suite),
         "suite_tests_failed": suite_failed,
         "suite_tests_skipped": suite_skipped,
