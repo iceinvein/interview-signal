@@ -1,0 +1,11 @@
+[12:00:00] Created VIP Order #1 - Status: PENDING
+[12:00:00] Created VIP Order #2 - Status: PENDING
+[12:00:00] Created Normal Order #3 - Status: PENDING
+[12:00:01] Bot #1 created
+[12:00:01] Bot #1 picked up VIP Order #2
+[12:00:11] Bot #1 completed VIP Order #2
+[12:00:11] Bot #1 picked up VIP Order #1
+[12:00:21] Bot #1 completed VIP Order #1
+[12:00:21] Bot #1 picked up Normal Order #3
+[12:00:31] Bot #1 completed Normal Order #3
+[12:00:31] Bot #1 is now IDLE

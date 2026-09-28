@@ -1,0 +1,23 @@
+12:00:00 order 1 (normal) created -> PENDING
+12:00:00 order 2 (normal) created -> PENDING
+12:00:00 order 3 (VIP) created -> PENDING
+12:00:01 bot 1 created
+12:00:01 bot 1 started order 3
+12:00:01 bot 2 created
+12:00:01 bot 2 started order 1
+12:00:02 bot 2 destroyed, order 1 returned to PENDING
+12:00:03 order 4 (VIP) created -> PENDING
+12:00:11 bot 1 completed order 3
+12:00:11 bot 1 started order 4
+12:00:12 bot 3 created
+12:00:12 bot 3 started order 1
+12:00:21 bot 1 completed order 4
+12:00:21 bot 1 started order 2
+12:00:22 bot 3 completed order 1
+12:00:22 bot 3 is now idle
+12:00:23 order 5 (normal) created -> PENDING
+12:00:23 bot 3 started order 5
+12:00:31 bot 1 completed order 2
+12:00:31 bot 1 is now idle
+12:00:33 bot 3 completed order 5
+12:00:33 bot 3 is now idle

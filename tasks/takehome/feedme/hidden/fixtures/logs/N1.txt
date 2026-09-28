@@ -1,0 +1,23 @@
+ts=12:00:00 event=order_created order_id=1 type=NORMAL
+ts=12:00:00 event=order_created order_id=2 type=NORMAL
+ts=12:00:00 event=order_created order_id=3 type=VIP
+ts=12:00:01 event=bot_added bot_id=1
+ts=12:00:01 event=order_picked bot_id=1 order_id=3
+ts=12:00:01 event=bot_added bot_id=2
+ts=12:00:01 event=order_picked bot_id=2 order_id=1
+ts=12:00:02 event=bot_removed bot_id=2 returned_order_id=1
+ts=12:00:03 event=order_created order_id=4 type=VIP
+ts=12:00:11 event=order_completed bot_id=1 order_id=3
+ts=12:00:11 event=order_picked bot_id=1 order_id=4
+ts=12:00:12 event=bot_added bot_id=3
+ts=12:00:12 event=order_picked bot_id=3 order_id=1
+ts=12:00:21 event=order_completed bot_id=1 order_id=4
+ts=12:00:21 event=order_picked bot_id=1 order_id=2
+ts=12:00:22 event=order_completed bot_id=3 order_id=1
+ts=12:00:22 event=bot_idle bot_id=3
+ts=12:00:23 event=order_created order_id=5 type=NORMAL
+ts=12:00:23 event=order_picked bot_id=3 order_id=5
+ts=12:00:31 event=order_completed bot_id=1 order_id=2
+ts=12:00:31 event=bot_idle bot_id=1
+ts=12:00:33 event=order_completed bot_id=3 order_id=5
+ts=12:00:33 event=bot_idle bot_id=3

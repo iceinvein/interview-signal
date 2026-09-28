@@ -1,0 +1,9 @@
+[00:00:00] Created Normal Order #1 - Status: PENDING
+[00:00:00] Created Normal Order #2 - Status: PENDING
+[00:00:00] Created VIP Order #3 - Status: PENDING
+[00:00:01] Bot #1 created - Status: ACTIVE
+[00:00:01] Bot #1 picked up VIP Order #3 - Status: PROCESSING
+[00:00:01] Bot #2 created - Status: ACTIVE
+[00:00:01] Bot #2 picked up Normal Order #1 - Status: PROCESSING
+[00:00:03] Created VIP Order #4 - Status: PENDING
+[00:00:20] Final status: 2 pending, 2 processing

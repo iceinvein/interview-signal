@@ -1,0 +1,23 @@
+[12:00:00] New NORMAL order #1 -> PENDING
+[12:00:00] New NORMAL order #2 -> PENDING
+[12:00:00] New VIP order #3 -> PENDING
+[12:00:01] + Bot #1 created (IDLE)
+[12:00:01] Bot #1 is now working on Order #3
+[12:00:01] + Bot #2 created (IDLE)
+[12:00:01] Bot #2 is now working on Order #1
+[12:00:02] - Bot #2 destroyed; Order #1 moved back to PENDING
+[12:00:03] New VIP order #4 -> PENDING
+[12:00:11] Order #3 -> COMPLETE (Bot #1)
+[12:00:11] Bot #1 is now working on Order #4
+[12:00:12] + Bot #3 created (IDLE)
+[12:00:12] Bot #3 is now working on Order #1
+[12:00:21] Order #4 -> COMPLETE (Bot #1)
+[12:00:21] Bot #1 is now working on Order #2
+[12:00:22] Order #1 -> COMPLETE (Bot #3)
+[12:00:22] Bot #3 is IDLE
+[12:00:23] New NORMAL order #5 -> PENDING
+[12:00:23] Bot #3 is now working on Order #5
+[12:00:31] Order #2 -> COMPLETE (Bot #1)
+[12:00:31] Bot #1 is IDLE
+[12:00:33] Order #5 -> COMPLETE (Bot #3)
+[12:00:33] Bot #3 is IDLE
