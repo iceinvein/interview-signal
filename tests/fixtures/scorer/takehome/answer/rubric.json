@@ -1,0 +1,8 @@
+{
+  "criteria": [
+    {"id": "answer-correct", "text": "answer.txt holds 42", "kind": "auto", "test_id": "answer"},
+    {"id": "answer-present", "text": "answer.txt exists", "kind": "auto", "test_id": "present"},
+    {"id": "tidy", "text": "The solution is tidy", "kind": "judge", "test_id": null}
+  ],
+  "trap": null
+}
