@@ -1,1 +1,1 @@
-Make perf_takehome.py faster.
+Make kernel.py faster.
