@@ -143,6 +143,7 @@ test_claude_run_writes_result_json_from_the_result_event() {
   assert_field "$result" cost_usd '0.25'
   assert_field "$result" turns '3'
   assert_field "$result" codex_steps 'null'
+  assert_field "$result" interrupted 'null'
   python3 -c 'import json,sys; w=json.load(open(sys.argv[1]))["wall_s"]; sys.exit(0 if isinstance(w,(int,float)) and w>=0 else 1)' "$result" \
     || fail "wall_s is not a non-negative number"
 }
@@ -206,6 +207,38 @@ test_github_fetch_is_external_outside_perf() {
   claude_events "$(bash_tool_use 'wget https://github.com/someone/solutions')"
   run_one takehome stub-task sonnet 1
   assert_field "$RUNS_DIR/$RUN/result.json" external_fetches '["https://github.com/someone/solutions"]'
+}
+
+test_url_in_any_shell_command_is_an_external_fetch() {
+  claude_events "$(bash_tool_use "git clone https://github.com/a/b && pip install git+https://github.com/c/d && python3 -c \"import urllib.request; urllib.request.urlopen('https://x.io/a')\" && pip install --index-url https://pypi.org/simple x")"
+  run_one takehome stub-task sonnet 1
+  assert_field "$RUNS_DIR/$RUN/result.json" external_fetches '["https://github.com/a/b", "https://github.com/c/d", "https://x.io/a"]'
+}
+
+test_codex_command_url_is_an_external_fetch() {
+  cat > "$SANDBOX/bin/codex" <<'EOF2'
+#!/usr/bin/env bash
+if [[ "$1" == "--version" ]]; then echo "codex-cli 0.0.1"; exit 0; fi
+python3 -c 'import json
+item = {"type": "command_execution", "command": "node -e \"fetch(\x27https://answers.example/q\x27)\"", "exit_code": 0}
+print(json.dumps({"type": "item.completed", "item": item}))
+print(json.dumps({"type": "turn.completed", "usage": {}}))'
+EOF2
+  chmod +x "$SANDBOX/bin/codex"
+  run_one takehome stub-task codex 1
+  assert_field "$RUNS_DIR/$CODEX_RUN/result.json" external_fetches '["https://answers.example/q"]'
+}
+
+test_loopback_url_is_not_an_external_fetch() {
+  claude_events "$(bash_tool_use 'curl -s http://localhost:8080/health && curl http://127.0.0.1:3000/x')"
+  run_one takehome stub-task sonnet 1
+  assert_field "$RUNS_DIR/$RUN/result.json" external_fetches '[]'
+}
+
+test_transcript_reading_operator_instructions_is_contamination() {
+  claude_events "$(bash_tool_use 'cat ~/.claude/CLAUDE.md ~/.codex/AGENTS.md')"
+  run_one takehome stub-task sonnet 1
+  assert_field "$RUNS_DIR/$RUN/result.json" contamination '[".claude/CLAUDE.md", ".codex/AGENTS.md"]'
 }
 
 test_result_json_is_not_left_half_written() {
@@ -289,10 +322,12 @@ test_perf_manifest_records_every_change_to_the_upstream() {
   assert_field "$manifest" deleted '["spec/frozen.py"]'
 }
 
-test_perf_github_fetch_is_not_external() {
-  claude_events "$(bash_tool_use 'curl -sL https://github.com/anthropics/original_performance_takehome')"
+test_github_fetch_in_perf_is_external() {
+  # fetch.sh clones the upstream before the agent starts, and published
+  # solutions live on GitHub, so perf gets no GitHub exception.
+  claude_events "$(bash_tool_use 'curl -sL https://github.com/someone/perf-solution')"
   run_one perf stub-perf sonnet 1
-  assert_field "$RUNS_DIR/$PERF_RUN/result.json" external_fetches '[]'
+  assert_field "$RUNS_DIR/$PERF_RUN/result.json" external_fetches '["https://github.com/someone/perf-solution"]'
 }
 
 # --- isolation -------------------------------------------------------------
@@ -412,7 +447,25 @@ test_interrupting_the_runner_kills_the_agent() {
   kill -TERM -- "-$group"
   wait "$group"
   assert_dead "$SANDBOX/child_pid" "the agent's child"
-  [[ ! -e "$RUNS_DIR/$RUN/result.json" ]] || fail "an interrupted run wrote result.json"
+  assert_field "$RUNS_DIR/$RUN/result.json" interrupted '"SIGTERM"'
+  [[ ! -e "$RUNS_DIR/$RUN.lock" ]] || fail "an interrupted run kept its lock"
+}
+
+test_sigterm_to_the_runner_alone_kills_the_agent_and_keeps_the_run() {
+  stub_claude_body "echo partial > partial.txt; sleep 60 & echo \$! > '$SANDBOX/child_pid'; wait"
+  "$REPO/run.sh" --one takehome stub-task sonnet 1 >/dev/null 2>&1 &
+  local runner=$! start=$SECONDS code=0
+  wait_for_file "$SANDBOX/child_pid" || { kill -9 "$runner"; fail "agent never started"; return; }
+  kill -TERM "$runner"
+  wait "$runner" || code=$?
+  (( SECONDS - start < 15 )) || fail "runner took $((SECONDS - start))s to stop"
+  (( code == 143 )) || fail "runner exited $code, expected 143"
+  assert_dead "$SANDBOX/child_pid" "the agent's child"
+  local result="$RUNS_DIR/$RUN/result.json"
+  [[ -f "$result" ]] || { fail "the interrupted paid run was not recorded"; return; }
+  assert_field "$result" is_error 'true'
+  assert_field "$result" interrupted '"SIGTERM"'
+  [[ "$(cat "$RUNS_DIR/$RUN/output/partial.txt" 2>/dev/null)" == "partial" ]] || fail "output/ lost the agent's work"
   [[ ! -e "$RUNS_DIR/$RUN.lock" ]] || fail "an interrupted run kept its lock"
 }
 

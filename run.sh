@@ -86,10 +86,11 @@ agent_cli_version() {
 
 # run_timed <wall_s> <cwd> <stdout> <stderr> <status.json> <codex_home|""> -- <command...>
 # Runs the command in its own session under an allowlisted environment and
-# records exit code, wall time and whether the cap was hit. Whatever the
-# agent started is killed when it exits, when the cap is hit, or when this
-# runner is interrupted: the process group, plus descendants that left it
-# with setsid, which a ps walk finds while their parent is still alive.
+# records exit code, wall time, whether the cap was hit and any signal that
+# stopped it. Whatever the agent started is killed when it exits, when the
+# cap is hit, or when this runner gets SIGINT, SIGTERM or SIGHUP: the process
+# group, plus descendants that left it with setsid, which a ps walk finds
+# while their parent is still alive.
 run_timed() {
   python3 - "$@" <<'PY'
 import json, os, signal, subprocess, sys, time
@@ -131,16 +132,22 @@ def descendants(root, table):
 
 
 proc = None
+reaped = False
+stopped_by = None
 known = {}
 
 
 def kill_all(sig):
-    if proc is None:
+    # Only before the leader is reaped: until then its zombie holds its pid,
+    # so the group id and the walk from it cannot reach an unrelated process.
+    if proc is None or reaped:
         return
     try:
         os.killpg(proc.pid, sig)
     except ProcessLookupError:
         pass
+    except PermissionError:
+        pass  # macOS answers EPERM when the group's only member is the unreaped leader.
     table = process_table()
     for pid, started in {**known, **descendants(proc.pid, table)}.items():
         if table.get(pid, (None, None))[1] == started:
@@ -151,56 +158,61 @@ def kill_all(sig):
 
 
 def on_signal(signum, frame):
+    global stopped_by
+    stopped_by = signal.Signals(signum).name
     kill_all(signal.SIGKILL)
-    sys.exit(128 + signum)
+
+
+def leader_exited():
+    # WNOWAIT leaves the leader unreaped, so kill_all stays safe afterwards.
+    return os.waitid(os.P_PID, proc.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT) is not None
+
+
+def wait_for_exit(until):
+    while not leader_exited():
+        if stopped_by:
+            kill_all(signal.SIGKILL)  # the signal came before the agent had started
+        known.update(descendants(proc.pid, process_table()))
+        remaining = until - time.monotonic()
+        if remaining <= 0:
+            return False
+        time.sleep(min(1.0, remaining))
+    return True
 
 
 for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
     signal.signal(sig, on_signal)
 
 start = time.monotonic()
-deadline = start + float(wall_s)
 timed_out = False
-code = None
 with open(out_path, "wb") as out, open(err_path, "wb") as err:
     proc = subprocess.Popen(command, cwd=cwd, env=env, stdin=subprocess.DEVNULL,
                             stdout=out, stderr=err, start_new_session=True)
-    while True:
-        known.update(descendants(proc.pid, process_table()))
-        remaining = deadline - time.monotonic()
-        if remaining <= 0:
-            timed_out = True
-            break
-        try:
-            code = proc.wait(timeout=min(1.0, remaining))
-            break
-        except subprocess.TimeoutExpired:
-            pass
-    if timed_out:
+    if not wait_for_exit(start + float(wall_s)):
+        timed_out = True
         kill_all(signal.SIGTERM)
-        try:
-            code = proc.wait(timeout=10)
-        except subprocess.TimeoutExpired:
-            pass
+        wait_for_exit(time.monotonic() + 10)
     # Also after a clean exit: a background child of the agent would
     # otherwise keep writing to the workspace while it is copied.
     kill_all(signal.SIGKILL)
-    if code is None:
-        code = proc.wait()
+    signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGINT, signal.SIGTERM, signal.SIGHUP})
+    code = proc.wait()
+    reaped = True
+    signal.pthread_sigmask(signal.SIG_UNBLOCK, {signal.SIGINT, signal.SIGTERM, signal.SIGHUP})
 with open(status_path, "w") as f:
-    json.dump({"exit_code": code, "timed_out": timed_out,
+    json.dump({"exit_code": code, "timed_out": timed_out, "interrupted": stopped_by,
                "wall_s": round(time.monotonic() - start, 3)}, f)
 PY
 }
 
-# summarise <agent> <format> <transcript> <status.json> <codex_home|""> <final_message.txt>
+# summarise <agent> <transcript> <status.json> <codex_home|""> <final_message.txt>
 # Prints JSON with the per-agent fields of result.json and writes the agent's
 # final message. A value the agent did not report is null, never guessed.
 summarise() {
   python3 - "$REPO" "$@" <<'PY'
 import glob, json, os, re, sys, urllib.parse
 
-repo, agent, fmt, transcript, status_path, codex_home, final_path = sys.argv[1:8]
+repo, agent, transcript, status_path, codex_home, final_path = sys.argv[1:7]
 status = json.load(open(status_path))
 raw = open(transcript, errors="replace").read()
 events = []
@@ -224,7 +236,7 @@ def strings(value):
             yield from strings(v)
 
 
-failed_run = status["exit_code"] != 0 or status["timed_out"]
+failed_run = status["exit_code"] != 0 or status["timed_out"] or bool(status["interrupted"])
 if agent == "codex":
     turns = [e for e in events if e.get("type") == "turn.completed"]
     errored = any(e.get("type") in ("turn.failed", "error") for e in events)
@@ -271,26 +283,31 @@ else:
               "codex_steps": None,
               "usage": result.get("usage") if result else None}
 
-# Signs the agent went looking for the answers instead of doing the task.
+# Signs the agent went looking for the answers or the operator's own
+# instructions instead of doing the task.
 said = raw + "\n" + "\n".join(s for e in events for s in strings(e))
-fields["contamination"] = [m for m in (repo, "hidden/", "reference/", "rubric.json") if m in said]
+markers = (repo, "hidden/", "reference/", "rubric.json", ".claude/CLAUDE.md", ".codex/AGENTS.md")
+fields["contamination"] = [m for m in markers if m in said]
 
-allowed_hosts = {"registry.npmjs.org", "pypi.org", "files.pythonhosted.org"}
-if fmt == "perf":
-    allowed_hosts.add("github.com")
+# Any URL in a command the agent ran counts, since a fetch can go through
+# git, pip, or a one-line script as easily as curl. Package registries are
+# how both agents install dependencies; loopback is the agent's own server.
+allowed_hosts = {"registry.npmjs.org", "pypi.org", "files.pythonhosted.org",
+                 "localhost", "127.0.0.1", "::1", "0.0.0.0"}
 fetches = []
 for command in commands:
-    if not re.search(r"\b(curl|wget|fetch)\b", command):
-        continue
     for url in re.findall(r"https?://[^\s'\"<>()\\;&|`]+", command):
         if urllib.parse.urlparse(url).hostname not in allowed_hosts and url not in fetches:
             fetches.append(url)
 fields["external_fetches"] = fetches
 
+# An agent that sent no final message leaves no final_message.txt, rather
+# than an empty one that reads as a blank answer.
 if final is not None:
     with open(final_path, "w") as f:
         f.write(final)
-fields.update(timed_out=status["timed_out"], exit_code=status["exit_code"], wall_s=status["wall_s"])
+fields.update(timed_out=status["timed_out"], interrupted=status["interrupted"],
+              exit_code=status["exit_code"], wall_s=status["wall_s"])
 print(json.dumps(fields))
 PY
 }
@@ -347,6 +364,18 @@ PY
 CLEANUP=()
 cleanup() { rm -rf "${CLEANUP[@]}"; }
 
+# Once the agent is running, a stop signal to the runner is passed to
+# run_timed, which kills the agent at once; the runner then records the run
+# (it has been paid for) and exits with the signal's status.
+STOP_SIGNAL=""
+TIMED_PID=""
+forward_stop() {
+  STOP_SIGNAL=${STOP_SIGNAL:-$1}
+  # TIMED_PID is the background subshell; the helper that owns the agent is
+  # its child.
+  [[ -z "$TIMED_PID" ]] || pkill -TERM -P "$TIMED_PID" || true
+}
+
 run_one() {
   local format=$1 id=$2 agent=$3 rep=$4
   local task="$TASKS_DIR/$format/$id"
@@ -354,7 +383,8 @@ run_one() {
   [[ -d "$task" ]] || { echo "no such task: $task" >&2; return 1; }
 
   # Temp dirs, the Codex credential copy and the lock go however the run
-  # ends; an interrupted run stops before writing result.json.
+  # ends. A stop signal before the agent starts ends the run unrecorded;
+  # once it has started, forward_stop takes over.
   trap cleanup EXIT
   trap 'exit 129' HUP
   trap 'exit 130' INT
@@ -396,7 +426,25 @@ run_one() {
   fi
 
   echo "run  $(basename "$dir")"
-  run_timed "$wall_s" "$work" "$dir/transcript.jsonl" "$dir/stderr.txt" "$work.status.json" "$codex_home" -- "${command_line[@]}"
+  trap 'forward_stop HUP' HUP
+  trap 'forward_stop INT' INT
+  trap 'forward_stop TERM' TERM
+  # In the background, because bash runs a trap only after the foreground
+  # command ends, which for an agent can be two hours away. The subshell
+  # ignores stop signals so a signal to the whole group cannot end it before
+  # the helper (which sets its own handlers) has recorded the run.
+  (
+    trap '' HUP INT TERM
+    run_timed "$wall_s" "$work" "$dir/transcript.jsonl" "$dir/stderr.txt" "$work.status.json" "$codex_home" -- "${command_line[@]}"
+  ) &
+  TIMED_PID=$!
+  [[ -z "$STOP_SIGNAL" ]] || forward_stop "$STOP_SIGNAL"
+  # wait returns early whenever a trapped signal arrives; keep waiting until
+  # run_timed has written its status and gone.
+  until wait "$TIMED_PID"; do
+    kill -0 "$TIMED_PID" 2>/dev/null || break
+  done
+  [[ -f "$work.status.json" ]] || { echo "run_timed failed without recording a status" >&2; return 1; }
 
   # Agents sometimes git init their workspace; a nested .git cannot be
   # committed under runs/, and dependencies and bytecode are rebuilt when scoring.
@@ -407,7 +455,7 @@ run_one() {
   fi
 
   local fields
-  fields=$(summarise "$agent" "$format" "$dir/transcript.jsonl" "$work.status.json" "$codex_home" "$dir/final_message.txt")
+  fields=$(summarise "$agent" "$dir/transcript.jsonl" "$work.status.json" "$codex_home" "$dir/final_message.txt")
   # Written aside and renamed, so a result.json that exists is always whole.
   python3 - "$dir/result.json" "$format" "$id" "$agent" "$rep" "$cli" "$fields" <<'PY'
 import json, os, sys
@@ -419,6 +467,11 @@ with open(path + ".tmp", "w") as f:
     f.write("\n")
 os.replace(path + ".tmp", path)
 PY
+  case "$STOP_SIGNAL" in
+    HUP) exit 129 ;;
+    INT) exit 130 ;;
+    TERM) exit 143 ;;
+  esac
 }
 
 run_all() {
