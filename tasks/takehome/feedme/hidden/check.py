@@ -6,14 +6,20 @@ writes an event log with HH:MM:SS timestamps to scripts/result.txt (the file
 the upstream GitHub Action checks). So the checker does what that Action
 does, then replays the candidate's own log against requirements 1 to 7.
 
-Each requirement result passes only when the log both exercises the
-requirement and never breaks it. A scenario that never shows, say, a bot
-removed mid-order has not demonstrated requirement 6, and fails it; the
-metrics keep "not exercised" apart from "violated".
+Each requirement result means "not violated": it passes when the replayed
+log never breaks the requirement. Whether the run showed the requirement at
+all is a separate question, answered by the <id>_exercised metrics and the
+demonstrates_all result.
+
+A log the parser cannot read would pass every "not violated" result for
+free, so a log with too few recognised events sets the log_unparsed metric.
+The r1 to r6 and demonstrates_all results are then false, and the analysis
+excludes such runs from automated pass rates and grades them by hand.
 
 Usage: python3 check.py <solution_dir>
 """
 
+import hashlib
 import json
 import os
 import pathlib
@@ -42,17 +48,28 @@ REACTION_SECONDS = 1
 SCRIPT_TIMEOUT_SECONDS = 600
 RUN_TIMEOUT_SECONDS = 300
 RESULT_FILES = {"scripts/result.txt", "result.txt"}
+UNPARSED_SILENT_SHARE = 0.3
+UNPARSED_MIN_EVENTS = 8
+DAY_SECONDS = 86_400
 
-TIMESTAMP = re.compile(r"\b(\d{2}):(\d{2}):(\d{2})\b")
-ORDER_ID = re.compile(r"\border\s*#?\s*(\d+)", re.IGNORECASE)
-BOT_ID = re.compile(r"\bbot\s*#?\s*(\d+)", re.IGNORECASE)
-BOT_WORD = re.compile(r"\bbot\b", re.IGNORECASE)
-REMOVE_WORDS = re.compile(r"\b(destroy|remov|delet|terminat|decommission|kill)", re.IGNORECASE)
-CREATE_WORDS = re.compile(r"\b(creat|new\b|add|placed|submit|receiv|spawn)", re.IGNORECASE)
-COMPLETE_WORDS = re.compile(r"\b(complet|finish|done\b|served)", re.IGNORECASE)
-PICKUP_WORDS = re.compile(r"\b(pick|process|start|assign|took|take|cook|handl|begin|began)", re.IGNORECASE)
-IDLE_WORD = re.compile(r"\bidle\b", re.IGNORECASE)
-VIP_WORD = re.compile(r"\bvip\b", re.IGNORECASE)
+TIMESTAMP = re.compile(r"(?<!\d)(\d{2}):(\d{2}):(\d{2})(?!\d)")
+# Word starts use (?<![a-z]) rather than \b so snake_case names such as
+# "order_created" or "bot_idle" still match.
+ID_GAP = r"""["'\s:=#_-]*"""
+ORDER_ID = re.compile(rf"(?<![a-z])order{ID_GAP}(?:(?:id|no|number)\.?{ID_GAP})?(\d+)", re.IGNORECASE)
+BOT_ID = re.compile(rf"(?<![a-z])bot{ID_GAP}(?:(?:id|no|number)\.?{ID_GAP})?(\d+)", re.IGNORECASE)
+BOT_WORD = re.compile(r"(?<![a-z])bot(?![a-z])", re.IGNORECASE)
+REMOVE_WORDS = re.compile(r"(?<![a-z])(destroy|remov|delet|terminat|decommission|kill)", re.IGNORECASE)
+CREATE_WORDS = re.compile(
+    r"(?<![a-z])(creat|new(?![a-z])|add|placed|submit|receiv|spawn|queu|enqueu|arriv)", re.IGNORECASE
+)
+COMPLETE_WORDS = re.compile(r"(?<![a-z])(complet|finish|done(?![a-z])|served)", re.IGNORECASE)
+PICKUP_WORDS = re.compile(
+    r"(?<![a-z])(pick|process|start|assign|took|take|cook|handl|begin|began|work|prepar|grab)", re.IGNORECASE
+)
+IDLE_WORD = re.compile(r"(?<![a-z])idle(?![a-z])", re.IGNORECASE)
+VIP_WORD = re.compile(r"(?<![a-z])(?<!non-)(?<!non )vip(?![a-z])", re.IGNORECASE)
+SEGMENT_SPLIT = re.compile(r";|, ")
 
 
 @dataclass
@@ -72,52 +89,97 @@ class Requirement:
 
     @property
     def passed(self) -> bool:
-        return self.exercised and not self.violations
+        return not self.violations
 
 
-def first_match_position(pattern: re.Pattern, text: str) -> int:
+@dataclass
+class LogReading:
+    events: list[Event]
+    timestamped_lines: int
+    silent_lines: int  # timestamped lines that yielded no event
+
+    @property
+    def unparsed(self) -> bool:
+        if len(self.events) < UNPARSED_MIN_EVENTS:
+            return True
+        return self.silent_lines > UNPARSED_SILENT_SHARE * self.timestamped_lines
+
+
+def keyword_position(pattern: re.Pattern, text: str) -> int | None:
     match = pattern.search(text)
-    return match.start() if match else -1
+    return match.start() if match else None
 
 
-def parse_line(text: str, line_no: int) -> list[Event]:
-    stamp = TIMESTAMP.search(text)
-    if not stamp:
-        return []
-    ts = int(stamp[1]) * 3600 + int(stamp[2]) * 60 + int(stamp[3])
-    order_match = ORDER_ID.search(text)
-    bot_match = BOT_ID.search(text)
-    order = int(order_match[1]) if order_match else None
-    bot = int(bot_match[1]) if bot_match else None
+def parse_segment(text: str, ts: int, line_no: int, previous_bot: int | None) -> list[Event]:
+    order_ids = {int(m) for m in ORDER_ID.findall(text)}
+    bot_ids = {int(m) for m in BOT_ID.findall(text)}
+    if len(order_ids) > 1 or len(bot_ids) > 1:
+        return []  # a status line listing several orders or bots, not an event
+    order = order_ids.pop() if order_ids else None
+    bot = bot_ids.pop() if bot_ids else None
 
     def event(kind, **extra):
         return Event(kind=kind, ts=ts, line=line_no, **extra)
 
+    # When several event kinds could apply, the earliest keyword decides:
+    # "destroyed while PROCESSING" is a removal, "completed ... Processing
+    # time" a completion.
+    candidates = []
+    if bot is not None or BOT_WORD.search(text):
+        candidates.append((keyword_position(REMOVE_WORDS, text), "bot_removed"))
+    if bot is not None and order is None:
+        candidates.append((keyword_position(CREATE_WORDS, text), "bot_added"))
+    if bot is not None and order is not None:
+        candidates.append((keyword_position(COMPLETE_WORDS, text), "completed"))
+        candidates.append((keyword_position(PICKUP_WORDS, text), "picked"))
+    found = sorted((pos, kind) for pos, kind in candidates if pos is not None)
+
     events = []
-    if (bot is not None or BOT_WORD.search(text)) and REMOVE_WORDS.search(text):
-        events.append(event("bot_removed", bot=bot))
-    elif bot is not None and order is None and CREATE_WORDS.search(text):
-        events.append(event("bot_added", bot=bot))
-    elif bot is not None and order is not None:
-        complete_at = first_match_position(COMPLETE_WORDS, text)
-        pickup_at = first_match_position(PICKUP_WORDS, text)
-        if complete_at >= 0 and (pickup_at < 0 or complete_at < pickup_at):
-            events.append(event("completed", bot=bot, order=order))
-        elif pickup_at >= 0:
-            events.append(event("picked", bot=bot, order=order))
+    if found:
+        kind = found[0][1]
+        if kind == "bot_removed":
+            events.append(event(kind, bot=bot))
+        elif kind == "bot_added":
+            events.append(event(kind, bot=bot))
+        else:
+            events.append(event(kind, bot=bot, order=order))
     elif bot is None and order is not None and CREATE_WORDS.search(text):
         events.append(event("order_created", order=order, vip=bool(VIP_WORD.search(text))))
 
-    if bot is not None and IDLE_WORD.search(text) and not any(e.kind == "bot_removed" for e in events):
-        events.append(event("idle", bot=bot))
+    # ", now IDLE" after a completion names no bot; it refers to the bot the
+    # line was already about.
+    idle_bot = bot if bot is not None else (previous_bot if order is None else None)
+    removed = any(e.kind == "bot_removed" for e in events)
+    if idle_bot is not None and IDLE_WORD.search(text) and not removed:
+        events.append(event("idle", bot=idle_bot))
     return events
 
 
-def parse_log(text: str) -> list[Event]:
+def read_log(text: str) -> LogReading:
     events = []
+    timestamped = silent = 0
+    day_offset = 0
+    last_ts = None
     for line_no, line in enumerate(text.splitlines(), start=1):
-        events += parse_line(line, line_no)
-    return events
+        stamp = TIMESTAMP.search(line)
+        if not stamp:
+            continue
+        timestamped += 1
+        ts = int(stamp[1]) * 3600 + int(stamp[2]) * 60 + int(stamp[3]) + day_offset
+        if last_ts is not None and ts < last_ts - DAY_SECONDS // 2:
+            day_offset += DAY_SECONDS
+            ts += DAY_SECONDS
+        last_ts = ts
+        line_events = []
+        previous_bot = None
+        for segment in SEGMENT_SPLIT.split(line):
+            segment_events = parse_segment(segment, ts, line_no, previous_bot)
+            line_events += segment_events
+            previous_bot = next((e.bot for e in reversed(segment_events) if e.bot is not None), previous_bot)
+        if not line_events:
+            silent += 1
+        events += line_events
+    return LogReading(events=events, timestamped_lines=timestamped, silent_lines=silent)
 
 
 @dataclass
@@ -141,7 +203,7 @@ def evaluate(events: list[Event]) -> dict[str, Requirement]:
     pending: list[int] = []
     bots: dict[int, Bot] = {}  # insertion order is creation order
     removed: set[int] = set()
-    idle_report_due: dict[int, int] = {}
+    idle_report_due: set[int] = set()
     reported_waits: set[tuple[int, int]] = set()
     counts = {"normal_completed": 0, "orders_created": 0, "bot_added_while_pending": 0,
               "moved_on": 0, "went_idle": 0, "order_for_idle_bot": 0,
@@ -167,10 +229,6 @@ def evaluate(events: list[Event]) -> dict[str, Requirement]:
                     reported_waits.add((bot_id, order_id))
                     rid = "r5_idle_bot" if arrived > bot.idle_since else "r4_bot_processing"
                     fail(rid, event, f"bot {bot_id} stayed idle while order {order_id} was pending")
-        for bot_id, due in list(idle_report_due.items()):
-            if event.ts > due:
-                del idle_report_due[bot_id]
-                fail("r5_idle_bot", event, f"bot {bot_id} never reported IDLE after its last order")
 
         if event.kind == "order_created":
             if event.order in orders:
@@ -187,6 +245,7 @@ def evaluate(events: list[Event]) -> dict[str, Requirement]:
         elif event.kind == "bot_added":
             if pending:
                 counts["bot_added_while_pending"] += 1
+            removed.discard(event.bot)  # bot numbers may be reused after a removal
             bots[event.bot] = Bot(idle_since=event.ts)
 
         elif event.kind == "picked":
@@ -202,6 +261,9 @@ def evaluate(events: list[Event]) -> dict[str, Requirement]:
             if bot.order is not None:
                 fail("r4_bot_processing", event, f"bot {event.bot} picked a second order while busy")
                 continue
+            if event.bot in idle_report_due:
+                idle_report_due.discard(event.bot)
+                fail("r5_idle_bot", event, f"bot {event.bot} took a new order without reporting IDLE after its last one")
             if event.order not in pending:
                 fail("r4_bot_processing", event, f"order {event.order} was picked but was not pending")
                 continue
@@ -238,13 +300,13 @@ def evaluate(events: list[Event]) -> dict[str, Requirement]:
                 counts["moved_on"] += 1
             else:
                 counts["went_idle"] += 1
-                idle_report_due[event.bot] = event.ts + REACTION_SECONDS
+                idle_report_due.add(event.bot)
 
         elif event.kind == "idle":
             bot = bots.get(event.bot)
             if bot is not None and bot.order is not None:
                 fail("r5_idle_bot", event, f"bot {event.bot} reported IDLE while processing order {bot.order}")
-            idle_report_due.pop(event.bot, None)
+            idle_report_due.discard(event.bot)
 
         elif event.kind == "bot_removed":
             if not bots:
@@ -258,7 +320,7 @@ def evaluate(events: list[Event]) -> dict[str, Requirement]:
                 fail("r6_remove_newest_bot", event, f"removed bot {target}, but the newest bot is {newest}")
             bot = bots.pop(target)
             removed.add(target)
-            idle_report_due.pop(target, None)
+            idle_report_due.discard(target)
             if bot.order is not None:
                 orders[bot.order].returned = True
                 orders[bot.order].arrived = event.ts
@@ -278,14 +340,34 @@ def evaluate(events: list[Event]) -> dict[str, Requirement]:
     return req
 
 
-def snapshot(root: pathlib.Path) -> dict[str, tuple[int, int]]:
+def score(log: str) -> tuple[dict[str, bool], dict[str, int]]:
+    """Replay a result.txt; return the r1 to r6 and demonstrates_all results with their metrics."""
+    reading = read_log(log)
+    requirements = evaluate(reading.events)
+    parsed = not reading.unparsed
+    results = {rid: parsed and r.passed for rid, r in requirements.items()}
+    results["demonstrates_all"] = parsed and all(r.exercised for r in requirements.values())
+    metrics = {
+        "events_parsed": len(reading.events),
+        "timestamped_lines": reading.timestamped_lines,
+        "silent_lines": reading.silent_lines,
+        "log_unparsed": int(reading.unparsed),
+    }
+    for rid, r in requirements.items():
+        metrics[f"{rid}_exercised"] = int(r.exercised)
+        metrics[f"{rid}_violations"] = len(r.violations)
+        for violation in r.violations:
+            print(f"{rid}: {violation}", file=sys.stderr)
+    return results, metrics
+
+
+def snapshot(root: pathlib.Path) -> dict[str, str]:
     files = {}
     for path in root.rglob("*"):
         rel = path.relative_to(root)
         if "node_modules" in rel.parts or ".git" in rel.parts or not path.is_file():
             continue
-        stat = path.stat()
-        files[rel.as_posix()] = (stat.st_size, stat.st_mtime_ns)
+        files[rel.as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
     return files
 
 
@@ -348,13 +430,12 @@ def check_solution(solution: pathlib.Path) -> dict:
         written = {p for p in written if not p.endswith(".log")}
         in_memory = run_ok and not written
 
-        events = parse_log(log)
-        requirements = evaluate(events)
+        log_results, log_metrics = score(log)
         results = [{"id": "ci_verify", "passed": ci_ok}]
-        results += [{"id": rid, "passed": r.passed} for rid, r in requirements.items()]
+        results += [{"id": rid, "passed": passed} for rid, passed in log_results.items()]
         results.append({"id": "r7_in_memory", "passed": in_memory})
         metrics = {
-            "events_parsed": len(events),
+            **log_metrics,
             "run_seconds": round(run_seconds, 1),
             "total_seconds": round(time.monotonic() - started, 1),
             "tests_ok": int(tests_ok),
@@ -362,12 +443,6 @@ def check_solution(solution: pathlib.Path) -> dict:
             "run_ok": int(run_ok),
             "files_written_by_run": len(written),
         }
-        for rid, r in requirements.items():
-            metrics[f"{rid}_exercised"] = int(r.exercised)
-            metrics[f"{rid}_violations"] = len(r.violations)
-        for rid, r in requirements.items():
-            for violation in r.violations:
-                print(f"{rid}: {violation}", file=sys.stderr)
         return {"results": results, "metrics": metrics}
     finally:
         shutil.rmtree(work, ignore_errors=True)

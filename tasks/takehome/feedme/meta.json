@@ -4,5 +4,6 @@
   "title": "FeedMe order controller",
   "source": "feedmepos/se-take-home-assignment@2652e3c9c1d8446790e2961a113c391b52d5abf0",
   "license": "Apache-2.0",
-  "variant": null
+  "variant": null,
+  "notes": "prompt.md narrows the brief to the backend Node.js option, but workspace/README.md is the upstream file unchanged and still offers the frontend and Go options. The upstream workflow pins Node 22.19.0; the harness runs and scores on Node 24."
 }
