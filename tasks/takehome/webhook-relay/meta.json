@@ -1,0 +1,8 @@
+{
+  "id": "webhook-relay",
+  "format": "takehome",
+  "title": "Webhook relay with retries and per-tenant rate limits",
+  "source": "authored",
+  "license": "MIT",
+  "variant": null
+}
