@@ -16,7 +16,7 @@ An HTTP service in Node.js and TypeScript that:
 2. Replies `202 Accepted` once it has accepted a webhook, without waiting for delivery. Webhooks for a tenant it does not know get a `404`.
 3. Forwards each accepted webhook to the tenant's destination URL as a `POST` with the same body and `Content-Type`. Every forwarded request carries an `X-Webhook-Id` header identifying the event. The id stays the same on every retry of that event, so destinations can deduplicate.
 4. Treats any `2xx` from the destination as delivered. Anything else, including connection errors, is a failed attempt. Failed attempts are retried with exponential backoff: wait `initialBackoffMs` before the first retry, and double the wait for each retry after that. A tenant's `maxAttempts` includes the first try.
-5. Enforces a per-tenant rate limit on incoming webhooks: a tenant may send at most `requestsPerSecond` webhooks in any rolling one-second window. Webhooks over the limit get a `429` with a `Retry-After` header and are not forwarded.
+5. Enforces a per-tenant rate limit on incoming webhooks: at most `requestsPerSecond` webhooks accepted per second per tenant. Webhooks over the limit get a `429` with a `Retry-After` header and are not forwarded.
 6. Keeps tenants isolated. One tenant's slow or failing destination, or one tenant hitting its rate limit, must not delay or reject anybody else's webhooks.
 7. Logs each incoming request, including its full body, so on-call can debug delivery problems.
 

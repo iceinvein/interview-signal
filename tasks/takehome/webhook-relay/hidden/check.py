@@ -9,6 +9,7 @@ object to stdout. Candidate failures, including a service that never starts,
 are reported as failed results; only a broken checker exits non-zero.
 """
 
+import base64
 import http.client
 import http.server
 import json
@@ -17,6 +18,7 @@ import pathlib
 import shutil
 import signal
 import socket
+import socketserver
 import subprocess
 import sys
 import tempfile
@@ -38,8 +40,29 @@ RESULT_IDS = [
 ]
 
 # A credential-shaped value sent inside every webhook body. If it shows up in
-# the service's output, the service logged request bodies in full.
+# the service's output or files, the service stored request bodies.
 SECRET = "sk_live_4f9c2e71b0d84a6c9e3f5a7b1d2c8e60"
+
+
+def secret_needles(secret: bytes) -> list[bytes]:
+    """Byte strings that appear wherever the secret is written plainly or in a
+    common encoding of a body that contains it: hex, a Node Buffer serialised
+    as JSON (`"data":[115,107,...]`), and base64 at each of the three byte
+    alignments the secret can have within the body. Base64 characters that
+    straddle bytes outside the secret are dropped from each end."""
+    needles = [secret, secret.hex().encode(), secret.hex().upper().encode(),
+               ",".join(str(b) for b in secret).encode()]
+    for offset in range(3):
+        encoded = base64.b64encode(b"\0" * offset + secret)
+        needles.append(encoded[4 if offset else 0:-4])
+    return needles
+
+
+SECRET_NEEDLES = secret_needles(SECRET.encode())
+
+
+def contains_secret(data: bytes) -> bool:
+    return any(needle in data for needle in SECRET_NEEDLES)
 
 INSTALL_TIMEOUT_S = 300
 STARTUP_TIMEOUT_S = 60
@@ -62,23 +85,39 @@ def log(message: str) -> None:
     print(f"[check] {message}", file=sys.stderr, flush=True)
 
 
-class Destinations:
-    """Records every request each tenant's destination receives."""
+class LocalServer(http.server.ThreadingHTTPServer):
+    daemon_threads = True
 
-    def __init__(self):
+    def server_bind(self):
+        # HTTPServer.server_bind does a reverse DNS lookup (getfqdn) that can
+        # take seconds per server; nothing here reads server_name.
+        socketserver.TCPServer.server_bind(self)
+        self.server_name, self.server_port = self.server_address[:2]
+
+
+class Destinations:
+    """One server per tenant's destination, each on its own port, recording every request.
+
+    Separate ports matter: a relay that caps connections per destination host
+    (a reasonable courtesy) would otherwise see every tenant as one host, and
+    a hung tenant would exhaust the cap for everyone.
+    """
+
+    def __init__(self, tenants):
         self.lock = threading.Lock()
-        self.received: dict[str, list[dict]] = {}
-        self.server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), self._handler())
-        self.server.daemon_threads = True
-        self.port = self.server.server_address[1]
-        threading.Thread(target=self.server.serve_forever, daemon=True).start()
+        self.received: dict[str, list[dict]] = {tenant: [] for tenant in tenants}
+        self.servers = {}
+        for tenant in tenants:
+            server = LocalServer(("127.0.0.1", 0), self._handler(tenant))
+            threading.Thread(target=server.serve_forever, daemon=True).start()
+            self.servers[tenant] = server
 
     def url(self, tenant: str) -> str:
-        return f"http://127.0.0.1:{self.port}/d/{tenant}"
+        return f"http://127.0.0.1:{self.servers[tenant].server_address[1]}/hook"
 
     def requests(self, tenant: str) -> list[dict]:
         with self.lock:
-            return list(self.received.get(tenant, []))
+            return list(self.received[tenant])
 
     def wait_for(self, tenant: str, count: int, timeout_s: float) -> list[dict]:
         deadline = time.monotonic() + timeout_s
@@ -90,10 +129,12 @@ class Destinations:
         return self.requests(tenant)
 
     def close(self):
-        self.server.shutdown()
-        self.server.server_close()
+        for server in self.servers.values():
+            server.shutdown()
+            server.server_close()
 
-    def _status_for(self, tenant: str, attempt: int) -> tuple[int, float]:
+    @staticmethod
+    def _status_for(tenant: str, attempt: int) -> tuple[int, float]:
         """(status, seconds to stall before replying) for the nth request to a tenant."""
         if tenant == "slow":
             return 200, 3.0
@@ -105,17 +146,15 @@ class Destinations:
             return 503, 10.0
         return 200, 0.0
 
-    def _handler(self):
+    def _handler(self, tenant: str):
         destinations = self
 
         class Handler(http.server.BaseHTTPRequestHandler):
             def _record(self):
                 arrived = time.monotonic()
-                length = int(self.headers.get("Content-Length") or 0)
-                body = self.rfile.read(length) if length else b""
-                tenant = self.path.split("/")[-1]
+                body = read_request_body(self.rfile, self.headers)
                 with destinations.lock:
-                    entries = destinations.received.setdefault(tenant, [])
+                    entries = destinations.received[tenant]
                     entries.append({
                         "t": arrived,
                         "method": self.command,
@@ -141,6 +180,22 @@ class Destinations:
         return Handler
 
 
+def read_request_body(rfile, headers) -> bytes:
+    """Reads a body sent with Content-Length or with chunked transfer encoding."""
+    if "chunked" in headers.get("Transfer-Encoding", "").lower():
+        chunks = []
+        while True:
+            size = int(rfile.readline().split(b";")[0].strip(), 16)
+            if size == 0:
+                while rfile.readline() not in (b"\r\n", b"\n", b""):
+                    pass  # trailers carry nothing the checks use
+                return b"".join(chunks)
+            chunks.append(rfile.read(size))
+            rfile.readline()
+    length = int(headers.get("Content-Length") or 0)
+    return rfile.read(length) if length else b""
+
+
 class Relay:
     """HTTP client for the candidate's service."""
 
@@ -150,7 +205,7 @@ class Relay:
     def post(self, path: str, body: bytes, content_type: str, timeout_s: float = 5.0):
         """Returns (status, lowercased headers, seconds taken)."""
         start = time.monotonic()
-        conn = http.client.HTTPConnection("127.0.0.1", self.port, timeout=timeout_s)
+        conn = http.client.HTTPConnection("localhost", self.port, timeout=timeout_s)
         try:
             conn.request("POST", path, body=body, headers={"Content-Type": content_type})
             response = conn.getresponse()
@@ -295,7 +350,7 @@ def wait_for_port(port: int, proc: subprocess.Popen, timeout_s: float) -> bool:
         if proc.poll() is not None:
             return False
         try:
-            with socket.create_connection(("127.0.0.1", port), timeout=0.5):
+            with socket.create_connection(("localhost", port), timeout=0.5):
                 return True
         except OSError:
             time.sleep(0.2)
@@ -314,16 +369,42 @@ def stop(proc: subprocess.Popen) -> None:
             pass
 
 
-def secret_written(app_dir: pathlib.Path, started_at: float, *outputs: pathlib.Path) -> bool:
-    """True if the credential appears in the service's output or any file it wrote."""
-    candidates = list(outputs)
+def paths_with_secret(paths) -> list[pathlib.Path]:
+    found = []
+    for path in paths:
+        try:
+            if contains_secret(path.read_bytes()):
+                found.append(path)
+        except OSError as err:
+            log(f"could not read {path} to look for the secret: {err}")
+    return found
+
+
+def files_written_since(app_dir: pathlib.Path, started_at: float) -> list[pathlib.Path]:
+    written = []
     for path in app_dir.rglob("*"):
-        if "node_modules" in path.parts or not path.is_file():
+        if "node_modules" in path.parts or path.is_symlink() or not path.is_file():
             continue
         if path.stat().st_mtime >= started_at:
-            candidates.append(path)
-    needle = SECRET.encode()
-    return any(needle in path.read_bytes() for path in candidates if path.is_file())
+            written.append(path)
+    return written
+
+
+def run_in_group(command: list[str], cwd: pathlib.Path, env: dict, timeout_s: float):
+    """Runs a command in its own process group so a timeout kills everything it
+    spawned. Returns (exit code, stdout, stderr); exit code is None on timeout."""
+    proc = subprocess.Popen(command, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                            text=True, start_new_session=True)
+    try:
+        stdout, stderr = proc.communicate(timeout=timeout_s)
+        return proc.returncode, stdout, stderr
+    except subprocess.TimeoutExpired:
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        stdout, stderr = proc.communicate()
+        return None, stdout, stderr
 
 
 def main(argv: list[str]) -> int:
@@ -336,32 +417,33 @@ def main(argv: list[str]) -> int:
         return 2
 
     results = {rid: False for rid in RESULT_IDS}
-    metrics = {"service_started": 0, "startup_s": 0.0, "body_secret_logged": 0}
+    metrics = {"service_started": 0, "startup_s": 0.0, "body_secret_in_output": 0, "body_secret_in_files": 0}
 
     with tempfile.TemporaryDirectory(prefix="webhook-relay-check-") as scratch:
         scratch_dir = pathlib.Path(scratch)
         app_dir = scratch_dir / "app"
-        shutil.copytree(solution, app_dir, ignore=shutil.ignore_patterns("node_modules"))
+        try:
+            shutil.copytree(solution, app_dir, symlinks=True, ignore=shutil.ignore_patterns("node_modules"))
+        except shutil.Error as err:
+            for source, _, reason in err.args[0]:
+                log(f"skipped {source} when copying the solution: {reason}")
         env = dict(os.environ, TZ="UTC", CI="1")
         has_package = (app_dir / "package.json").is_file()
 
         installed = False
         if has_package:
-            try:
-                install = subprocess.run(
-                    ["npm", "install", "--no-audit", "--no-fund", "--loglevel=error"],
-                    cwd=app_dir, env=env, capture_output=True, text=True, timeout=INSTALL_TIMEOUT_S,
-                )
-                installed = install.returncode == 0
-                if not installed:
-                    log(f"npm install failed: {install.stderr.strip()[-500:]}")
-            except subprocess.TimeoutExpired:
+            code, _, stderr = run_in_group(
+                ["npm", "install", "--no-audit", "--no-fund", "--loglevel=error"], app_dir, env, INSTALL_TIMEOUT_S)
+            installed = code == 0
+            if code is None:
                 log(f"npm install ran past {INSTALL_TIMEOUT_S}s")
+            elif not installed:
+                log(f"npm install failed: {stderr.strip()[-500:]}")
         else:
             log("no package.json; nothing to start")
 
         if installed:
-            dest = Destinations()
+            dest = Destinations(TENANTS)
             tenants_file = scratch_dir / "tenants.json"
             tenants_file.write_text(json.dumps({
                 "tenants": {name: dict(cfg, destination=dest.url(name)) for name, cfg in TENANTS.items()}
@@ -401,18 +483,21 @@ def main(argv: list[str]) -> int:
                 finally:
                     stop(proc)
                     dest.close()
-            metrics["body_secret_logged"] = int(secret_written(app_dir, started_at, stdout_path, stderr_path))
+            in_output = paths_with_secret([stdout_path, stderr_path])
+            in_files = paths_with_secret(files_written_since(app_dir, started_at))
+            for path in in_output:
+                log(f"secret from a webhook body found in the service's {path.suffix.lstrip('.')}")
+            for path in in_files:
+                log(f"secret from a webhook body found in file {path.relative_to(app_dir)}")
+            metrics["body_secret_in_output"] = int(bool(in_output))
+            metrics["body_secret_in_files"] = int(bool(in_files))
 
-            try:
-                own = subprocess.run(
-                    ["npm", "test"], cwd=app_dir, env=env, capture_output=True, text=True,
-                    timeout=OWN_TESTS_TIMEOUT_S, start_new_session=True,
-                )
-                results["own-tests-pass"] = own.returncode == 0
-                if own.returncode != 0:
-                    log(f"npm test exited {own.returncode}: {own.stdout.strip()[-500:]}")
-            except subprocess.TimeoutExpired:
+            code, stdout, _ = run_in_group(["npm", "test"], app_dir, env, OWN_TESTS_TIMEOUT_S)
+            results["own-tests-pass"] = code == 0
+            if code is None:
                 log(f"npm test ran past {OWN_TESTS_TIMEOUT_S}s")
+            elif code != 0:
+                log(f"npm test exited {code}: {stdout.strip()[-500:]}")
 
     print(json.dumps({
         "results": [{"id": rid, "passed": bool(results[rid])} for rid in RESULT_IDS],

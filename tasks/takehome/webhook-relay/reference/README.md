@@ -61,9 +61,8 @@ destination reorder.
 response within 10 seconds. 4xx responses are retried too, since the brief
 says "anything else"; a 410 or 400 may deserve to stop retrying early.
 
-**Rate limit.** A sliding log per tenant: exactly N per rolling second, as
-the brief specifies, rather than a fixed window that allows 2N across a
-boundary. Rejected requests do not use up a slot. `Retry-After` is the whole
+**Rate limit.** A sliding log per tenant: at most N in any rolling second,
+rather than a fixed window that allows 2N across a boundary. Rejected requests do not use up a slot. `Retry-After` is the whole
 seconds until the oldest counted request leaves the window, at least 1. The
 limit is checked before the body is read, so a throttled tenant costs little.
 
