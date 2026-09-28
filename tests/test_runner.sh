@@ -30,7 +30,8 @@ setup() {
   export TASKS_DIR="$FIXTURE_TASKS"
   export HOME="$SANDBOX/home"
   mkdir -p "$HOME/.codex" "$SANDBOX/bin"
-  echo '{"token": "fake"}' > "$HOME/.codex/auth.json"
+  CREDENTIAL="fake-token-$RANDOM$RANDOM"
+  echo "{\"token\": \"$CREDENTIAL\"}" > "$HOME/.codex/auth.json"
   echo 'operator instructions that must not leak' > "$HOME/.codex/AGENTS.md"
   export PATH="$SANDBOX/bin:$ORIGINAL_PATH"
   unset WALL_S BUDGET JOBS FORMATS TASKS AGENTS REPS
@@ -145,6 +146,14 @@ test_codex_home_holds_only_auth_and_config() {
   local listing
   listing=$(tr '\n' ' ' 2>/dev/null < "$RUNS_DIR/takehome__stub-task__codex__r1/output/codex-home.txt")
   [[ "$listing" == "auth.json config.toml " ]] || fail "CODEX_HOME held: '$listing'"
+}
+
+test_codex_credential_copy_is_removed_after_the_run() {
+  stub_codex
+  "$REPO/run.sh" --one takehome stub-task codex 1 >/dev/null 2>&1
+  local left
+  left=$(grep -rlF "$CREDENTIAL" "$TMPDIR" 2>/dev/null | grep -v "^$SANDBOX/home/" || true)
+  [[ -z "$left" ]] || fail "credential copy left behind: $left"
 }
 
 test_existing_result_json_skips_the_run() {

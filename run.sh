@@ -195,6 +195,9 @@ run_one() {
   local wall_s=${WALL_S:-$(default_wall_s "$format")}
   local work codex_home=""
   work=$(mktemp -d)
+  # The Codex home holds a copy of the operator's credentials, so it goes
+  # even when a step below fails and set -e ends the run.
+  trap "rm -rf '$work' '$work.status.json' '$work.fetched'" EXIT
   if [[ "$format" == perf ]]; then
     "$task/fetch.sh" "$work"
     (cd "$work" && find . -type f -not -path './.git/*' | sort) > "$work.fetched"
@@ -206,7 +209,10 @@ run_one() {
   agent_command command_line "$agent" "$(cat "$task/prompt.md")" "$budget"
   local cli
   cli=$(agent_cli_version "$agent")
-  [[ "$agent" != codex ]] || codex_home=$(make_codex_home)
+  if [[ "$agent" == codex ]]; then
+    codex_home=$(make_codex_home)
+    trap "rm -rf '$work' '$work.status.json' '$work.fetched' '$codex_home'" EXIT
+  fi
 
   echo "run  $(basename "$dir")"
   (
@@ -234,8 +240,6 @@ with open(path, "w") as f:
     json.dump(result, f, indent=2)
     f.write("\n")
 PY
-  rm -rf "$work" "$work.status.json" "$work.fetched"
-  [[ -z "$codex_home" ]] || rm -rf "$codex_home"
 }
 
 run_all() {
