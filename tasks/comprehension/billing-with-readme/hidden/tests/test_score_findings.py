@@ -92,7 +92,18 @@ class OneBugPerFindingTest(unittest.TestCase):
 
 class NonBugTest(unittest.TestCase):
     def test_list_item_saying_it_is_not_a_bug_is_skipped(self):
-        phrases = ["not a bug", "a non-issue", "verified", "a false positive", "looks correct", "intentional"]
+        phrases = [
+            "not a bug",
+            "a non-issue",
+            "a false positive",
+            "looks correct",
+            "intentional",
+            "verified correct",
+            "verified as correct",
+            "verified ok",
+            "verified fine",
+            "verified: not a bug",
+        ]
         for phrase in phrases:
             with self.subTest(phrase=phrase):
                 self.assertEqual(located(f"- Line 11 is {phrase}"), {"alpha": False, "beta": False})
@@ -102,8 +113,14 @@ class NonBugTest(unittest.TestCase):
         self.assertEqual(located(text), {"alpha": False, "beta": False})
 
     def test_next_heading_of_same_level_ends_the_skipped_section(self):
-        text = "## Verified\n- Line 11: fine\n## Bugs\n- Line 41: mutates\n"
+        text = "## Verified correct\n- Line 11: fine\n## Bugs\n- Line 41: mutates\n"
         self.assertEqual(located(text), {"alpha": False, "beta": True})
+
+    def test_verified_alone_does_not_mark_a_finding_as_non_bug(self):
+        real_key = json.loads((HIDDEN / "answer_key.json").read_text())
+        text = "- Verified with a failing test: line 182 uses the elapsed share as the unused share\n"
+        results = {r["id"]: r["passed"] for r in score(text, real_key)["results"]}
+        self.assertTrue(results["trace-proration-direction"])
 
     def test_unintentional_does_not_mark_a_finding_as_non_bug(self):
         self.assertEqual(located("- Line 11 unintentionally rounds down"), {"alpha": True, "beta": False})

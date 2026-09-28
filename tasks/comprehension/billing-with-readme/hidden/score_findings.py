@@ -32,7 +32,9 @@ HEADING = re.compile(r"^(#{1,6})\s")
 TABLE_SEPARATOR = re.compile(r"^\|[\s|:-]+\|?$")
 LINE_HEADERS = {"line", "lines", "location", "ln", "loc"}
 NON_BUG = re.compile(
-    r"\bnot a bug\b|\bnon-issues?\b|\bverified\b|\bfalse positives?\b|\blooks correct\b|\bintentional\b",
+    r"\bnot a bug\b|\bnon-issues?\b|\bfalse positives?\b|\blooks correct\b|\bintentional\b"
+    # "verified" alone also opens real reports ("verified with a failing test").
+    r"|\bverified (?:as )?correct\b|\bverified (?:ok|fine)\b",
     re.IGNORECASE,
 )
 
