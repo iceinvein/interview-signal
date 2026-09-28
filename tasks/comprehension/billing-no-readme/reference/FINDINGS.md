@@ -33,20 +33,22 @@ then deducts `creditAppliedCents` again at line 294, so a finalised invoice
 consumes the credit twice and can drive the balance negative. `applyCredit`
 should only compute the amount.
 
-## 5. Line 259: tax is charged before the discount
+## 5. Line 259: tax is charged before credit is applied
 
-`percentOf(subtotal, ...)` taxes the undiscounted subtotal. The README
-(rule 7) requires tax on the subtotal after the discount, so every
-discounted invoice is overtaxed: 10% tax on a 10000 cent invoice with a 10%
-discount is 1000 instead of 900. It should be
-`percentOf(subtotal - discount, ...)`.
+`buildInvoice` taxes the discounted subtotal and only then applies credit
+to the taxed amount (line 261). The README (rules 7 and 8) requires credit
+to come off the discounted subtotal first, with tax charged on what is
+left, so every invoice that uses credit is overtaxed: a 10000 cent invoice
+with 2000 credit at 10% tax should be tax 800 and total 8800, not tax 1000
+and total 9000. Credit should be computed from `subtotal - discount`, and
+tax from `subtotal - discount - credit`.
 
 ## 6. Line 155: plan-change timing is decided by included units, not price
 
 The README (rule 5) makes a change immediate only when the new plan has a
 higher monthly price; a lower or equal price waits for the period end with
 no proration. `planChangeTiming` instead goes immediate whenever the new
-plan has at least as many included units, so a move to a cheaper plan with
-more units is applied at once and prorated into a net credit, and a same-
-priced change with equal units is applied immediately. It should compare
+plan has more included units, so a move to a cheaper plan with more units
+is applied at once and prorated into a net credit, while a move to a
+pricier plan with no extra units wrongly waits. It should compare
 `monthlyPriceCents`.

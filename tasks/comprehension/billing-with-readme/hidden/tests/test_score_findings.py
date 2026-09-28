@@ -41,15 +41,22 @@ class LocationFormsTest(unittest.TestCase):
     def test_en_dash_range_locates_bug(self):
         self.assertEqual(located("- lines 44–46: off by one"), {"alpha": False, "beta": True})
 
-    def test_listed_lines_each_count(self):
-        self.assertEqual(located("- Lines 12 and 90: shared cause"), {"alpha": True, "beta": True})
+    def test_line_label_with_plural_marker_locates_bug(self):
+        self.assertEqual(located("- line(s) 41: mutates"), {"alpha": False, "beta": True})
+
+    def test_approximate_line_locates_bug(self):
+        for text in ("- line ~41: mutates", "- line \u224841: mutates"):
+            with self.subTest(text=text):
+                self.assertEqual(located(text), {"alpha": False, "beta": True})
 
     def test_bold_line_label_locates_bug(self):
         self.assertEqual(located("- **Line:** 41\n- **Why:** state"), {"alpha": False, "beta": True})
 
     def test_table_line_column_locates_bug(self):
-        table = "| # | Line | Problem |\n|---|---|---|\n| 1 | 43 | mutates |\n"
-        self.assertEqual(located(table), {"alpha": False, "beta": True})
+        for header in ("Line", "line(s)", "Location", "Line #", "Ln", "**Loc**"):
+            with self.subTest(header=header):
+                table = f"| # | {header} | Problem |\n|---|---|---|\n| 1 | 43 | mutates |\n"
+                self.assertEqual(located(table), {"alpha": False, "beta": True})
 
     def test_bare_number_outside_line_reference_is_ignored(self):
         self.assertEqual(located("- It charges 11 cents too much"), {"alpha": False, "beta": False})
@@ -57,11 +64,55 @@ class LocationFormsTest(unittest.TestCase):
     def test_nearby_line_outside_range_does_not_locate(self):
         self.assertEqual(located("- Line 13: wrong"), {"alpha": False, "beta": False})
 
+    def test_whole_function_citation_locates_bug(self):
+        self.assertEqual(located("- lines 30-62: this function"), {"alpha": False, "beta": True})
+
     def test_range_spanning_most_of_file_is_ignored(self):
         self.assertEqual(located("- lines 1-100: everything"), {"alpha": False, "beta": False})
 
 
+class OneBugPerFindingTest(unittest.TestCase):
+    def test_citation_overlapping_two_bugs_credits_the_larger_overlap(self):
+        self.assertEqual(located("- lines 11-42: shared cause"), {"alpha": False, "beta": True})
+
+    def test_equal_overlap_credits_the_bug_nearest_the_first_citation(self):
+        self.assertEqual(located("- Lines 12 and 90: shared cause"), {"alpha": True, "beta": False})
+
+    def test_summary_citing_more_than_three_bug_ranges_credits_none(self):
+        key = {"bugs": [{"id": name, "ranges": [[line, line]]} for name, line in
+                        [("a", 10), ("b", 20), ("c", 30), ("d", 40)]]}
+        results = score("Bugs at lines 10, 20, 30 and 40.", key)["results"]
+        self.assertEqual([r["passed"] for r in results], [False, False, False, False])
+
+    def test_summary_is_not_counted_as_unmatched(self):
+        key = {"bugs": [{"id": name, "ranges": [[line, line]]} for name, line in
+                        [("a", 10), ("b", 20), ("c", 30), ("d", 40)]]}
+        self.assertEqual(score("Bugs at lines 10, 20, 30 and 40.", key)["metrics"]["unmatched_findings"], 0)
+
+
+class NonBugTest(unittest.TestCase):
+    def test_list_item_saying_it_is_not_a_bug_is_skipped(self):
+        phrases = ["not a bug", "a non-issue", "verified", "a false positive", "looks correct", "intentional"]
+        for phrase in phrases:
+            with self.subTest(phrase=phrase):
+                self.assertEqual(located(f"- Line 11 is {phrase}"), {"alpha": False, "beta": False})
+
+    def test_items_under_a_non_bug_heading_are_skipped(self):
+        text = "## Looks correct\n\n- Line 11: rounding\n- Line 41: mutation\n"
+        self.assertEqual(located(text), {"alpha": False, "beta": False})
+
+    def test_next_heading_of_same_level_ends_the_skipped_section(self):
+        text = "## Verified\n- Line 11: fine\n## Bugs\n- Line 41: mutates\n"
+        self.assertEqual(located(text), {"alpha": False, "beta": True})
+
+    def test_unintentional_does_not_mark_a_finding_as_non_bug(self):
+        self.assertEqual(located("- Line 11 unintentionally rounds down"), {"alpha": True, "beta": False})
+
+
 class MetricsTest(unittest.TestCase):
+    def test_dropped_wide_citations_are_counted(self):
+        self.assertEqual(score("- lines 1-100: all of it", KEY)["metrics"]["dropped_wide_citations"], 1)
+
     def test_findings_are_counted_per_list_item_or_heading(self):
         text = "# Findings\n\n1. Line 11: a\n2. Line 60: b\n\n## Line 90\nwhy\n"
         self.assertEqual(score(text, KEY)["metrics"]["findings"], 3)
@@ -87,6 +138,17 @@ class CommandLineTest(unittest.TestCase):
         )
         return json.loads(proc.stdout)
 
+    def test_solution_path_that_is_not_a_directory_is_an_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            key_path = pathlib.Path(tmp) / "key.json"
+            key_path.write_text(json.dumps(KEY))
+            proc = subprocess.run(
+                [sys.executable, str(HIDDEN / "score_findings.py"), str(pathlib.Path(tmp) / "absent"), str(key_path)],
+                capture_output=True,
+                text=True,
+            )
+        self.assertNotEqual(proc.returncode, 0)
+
     def test_missing_findings_file_fails_every_bug(self):
         with tempfile.TemporaryDirectory() as tmp:
             output = self.run_cli(pathlib.Path(tmp))
@@ -94,7 +156,8 @@ class CommandLineTest(unittest.TestCase):
             output,
             {
                 "results": [{"id": "alpha", "passed": False}, {"id": "beta", "passed": False}],
-                "metrics": {"findings_file": 0, "findings": 0, "unmatched_findings": 0, "bugs_located": 0},
+                "metrics": {"findings_file": 0, "findings": 0, "unmatched_findings": 0, "bugs_located": 0,
+                            "dropped_wide_citations": 0},
             },
         )
 
@@ -106,7 +169,8 @@ class CommandLineTest(unittest.TestCase):
             output,
             {
                 "results": [{"id": "alpha", "passed": True}, {"id": "beta", "passed": False}],
-                "metrics": {"findings_file": 1, "findings": 1, "unmatched_findings": 0, "bugs_located": 1},
+                "metrics": {"findings_file": 1, "findings": 1, "unmatched_findings": 0, "bugs_located": 1,
+                            "dropped_wide_citations": 0},
             },
         )
 

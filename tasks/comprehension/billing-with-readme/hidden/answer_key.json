@@ -22,20 +22,20 @@
     {
       "id": "trace-preview-credit",
       "category": "trace",
-      "ranges": [[233, 237], [261, 261], [274, 283], [294, 294]],
+      "ranges": [[233, 237], [274, 283], [294, 294]],
       "failure": "applyCredit deducts from account.creditBalanceCents inside buildInvoice, so previewInvoice consumes the customer's credit despite promising not to change the account, and finaliseInvoice deducts the same credit a second time, driving the balance negative."
     },
     {
-      "id": "rule-tax-after-discount",
+      "id": "rule-credit-before-tax",
       "category": "rule",
-      "ranges": [[258, 260]],
-      "failure": "Tax is computed on the subtotal before the discount; the README requires tax on the subtotal after the discount, so discounted invoices are overtaxed."
+      "ranges": [[258, 262]],
+      "failure": "Credit is applied after tax, to the taxed amount; the README requires credit to come off the discounted subtotal before tax, with tax charged only on what remains, so any invoice that uses credit is overtaxed (10000 with 2000 credit at 10% should be tax 800, total 8800, not tax 1000, total 9000)."
     },
     {
       "id": "rule-downgrade-timing",
       "category": "rule",
       "ranges": [[152, 156], [176, 179]],
-      "failure": "planChangeTiming decides by included units rather than monthly price; the README says only a move to a higher monthly price is immediate and prorated, and a move to a lower or equal price waits for the period end, so a cheaper plan with more included units is wrongly applied at once with a net credit."
+      "failure": "planChangeTiming decides by included units rather than monthly price; the README says only a move to a higher monthly price is immediate and prorated, and a move to a lower or equal price waits for the period end, so a cheaper plan with more included units is wrongly applied at once with a net credit, and a pricier plan with fewer or equal units wrongly waits."
     }
   ]
 }

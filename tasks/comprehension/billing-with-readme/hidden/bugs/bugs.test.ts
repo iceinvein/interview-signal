@@ -76,15 +76,12 @@ describe("planted bugs", () => {
     expect(customer.creditBalanceCents).toBe(500);
   });
 
-  test("rule-tax-after-discount: tax is charged on the discounted subtotal", () => {
+  test("rule-credit-before-tax: tax is charged on the amount left after credit", () => {
     const catalogue = [plan({ id: "basic", monthlyPriceCents: 10000 })];
-    const customer = account({
-      planId: "basic",
-      taxRatePercent: 10,
-      discount: { code: "TENOFF", kind: "percent", value: 10 },
-    });
+    const customer = account({ planId: "basic", taxRatePercent: 10, creditBalanceCents: 2000 });
     const invoice = billing.previewInvoice(customer, catalogue, april, 0, []);
-    expect(invoice.taxCents).toBe(900);
+    // 10000 less 2000 credit leaves 8000, taxed at 10%.
+    expect({ tax: invoice.taxCents, total: invoice.totalCents }).toEqual({ tax: 800, total: 8800 });
   });
 
   test("rule-downgrade-timing: a move to a cheaper plan waits for the period end", () => {

@@ -152,7 +152,7 @@ export function prorate(amountCents: Cents, share: number): Cents {
 export function planChangeTiming(current: Plan, next: Plan): "immediate" | "period-end" {
   // A change that adds included units goes live straight away so the
   // customer can use them at once; anything else waits for the renewal.
-  return next.includedUnits >= current.includedUnits ? "immediate" : "period-end";
+  return next.includedUnits > current.includedUnits ? "immediate" : "period-end";
 }
 
 /**
@@ -256,7 +256,7 @@ function buildInvoice(
 
   const subtotal = sumLines(lines);
   const discount = discountAmount(subtotal, account.discount);
-  const tax = percentOf(subtotal, account.taxRatePercent);
+  const tax = percentOf(subtotal - discount, account.taxRatePercent);
   const due = subtotal - discount + tax;
   const credit = applyCredit(account, due);
   return {

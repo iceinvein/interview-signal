@@ -252,9 +252,9 @@ function buildInvoice(
 
   const subtotal = sumLines(lines);
   const discount = discountAmount(subtotal, account.discount);
-  const tax = percentOf(subtotal - discount, account.taxRatePercent);
+  const credit = creditToApply(account, subtotal - discount);
+  const tax = percentOf(subtotal - discount - credit, account.taxRatePercent);
   const due = subtotal - discount + tax;
-  const credit = creditToApply(account, due);
   return {
     accountId: account.id,
     period,

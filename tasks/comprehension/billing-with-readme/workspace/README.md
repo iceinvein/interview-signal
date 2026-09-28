@@ -27,12 +27,12 @@ them exactly.
 6. **Discounts.** An account has at most one discount, either a percentage
    or a fixed amount, applied to the invoice subtotal. A discount never
    exceeds the subtotal.
-7. **Tax.** Tax is charged at the account's rate on the subtotal after the
-   discount has been taken off.
-8. **Credit.** Account credit is applied last, after tax, and never takes
-   the total below zero. Unused credit carries forward. Previewing an
-   invoice must not change the account; only finalising an invoice
-   consumes credit.
+7. **Credit.** Account credit is applied to the subtotal after the
+   discount and before tax, and never takes that amount below zero.
+   Unused credit carries forward. Previewing an invoice must not change the
+   account; only finalising an invoice consumes credit.
+8. **Tax.** Tax is charged at the account's rate on the amount left after
+   the discount and the credit have been taken off.
 
 ## API
 
