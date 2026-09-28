@@ -90,23 +90,57 @@ class OneBugPerFindingTest(unittest.TestCase):
         self.assertEqual(score("Bugs at lines 10, 20, 30 and 40.", key)["metrics"]["unmatched_findings"], 0)
 
 
+class RealKeyTest(unittest.TestCase):
+    """Cases pinned against the task's own answer key."""
+
+    def located(self, text: str) -> dict[str, bool]:
+        key = json.loads((HIDDEN / "answer_key.json").read_text())
+        return {r["id"]: r["passed"] for r in score(text, key)["results"]}
+
+    def test_apply_credit_call_in_build_invoice_credits_preview_bug(self):
+        located = self.located("- line 261: buildInvoice calls applyCredit so preview mutates credit")
+        self.assertEqual([bug for bug, passed in located.items() if passed], ["trace-preview-credit"])
+
+    def test_one_bug_cited_at_several_ranges_is_credited(self):
+        text = (
+            "## 4. Line 235: applyCredit mutates\n"
+            "Called from buildInvoice (line 261), so previewInvoice (line 275) mutates; "
+            "finaliseInvoice deducts again at line 294.\n"
+        )
+        located = self.located(text)
+        self.assertEqual([bug for bug, passed in located.items() if passed], ["trace-preview-credit"])
+
+    def test_summary_line_citing_all_six_bugs_credits_none(self):
+        located = self.located("Bugs at lines 304, 217, 182, 235, 259 and 155.")
+        self.assertEqual([bug for bug, passed in located.items() if passed], [])
+
+
 class NonBugTest(unittest.TestCase):
-    def test_list_item_saying_it_is_not_a_bug_is_skipped(self):
+    def test_list_item_opening_with_a_non_bug_phrase_is_skipped(self):
         phrases = [
-            "not a bug",
-            "a non-issue",
-            "a false positive",
-            "looks correct",
-            "intentional",
-            "verified correct",
-            "verified as correct",
-            "verified ok",
-            "verified fine",
-            "verified: not a bug",
+            "Not a bug",
+            "Non-issue",
+            "False positive",
+            "Verified correct",
+            "Verified as correct",
+            "Verified ok",
+            "Verified fine",
+            "Verified: not a bug",
         ]
         for phrase in phrases:
             with self.subTest(phrase=phrase):
-                self.assertEqual(located(f"- Line 11 is {phrase}"), {"alpha": False, "beta": False})
+                self.assertEqual(located(f"- {phrase}: line 11 rounds"), {"alpha": False, "beta": False})
+
+    def test_hedged_wording_inside_a_finding_still_credits(self):
+        texts = [
+            "- Line 11: this is probably not intentional",
+            "- Line 11 may be intentional but downgrades apply immediately",
+            "- Line 11: the comment makes this look intentional, but the rules differ",
+            "- Line 11: the integer part looks correct but cents are not padded",
+        ]
+        for text in texts:
+            with self.subTest(text=text):
+                self.assertEqual(located(text), {"alpha": True, "beta": False})
 
     def test_items_under_a_non_bug_heading_are_skipped(self):
         text = "## Looks correct\n\n- Line 11: rounding\n- Line 41: mutation\n"
@@ -121,6 +155,11 @@ class NonBugTest(unittest.TestCase):
         text = "- Verified with a failing test: line 182 uses the elapsed share as the unused share\n"
         results = {r["id"]: r["passed"] for r in score(text, real_key)["results"]}
         self.assertTrue(results["trace-proration-direction"])
+
+    def test_heading_naming_a_non_bug_section_skips_its_items(self):
+        for heading in ("## Not bugs", "## Non-issues", "## Verified correct", "### False positives"):
+            with self.subTest(heading=heading):
+                self.assertEqual(located(f"{heading}\n- Line 11: fine\n"), {"alpha": False, "beta": False})
 
     def test_unintentional_does_not_mark_a_finding_as_non_bug(self):
         self.assertEqual(located("- Line 11 unintentionally rounds down"), {"alpha": True, "beta": False})

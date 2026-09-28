@@ -15,8 +15,8 @@ import sys
 # A citation wider than this names a region, not a defect; crediting it would
 # let "lines 1-300" locate a bug. It still admits a whole-function citation.
 MAX_SPAN = 40
-# A finding touching more bug ranges than this is a summary list, not a finding.
-MAX_BUG_RANGES = 3
+# A finding touching more bugs than this is a summary list, not a finding.
+MAX_BUGS = 3
 
 RANGE_PATTERN = r"\d+(?:\s*(?:-|\u2013|\u2014|to)\s*\d+)?"
 RANGE = re.compile(r"(\d+)(?:\s*(?:-|\u2013|\u2014|to)\s*(\d+))?")
@@ -31,10 +31,19 @@ FINDING_START = re.compile(r"^(?:#{1,6}\s|\d+[.)]\s|[-*+]\s|\|)")
 HEADING = re.compile(r"^(#{1,6})\s")
 TABLE_SEPARATOR = re.compile(r"^\|[\s|:-]+\|?$")
 LINE_HEADERS = {"line", "lines", "location", "ln", "loc"}
-NON_BUG = re.compile(
-    r"\bnot a bug\b|\bnon-issues?\b|\bfalse positives?\b|\blooks correct\b|\bintentional\b"
-    # "verified" alone also opens real reports ("verified with a failing test").
-    r"|\bverified (?:as )?correct\b|\bverified (?:ok|fine)\b",
+# Non-bug wording only counts where it labels the text: a section heading
+# ("## Not bugs") or the opening words of an item ("- Not a bug: ...").
+# Anywhere else it is usually a hedge inside a real report ("probably not
+# intentional", "verified with a failing test").
+LEADING = r"^\W*(?:\d+[.)]\s*)?\W*"
+CHUNK_NON_BUG = re.compile(
+    LEADING + r"(?:not a bug|non-issue|false positive|verified (?:as )?correct|verified (?:ok|fine)"
+    r"|verified:\s*not a bug)",
+    re.IGNORECASE,
+)
+HEADING_NON_BUG = re.compile(
+    LEADING + r"(?:not (?:a )?bugs?|non-bugs?|non-issues?|false positives?|verified (?:as )?correct"
+    r"|verified (?:ok|fine)|verified:\s*not a bug|looks correct|intentional)",
     re.IGNORECASE,
 )
 
@@ -98,7 +107,8 @@ def findings(text: str) -> tuple[list[list[tuple[int, int]]], int]:
         if heading:
             level = len(heading.group(1))
             headings = [h for h in headings if h[0] < level]
-            headings.append((level, bool(NON_BUG.search(chunk.splitlines()[0]))))
+            heading_text = chunk.splitlines()[0][heading.end():]
+            headings.append((level, bool(HEADING_NON_BUG.match(heading_text))))
         if chunk.startswith("|"):
             if TABLE_SEPARATOR.match(chunk.strip()):
                 continue
@@ -108,7 +118,7 @@ def findings(text: str) -> tuple[list[list[tuple[int, int]]], int]:
                 continue
         else:
             line_column = None
-        if any(non_bug for _, non_bug in headings) or NON_BUG.search(chunk):
+        if any(non_bug for _, non_bug in headings) or (not heading and CHUNK_NON_BUG.match(chunk)):
             continue
         ranges, wide = cited_ranges(chunk, line_column)
         dropped += wide
@@ -128,12 +138,9 @@ def distance(a: tuple[int, int], b: list[int]) -> int:
 def credited_bug(cited: list[tuple[int, int]], bugs: list[dict]) -> int | None:
     """Index of the one bug this finding locates, or None."""
     touched = {
-        (i, j)
-        for i, bug in enumerate(bugs)
-        for j, bug_range in enumerate(bug["ranges"])
-        if any(overlap(c, bug_range) for c in cited)
+        i for i, bug in enumerate(bugs) if any(overlap(c, r) for c in cited for r in bug["ranges"])
     }
-    if not touched or len(touched) > MAX_BUG_RANGES:
+    if not touched or len(touched) > MAX_BUGS:
         return None
     first = cited[0]
 
@@ -142,7 +149,7 @@ def credited_bug(cited: list[tuple[int, int]], bugs: list[dict]) -> int | None:
         nearest = min(distance(first, r) for r in bugs[i]["ranges"])
         return (-total, nearest, i)
 
-    return min({i for i, _ in touched}, key=rank)
+    return min(touched, key=rank)
 
 
 def score(text: str, key: dict) -> dict:
