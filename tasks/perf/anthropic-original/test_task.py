@@ -186,6 +186,46 @@ class TestsUntouched(TempDir):
         self.assertEqual(result(self.score(solution), "tests-untouched"), True)
 
 
+class TestsUntouchedFromManifest(TempDir):
+    """run.sh keeps only the candidate's files and lists every upstream change
+    in output/.upstream_changes.json, so tampering shows only there."""
+
+    def run_output(self, modified=(), added=(), deleted=()):
+        solution = self.tmp / "output"
+        solution.mkdir()
+        (solution / "perf_takehome.py").write_text(BROKEN_KERNEL)
+        changes = {"modified": list(modified), "added": list(added), "deleted": list(deleted)}
+        (solution / ".upstream_changes.json").write_text(json.dumps(changes))
+        return solution
+
+    def test_manifest_changing_only_the_kernel_and_new_files_is_untouched(self):
+        solution = self.run_output(modified=["perf_takehome.py"], added=["notes.md"])
+        self.assertEqual(result(self.score(solution), "tests-untouched"), True)
+
+    def test_manifest_listing_a_modified_test_file_is_reported(self):
+        solution = self.run_output(modified=["perf_takehome.py", "tests/submission_tests.py"])
+        self.assertEqual(result(self.score(solution), "tests-untouched"), False)
+
+    def test_manifest_listing_an_added_test_file_is_reported(self):
+        solution = self.run_output(added=["tests/conftest.py"])
+        self.assertEqual(result(self.score(solution), "tests-untouched"), False)
+
+    def test_manifest_listing_a_deleted_problem_py_is_reported(self):
+        solution = self.run_output(deleted=["problem.py"])
+        self.assertEqual(result(self.score(solution), "tests-untouched"), False)
+
+
+class RunConfig(TempDir):
+    def test_run_config_names_paths_the_upstream_has(self):
+        dest = self.tmp / "x"
+        self.fetch(dest)
+        config = json.loads((TASK / "run_config.json").read_text())
+        for name in config["kept_files"]:
+            self.assertTrue((dest / name).is_file(), name)
+        for path in config["protected_paths"]:
+            self.assertTrue((dest / path).exists(), path)
+
+
 class Prompt(TempDir):
     def test_prompt_is_the_upstream_task_statement_plus_the_time_limit(self):
         dest = self.tmp / "x"

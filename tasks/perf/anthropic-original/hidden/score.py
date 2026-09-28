@@ -1,8 +1,8 @@
 """Score a solution with upstream's own correctness tests and cycle counter.
 
 Usage: python3 score.py <pristine_checkout> <solution_dir>
-Only the solution's perf_takehome.py is copied into the pristine checkout.
-Prints one JSON object; everything upstream prints goes to stderr.
+Only the solution's kept files (run_config.json) are copied into the pristine
+checkout. Prints one JSON object; everything upstream prints goes to stderr.
 """
 
 import contextlib
@@ -14,6 +14,11 @@ import unittest
 
 # reference/ stands for the unmodified upstream, which cannot be committed.
 BASELINE_MARKER = "UPSTREAM_BASELINE"
+# run.sh reads the same file to decide what reaches a run's output/.
+RUN_CONFIG = json.loads((pathlib.Path(__file__).resolve().parent.parent / "run_config.json").read_text())
+# Written by run.sh: the run's output/ holds only the candidate's files, so a
+# change to a protected upstream path shows only in this list.
+UPSTREAM_CHANGES = ".upstream_changes.json"
 
 
 def tree_files(root: pathlib.Path) -> dict[str, bytes]:
@@ -25,13 +30,26 @@ def tree_files(root: pathlib.Path) -> dict[str, bytes]:
     }
 
 
+def is_protected(rel: str) -> bool:
+    return any(rel.startswith(p) if p.endswith("/") else rel == p for p in RUN_CONFIG["protected_paths"])
+
+
 def tests_untouched(solution: pathlib.Path, checkout: pathlib.Path) -> bool:
-    tests = solution / "tests"
-    if tests.exists() and tree_files(tests) != tree_files(checkout / "tests"):
-        return False
-    problem = solution / "problem.py"
-    if problem.exists() and problem.read_bytes() != (checkout / "problem.py").read_bytes():
-        return False
+    manifest = solution / UPSTREAM_CHANGES
+    if manifest.is_file():
+        changes = json.loads(manifest.read_text())
+        if any(is_protected(rel) for kind in ("modified", "added", "deleted") for rel in changes[kind]):
+            return False
+    # A full-tree solution carries the protected paths themselves.
+    for rel in RUN_CONFIG["protected_paths"]:
+        if rel.endswith("/"):
+            ours = solution / rel.rstrip("/")
+            if ours.exists() and tree_files(ours) != tree_files(checkout / rel.rstrip("/")):
+                return False
+        else:
+            ours = solution / rel
+            if ours.exists() and ours.read_bytes() != (checkout / rel).read_bytes():
+                return False
     return True
 
 
@@ -57,14 +75,15 @@ def main() -> None:
     solution = pathlib.Path(sys.argv[2]).resolve()
     untouched = tests_untouched(solution, checkout)
 
-    kernel = solution / "perf_takehome.py"
-    if kernel.is_file():
-        shutil.copyfile(kernel, checkout / "perf_takehome.py")
+    kept = [name for name in RUN_CONFIG["kept_files"] if (solution / name).is_file()]
+    if kept:
+        for name in kept:
+            shutil.copyfile(solution / name, checkout / name)
         correct, metrics = run_upstream_checks(checkout)
     elif (solution / BASELINE_MARKER).is_file():
         correct, metrics = run_upstream_checks(checkout)
     else:
-        print(f"score.py: {solution} has no perf_takehome.py", file=sys.stderr)
+        print(f"score.py: {solution} has none of {RUN_CONFIG['kept_files']}", file=sys.stderr)
         correct, metrics = False, {}
 
     results = [
