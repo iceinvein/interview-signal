@@ -1,0 +1,32 @@
+{
+  "id": "anthropic-original",
+  "format": "perf",
+  "title": "Anthropic's original performance take-home",
+  "source": "https://github.com/anthropics/original_performance_takehome at 5452f74bd977807ac2e74f3d29432b9df6f25197",
+  "license": "none (fetched, not redistributed)",
+  "variant": "baseline-passes",
+  "variant_note": "The workspace is the unmodified upstream, which is also the reference, so the rule that the workspace must fail a result is waived. The workspace still scores worst on the cycles metric.",
+  "baselines": {
+    "source": "https://www.anthropic.com/engineering/AI-resistant-technical-evaluations",
+    "source_title": "Designing AI-resistant technical evaluations, Tristan Hume, published Jan 21, 2026",
+    "caveat": "The upstream README says these numbers are for the 2-hour version, which started at 18532 cycles; this repo starts at 147734 cycles.",
+    "entries": [
+      {"cycles": 2164, "quote": "2164 cycles: Claude Opus 4 after many hours in the test-time compute harness"},
+      {"cycles": 1790, "quote": "1790 cycles: Claude Opus 4.5 in a casual Claude Code session, approximately matching the best human performance in 2 hours"},
+      {"cycles": 1579, "quote": "1579 cycles: Claude Opus 4.5 after 2 hours in our test-time compute harness"},
+      {"cycles": 1548, "quote": "1548 cycles: Claude Sonnet 4.5 after many more than 2 hours of test-time compute"},
+      {"cycles": 1487, "quote": "1487 cycles: Claude Opus 4.5 after 11.5 hours in the harness"},
+      {"cycles": 1363, "quote": "1363 cycles: Claude Opus 4.5 in an improved test time compute harness after many hours"}
+    ],
+    "human": [
+      {"cycles": 1790, "quote": "approximately matching the best human performance in 2 hours"},
+      {"cycles": null, "quote": "The fastest human solution ever submitted substantially exceeds what Claude has achieved even with extensive test-time compute."}
+    ],
+    "starting_points": {
+      "source": "https://github.com/anthropics/original_performance_takehome/blob/5452f74bd977807ac2e74f3d29432b9df6f25197/Readme.md",
+      "two_hour_version_start": 18532,
+      "this_repo_start": 147734,
+      "quote": "it was updated to a 2-hour one which started with code which achieved 18532 cycles (7.97x faster than this repo starts you)"
+    }
+  }
+}

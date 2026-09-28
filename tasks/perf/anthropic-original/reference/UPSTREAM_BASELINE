@@ -1,0 +1,3 @@
+This reference is the unmodified upstream take-home at the commit pinned in
+fetch.sh. The upstream has no licence, so its code is not committed here;
+hidden/run.sh scores the pristine fetched copy when it finds this file.

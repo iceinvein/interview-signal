@@ -1,0 +1,17 @@
+{
+  "criteria": [
+    {
+      "id": "correct",
+      "text": "The optimised kernel produces the same output values as the reference kernel on the pristine upstream correctness tests.",
+      "kind": "auto",
+      "test_id": "correct"
+    },
+    {
+      "id": "tests-untouched",
+      "text": "The solution's tests/ folder and problem.py, where present, are byte-identical to the pinned upstream.",
+      "kind": "auto",
+      "test_id": "tests-untouched"
+    }
+  ],
+  "trap": null
+}
