@@ -1,0 +1,32 @@
+[12:00:00] > normal
+[12:00:00] Normal order #1 added to PENDING
+[12:00:00] > normal
+[12:00:00] Normal order #2 added to PENDING
+[12:00:00] > vip
+[12:00:00] VIP order #3 added to PENDING
+[12:00:01] > +bot
+[12:00:01] Bot #1 added
+[12:00:01] Bot #1 picked up order #3
+[12:00:01] > +bot
+[12:00:01] Bot #2 added
+[12:00:01] Bot #2 picked up order #1
+[12:00:02] > -bot
+[12:00:02] Bot #2 removed, order #1 returned to PENDING
+[12:00:03] > vip
+[12:00:03] VIP order #4 added to PENDING
+[12:00:11] Bot #1 completed order #3
+[12:00:11] Bot #1 picked up order #4
+[12:00:12] > +bot
+[12:00:12] Bot #3 added
+[12:00:12] Bot #3 picked up order #1
+[12:00:21] Bot #1 completed order #4
+[12:00:21] Bot #1 picked up order #2
+[12:00:22] Bot #3 completed order #1
+[12:00:22] Bot #3 is now IDLE
+[12:00:23] > normal
+[12:00:23] Normal order #5 added to PENDING
+[12:00:23] Bot #3 picked up order #5
+[12:00:31] Bot #1 completed order #2
+[12:00:31] Bot #1 is now IDLE
+[12:00:33] Bot #3 completed order #5
+[12:00:33] Bot #3 is now IDLE

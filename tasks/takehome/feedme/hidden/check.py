@@ -12,9 +12,10 @@ all is a separate question, answered by the <id>_exercised metrics and the
 demonstrates_all result.
 
 A log the parser cannot read would pass every "not violated" result for
-free, so a log with too few recognised events sets the log_unparsed metric.
-The r1 to r6 and demonstrates_all results are then false, and the analysis
-excludes such runs from automated pass rates and grades them by hand.
+free, so a log with too few recognised events sets the log_unparsed metric
+and fails the log_parsed result. The r1 to r6 and demonstrates_all results
+are then false too, and the analysis excludes such runs from automated pass
+rates and grades them by hand.
 
 Usage: python3 check.py <solution_dir>
 """
@@ -69,7 +70,9 @@ PICKUP_WORDS = re.compile(
 )
 IDLE_WORD = re.compile(r"(?<![a-z])idle(?![a-z])", re.IGNORECASE)
 VIP_WORD = re.compile(r"(?<![a-z])(?<!non-)(?<!non )vip(?![a-z])", re.IGNORECASE)
-SEGMENT_SPLIT = re.compile(r";|, ")
+SEGMENT_SPLIT = re.compile(r";|, | and | then ", re.IGNORECASE)
+FROM_AFTER = re.compile(r"[a-z]*\s+from(?![a-z])", re.IGNORECASE)
+RETURN_WORDS = re.compile(r"(?<![a-z])(return|back(?![a-z])|requeu|re-queu|re-add|restor)", re.IGNORECASE)
 
 
 @dataclass
@@ -96,7 +99,8 @@ class Requirement:
 class LogReading:
     events: list[Event]
     timestamped_lines: int
-    silent_lines: int  # timestamped lines that yielded no event
+    silent_lines: int  # timestamped lines naming an order or bot that yielded no event
+    last_ts: int | None
 
     @property
     def unparsed(self) -> bool:
@@ -110,13 +114,37 @@ def keyword_position(pattern: re.Pattern, text: str) -> int | None:
     return match.start() if match else None
 
 
-def parse_segment(text: str, ts: int, line_no: int, previous_bot: int | None) -> list[Event]:
+def removal_position(text: str) -> int | None:
+    """Where a bot removal keyword starts, or None when the removal is not a bot's."""
+    match = REMOVE_WORDS.search(text)
+    if not match:
+        return None
+    # "Order #1 removed from PENDING" moves an order, it does not remove a bot.
+    if FROM_AFTER.match(text, match.end()):
+        return None
+    order_match = ORDER_ID.search(text)
+    bot_match = BOT_ID.search(text)
+    if order_match and bot_match and order_match.start() < match.start() < bot_match.start():
+        return None
+    return match.start()
+
+
+def parse_segment(text: str, line: str, ts: int, line_no: int, context: dict) -> list[Event]:
+    """Parse one clause of a line. context carries the bot and order the line
+    has already named, for clauses such as "... and picked up Order #4"."""
     order_ids = {int(m) for m in ORDER_ID.findall(text)}
     bot_ids = {int(m) for m in BOT_ID.findall(text)}
     if len(order_ids) > 1 or len(bot_ids) > 1:
         return []  # a status line listing several orders or bots, not an event
-    order = order_ids.pop() if order_ids else None
-    bot = bot_ids.pop() if bot_ids else None
+    own_order = order_ids.pop() if order_ids else None
+    own_bot = bot_ids.pop() if bot_ids else None
+    bot = own_bot if own_bot is not None else context.get("bot")
+    order = own_order if own_order is not None else context.get("order")
+    names_something = own_bot is not None or own_order is not None
+    if own_bot is not None:
+        context["bot"] = own_bot
+    if own_order is not None:
+        context["order"] = own_order
 
     def event(kind, **extra):
         return Event(kind=kind, ts=ts, line=line_no, **extra)
@@ -125,11 +153,11 @@ def parse_segment(text: str, ts: int, line_no: int, previous_bot: int | None) ->
     # "destroyed while PROCESSING" is a removal, "completed ... Processing
     # time" a completion.
     candidates = []
-    if bot is not None or BOT_WORD.search(text):
-        candidates.append((keyword_position(REMOVE_WORDS, text), "bot_removed"))
-    if bot is not None and order is None:
+    if own_bot is not None or BOT_WORD.search(text):
+        candidates.append((removal_position(text), "bot_removed"))
+    if own_bot is not None and own_order is None:
         candidates.append((keyword_position(CREATE_WORDS, text), "bot_added"))
-    if bot is not None and order is not None:
+    if names_something and bot is not None and order is not None:
         candidates.append((keyword_position(COMPLETE_WORDS, text), "completed"))
         candidates.append((keyword_position(PICKUP_WORDS, text), "picked"))
     found = sorted((pos, kind) for pos, kind in candidates if pos is not None)
@@ -137,18 +165,17 @@ def parse_segment(text: str, ts: int, line_no: int, previous_bot: int | None) ->
     events = []
     if found:
         kind = found[0][1]
-        if kind == "bot_removed":
-            events.append(event(kind, bot=bot))
-        elif kind == "bot_added":
-            events.append(event(kind, bot=bot))
+        if kind in ("bot_removed", "bot_added"):
+            events.append(event(kind, bot=own_bot))
         else:
             events.append(event(kind, bot=bot, order=order))
-    elif bot is None and order is not None and CREATE_WORDS.search(text):
-        events.append(event("order_created", order=order, vip=bool(VIP_WORD.search(text))))
+    elif own_bot is None and own_order is not None and CREATE_WORDS.search(text) and not RETURN_WORDS.search(text):
+        # The order type can sit in another clause: "New order #3, type: VIP".
+        events.append(event("order_created", order=own_order, vip=bool(VIP_WORD.search(line))))
 
     # ", now IDLE" after a completion names no bot; it refers to the bot the
     # line was already about.
-    idle_bot = bot if bot is not None else (previous_bot if order is None else None)
+    idle_bot = own_bot if own_bot is not None else (None if names_something else context.get("bot"))
     removed = any(e.kind == "bot_removed" for e in events)
     if idle_bot is not None and IDLE_WORD.search(text) and not removed:
         events.append(event("idle", bot=idle_bot))
@@ -171,15 +198,15 @@ def read_log(text: str) -> LogReading:
             ts += DAY_SECONDS
         last_ts = ts
         line_events = []
-        previous_bot = None
+        context: dict = {}
         for segment in SEGMENT_SPLIT.split(line):
-            segment_events = parse_segment(segment, ts, line_no, previous_bot)
-            line_events += segment_events
-            previous_bot = next((e.bot for e in reversed(segment_events) if e.bot is not None), previous_bot)
-        if not line_events:
+            line_events += parse_segment(segment, line, ts, line_no, context)
+        # A line naming no order or bot (a banner, a heartbeat) is not an
+        # event the parser missed, so it does not count against the log.
+        if not line_events and (ORDER_ID.search(line) or BOT_ID.search(line)):
             silent += 1
         events += line_events
-    return LogReading(events=events, timestamped_lines=timestamped, silent_lines=silent)
+    return LogReading(events=events, timestamped_lines=timestamped, silent_lines=silent, last_ts=last_ts)
 
 
 @dataclass
@@ -197,7 +224,10 @@ class Bot:
     picked_at: int = 0
 
 
-def evaluate(events: list[Event]) -> dict[str, Requirement]:
+def evaluate(events: list[Event], last_ts: int | None = None) -> dict[str, Requirement]:
+    """Replay events; last_ts is the log's final timestamp, which may belong to a line with no event."""
+    if last_ts is None:
+        last_ts = events[-1].ts if events else 0
     req = {rid: Requirement() for rid in REQUIREMENT_IDS}
     orders: dict[int, Order] = {}
     pending: list[int] = []
@@ -286,7 +316,12 @@ def evaluate(events: list[Event]) -> dict[str, Requirement]:
                 continue
             bot = bots.get(event.bot)
             if bot is None or bot.order != event.order:
-                fail("r4_bot_processing", event, f"bot {event.bot} completed order {event.order} it was not processing")
+                in_progress = any(b.order == event.order for b in bots.values())
+                known = orders.get(event.order)
+                if not in_progress and (known is None or not known.vip):
+                    fail("r1_normal_order_flow", event, f"order {event.order} completed without a pickup")
+                else:
+                    fail("r4_bot_processing", event, f"bot {event.bot} completed order {event.order} it was not processing")
                 continue
             took = event.ts - bot.picked_at
             if not PROCESSING_SECONDS <= took <= PROCESSING_SECONDS + PROCESSING_TOLERANCE:
@@ -327,8 +362,22 @@ def evaluate(events: list[Event]) -> dict[str, Requirement]:
                 pending.append(bot.order)
                 counts["removed_mid_order"] += 1
 
+    def fail_at_end(rid, message):
+        req[rid].violations.append(f"end of log: {message}")
+
     for bot_id in idle_report_due:
-        req["r5_idle_bot"].violations.append(f"end of log: bot {bot_id} never reported IDLE after its last order")
+        fail_at_end("r5_idle_bot", f"bot {bot_id} never reported IDLE after its last order")
+    idle_bots = [bot_id for bot_id, bot in bots.items() if bot.order is None]
+    for order_id in pending:
+        if idle_bots:
+            fail_at_end("r5_idle_bot", f"order {order_id} still pending while bot {idle_bots[0]} is idle")
+        order = orders[order_id]
+        free_for = max((last_ts - max(order.arrived, bots[b].idle_since) for b in idle_bots), default=0)
+        if not order.vip and free_for > PROCESSING_SECONDS + PROCESSING_TOLERANCE:
+            fail_at_end("r1_normal_order_flow", f"normal order {order_id} never completed though a bot was free for {free_for}s")
+    for bot_id, bot in bots.items():
+        if bot.order is not None and last_ts - bot.picked_at > PROCESSING_SECONDS + PROCESSING_TOLERANCE:
+            fail_at_end("r4_bot_processing", f"bot {bot_id} picked order {bot.order} {last_ts - bot.picked_at}s before the log ended and never completed it")
 
     req["r1_normal_order_flow"].exercised = counts["normal_completed"] > 0
     req["r3_unique_increasing_numbers"].exercised = counts["orders_created"] >= 2
@@ -341,12 +390,13 @@ def evaluate(events: list[Event]) -> dict[str, Requirement]:
 
 
 def score(log: str) -> tuple[dict[str, bool], dict[str, int]]:
-    """Replay a result.txt; return the r1 to r6 and demonstrates_all results with their metrics."""
+    """Replay a result.txt; return the r1 to r6, demonstrates_all and log_parsed results with their metrics."""
     reading = read_log(log)
-    requirements = evaluate(reading.events)
+    requirements = evaluate(reading.events, reading.last_ts)
     parsed = not reading.unparsed
     results = {rid: parsed and r.passed for rid, r in requirements.items()}
     results["demonstrates_all"] = parsed and all(r.exercised for r in requirements.values())
+    results["log_parsed"] = parsed
     metrics = {
         "events_parsed": len(reading.events),
         "timestamped_lines": reading.timestamped_lines,

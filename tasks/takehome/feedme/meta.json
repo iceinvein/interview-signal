@@ -5,5 +5,5 @@
   "source": "feedmepos/se-take-home-assignment@2652e3c9c1d8446790e2961a113c391b52d5abf0",
   "license": "Apache-2.0",
   "variant": null,
-  "notes": "prompt.md narrows the brief to the backend Node.js option, but workspace/README.md is the upstream file unchanged and still offers the frontend and Go options. The upstream workflow pins Node 22.19.0; the harness runs and scores on Node 24."
+  "notes": "prompt.md narrows the brief to the backend Node.js option, but workspace/README.md is the upstream file unchanged and still offers the frontend and Go options. The upstream workflow pins Node 22.19.0; the harness runs and scores on Node 24. Scoring: an rN pass rate is quoted only over runs where rN_exercised is 1 and log_parsed is true; the demonstration rate (demonstrates_all) is reported separately. Every FeedMe run is also hand-checked, with the parser as the first pass. r5 depends on the log printing the literal word IDLE, which the brief uses for the bot state."
 }

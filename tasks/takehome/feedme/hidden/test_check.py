@@ -55,7 +55,8 @@ Final Status:
 
 
 def results_for(log):
-    return check.evaluate(check.read_log(textwrap.dedent(log)).events)
+    reading = check.read_log(textwrap.dedent(log))
+    return check.evaluate(reading.events, reading.last_ts)
 
 
 def score(log):
@@ -179,6 +180,34 @@ class Parsing2(unittest.TestCase):
         events = check.read_log("[12:00:12] Bot #1 picked up Order #1 (returned when a bot was removed)\n").events
         self.assertEqual([e.kind for e in events], ["picked"])
 
+    def test_vip_named_elsewhere_on_the_line_marks_the_order_vip(self):
+        events = check.read_log("[12:00:00] New order #3, type: VIP, status: PENDING\n").events
+        self.assertTrue(events[0].vip)
+
+    def test_then_separates_a_completion_from_the_next_pickup(self):
+        events = check.read_log("[12:00:11] Bot #1 finished Order #3 then took Order #4\n").events
+        self.assertEqual([(e.kind, e.bot, e.order) for e in events], [("completed", 1, 3), ("picked", 1, 4)])
+
+    def test_bot_created_and_started_yields_add_then_pickup(self):
+        events = check.read_log("[12:00:01] Bot #1 created and started VIP Order #3\n").events
+        self.assertEqual([(e.kind, e.bot, e.order) for e in events], [("bot_added", 1, None), ("picked", 1, 3)])
+
+    def test_order_removed_from_pending_is_not_a_bot_removal(self):
+        events = check.read_log("[12:00:12] Order #1 removed from PENDING and assigned to Bot #3\n").events
+        self.assertEqual([(e.kind, e.bot, e.order) for e in events], [("picked", 3, 1)])
+
+    def test_removed_from_pending_inside_a_pickup_line_is_a_pickup(self):
+        events = check.read_log("[12:00:12] Bot #3: Order #1 removed from PENDING for processing\n").events
+        self.assertEqual([(e.kind, e.bot, e.order) for e in events], [("picked", 3, 1)])
+
+    def test_order_removed_by_a_later_named_bot_is_a_pickup(self):
+        events = check.read_log("[12:00:12] Order #1 removed off the queue by Bot #3 for processing\n").events
+        self.assertEqual([(e.kind, e.bot, e.order) for e in events], [("picked", 3, 1)])
+
+    def test_order_going_back_in_the_queue_is_not_a_new_order(self):
+        events = check.read_log("[12:00:02] Bot 2 removed, order 1 back in queue\n").events
+        self.assertEqual([e.kind for e in events], ["bot_removed"])
+
     def test_clock_passing_midnight_keeps_counting_forward(self):
         events = check.read_log(
             "[23:59:55] Bot #1 picked up Order #1\n[00:00:05] Bot #1 completed Order #1\n"
@@ -186,7 +215,8 @@ class Parsing2(unittest.TestCase):
         self.assertEqual(events[1].ts - events[0].ts, 10)
 
 
-VALID_LOGS = ["A", "A2", "B", "base", "D", "D2", "E", "E2", "F", "G", "G2", "H"]
+VALID_LOGS = ["A", "A2", "B", "base", "D", "D2", "E", "E2", "F", "G", "G2", "H",
+              "N1", "N2", "N3", "N4", "N5", "N6", "N7", "N8", "N9"]
 # Each wrong log breaks one requirement on purpose; the value names it.
 WRONG_LOGS = {
     "W1": "r2_vip_priority",
@@ -201,10 +231,17 @@ WRONG_LOGS = {
 
 
 class UnparsedGate(unittest.TestCase):
-    def test_log_with_many_unrecognised_lines_is_unparsed(self):
+    def test_timestamped_lines_without_ids_do_not_count_against_the_log(self):
         noise = "".join(f"[00:00:{40 + i}] heartbeat\n" for i in range(12))
-        _, metrics = score(GOOD_LOG + noise)
+        results, metrics = score(GOOD_LOG + noise)
+        self.assertEqual(metrics["log_unparsed"], 0)
+        self.assertTrue(results["log_parsed"])
+
+    def test_log_with_many_unrecognised_lines_is_unparsed(self):
+        noise = "".join(f"[00:00:{40 + i}] Order #9 went sideways\n" for i in range(12))
+        results, metrics = score(GOOD_LOG + noise)
         self.assertEqual(metrics["log_unparsed"], 1)
+        self.assertFalse(results["log_parsed"])
 
     def test_parsed_run_without_a_bot_removal_does_not_demonstrate_all(self):
         results, metrics = score(
@@ -233,6 +270,16 @@ class ReviewerLogs(unittest.TestCase):
                 results, metrics = check.score((LOGS / f"{name}.txt").read_text())
                 self.assertEqual(metrics["log_unparsed"], 0)
                 self.assertTrue(all(results.values()), results)
+
+    def test_idle_bot_left_with_orders_at_end_of_log_fails(self):
+        results, metrics = check.score((LOGS / "X_idle_then_orders.txt").read_text())
+        self.assertEqual(metrics["log_unparsed"], 0)
+        self.assertFalse(results["r5_idle_bot"])
+
+    def test_log_that_stops_before_timers_fire_fails(self):
+        results, metrics = check.score((LOGS / "X_stops_before_timers.txt").read_text())
+        self.assertEqual(metrics["log_unparsed"], 0)
+        self.assertFalse(results["r4_bot_processing"])
 
     def test_tabular_log_trips_the_unparsed_gate(self):
         _, metrics = check.score((LOGS / "C.txt").read_text())
@@ -323,6 +370,30 @@ class BotProcessing(unittest.TestCase):
             "[00:00:31] Bot #1 completed Normal Order #2", "[00:00:31] Bot #1 completed Normal Order #5"
         )
         self.assertFalse(results_for(log)["r4_bot_processing"].passed)
+
+
+class NormalOrderFlow(unittest.TestCase):
+    def test_normal_order_left_pending_beside_a_free_bot_fails(self):
+        results = results_for(
+            """\
+            [00:00:00] Bot #1 created
+            [00:00:00] Created Normal Order #1 - Status: PENDING
+            [00:00:15] Simulation finished
+            """
+        )
+        self.assertFalse(results["r1_normal_order_flow"].passed)
+
+    def test_normal_order_completed_without_a_pickup_fails(self):
+        results = results_for(
+            """\
+            [00:00:00] Created Normal Order #1 - Status: PENDING
+            [00:00:00] Bot #1 created
+            [00:00:00] Bot #1 picked up Normal Order #1
+            [00:00:00] Created Normal Order #2 - Status: PENDING
+            [00:00:10] Bot #1 completed Normal Order #2
+            """
+        )
+        self.assertFalse(results["r1_normal_order_flow"].passed)
 
 
 class IdleBots(unittest.TestCase):
@@ -451,7 +522,7 @@ class EndToEnd(unittest.TestCase):
     def test_solution_printing_a_correct_log_passes_every_result(self):
         write_solution(self.tmp / "sol", f"cp {self.tmp / 'good.log'} scripts/result.txt")
         results, metrics = self.run_checker(self.tmp / "sol")
-        self.assertEqual(set(results), {"ci_verify", "r7_in_memory", "demonstrates_all", *check.REQUIREMENT_IDS})
+        self.assertEqual(set(results), {"ci_verify", "r7_in_memory", "demonstrates_all", "log_parsed", *check.REQUIREMENT_IDS})
         self.assertTrue(all(results.values()), results)
         self.assertGreater(metrics["events_parsed"], 20)
 
