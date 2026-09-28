@@ -1,0 +1,41 @@
+{
+  "file": "billing.ts",
+  "bugs": [
+    {
+      "id": "visible-money-format",
+      "category": "visible",
+      "ranges": [[301, 305]],
+      "failure": "formatMoney prints the cents without zero-padding, so 1005 cents renders as $10.5 instead of $10.05 (and 1001 as $10.1)."
+    },
+    {
+      "id": "visible-usage-tiers",
+      "category": "visible",
+      "ranges": [[214, 222]],
+      "failure": "usageCharge treats each tier's cumulative upTo cap as the tier's width; it should bill at most upTo - previousCap units in the tier, so every tier after the first overbills (350 units over caps 100/300 bills 250 units at the second rate instead of 200)."
+    },
+    {
+      "id": "trace-proration-direction",
+      "category": "trace",
+      "ranges": [[138, 143], [181, 192]],
+      "failure": "prorationFactor returns the share of the period already used, but changePlan uses it as the unused share, so an upgrade credits and charges the elapsed part of the period instead of the remaining part (it should be 1 - prorationFactor)."
+    },
+    {
+      "id": "trace-preview-credit",
+      "category": "trace",
+      "ranges": [[233, 237], [261, 261], [274, 283], [294, 294]],
+      "failure": "applyCredit deducts from account.creditBalanceCents inside buildInvoice, so previewInvoice consumes the customer's credit despite promising not to change the account, and finaliseInvoice deducts the same credit a second time, driving the balance negative."
+    },
+    {
+      "id": "rule-tax-after-discount",
+      "category": "rule",
+      "ranges": [[258, 260]],
+      "failure": "Tax is computed on the subtotal before the discount; the README requires tax on the subtotal after the discount, so discounted invoices are overtaxed."
+    },
+    {
+      "id": "rule-downgrade-timing",
+      "category": "rule",
+      "ranges": [[152, 156], [176, 179]],
+      "failure": "planChangeTiming decides by included units rather than monthly price; the README says only a move to a higher monthly price is immediate and prorated, and a move to a lower or equal price waits for the period end, so a cheaper plan with more included units is wrongly applied at once with a net credit."
+    }
+  ]
+}
