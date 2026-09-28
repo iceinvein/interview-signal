@@ -1,0 +1,8 @@
+{
+  "id": "existing-repo",
+  "format": "takehome",
+  "title": "Waitlists for an existing studio bookings API",
+  "source": "Authored for interview-signal: a purpose-built TypeScript bookings service with documented conventions",
+  "license": "MIT",
+  "variant": null
+}
