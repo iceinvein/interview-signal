@@ -8,7 +8,7 @@
     },
     {
       "id": "tests-untouched",
-      "text": "The solution's tests/ folder and problem.py, where present, are byte-identical to the pinned upstream.",
+      "text": "The candidate did not modify, add or delete anything under tests/ or problem.py, judged from the run's upstream change list (or, for a full-tree solution, a file-by-file comparison with the pinned upstream).",
       "kind": "auto",
       "test_id": "tests-untouched"
     }
