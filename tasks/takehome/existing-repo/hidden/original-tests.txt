@@ -1,0 +1,48 @@
+test/domain/member.test.ts > validateNewMember > lower-cases and trims the email
+test/domain/member.test.ts > validateNewMember > rejects a blank name
+test/domain/member.test.ts > validateNewMember > rejects an email without a domain
+test/domain/session.test.ts > overlaps > is false for back-to-back sessions
+test/domain/session.test.ts > overlaps > is true when one session starts before the other ends
+test/domain/session.test.ts > validateNewSession > rejects a capacity outside 1 to 50
+test/domain/session.test.ts > validateNewSession > rejects a duration shorter than 15 minutes
+test/domain/session.test.ts > validateNewSession > rejects a session that starts now or earlier
+test/domain/session.test.ts > validateNewSession > trims the title and instructor
+test/http/bookings.test.ts > bookings over HTTP > answers 404 when cancelling an unknown booking
+test/http/bookings.test.ts > bookings over HTTP > answers 409 session_full when no places are left
+test/http/bookings.test.ts > bookings over HTTP > books a place and shows it on the member's bookings
+test/http/bookings.test.ts > bookings over HTTP > cancels a booking and frees the place for someone else
+test/http/members.test.ts > GET /members/:memberId > answers 404 for an unknown member
+test/http/members.test.ts > POST /members > answers 400 naming the field when email is missing
+test/http/members.test.ts > POST /members > answers 409 email_taken for a duplicate email
+test/http/members.test.ts > POST /members > creates a member and returns the full record
+test/http/router.test.ts > router > answers 404 for an unknown path
+test/http/router.test.ts > router > answers 405 when the path exists under another method
+test/http/router.test.ts > router > passes decoded path parameters to the handler
+test/http/sessions.test.ts > GET /sessions/:sessionId/bookings > lists members by id and name only
+test/http/sessions.test.ts > PATCH /sessions/:sessionId > answers 409 capacity_below_bookings when shrinking below the bookings
+test/http/sessions.test.ts > POST /sessions > answers 400 for a timestamp without an offset
+test/http/sessions.test.ts > POST /sessions > schedules a session with every place free
+test/result.test.ts > Result helpers > all returns the first failure in input order
+test/result.test.ts > Result helpers > andThen stops at the first failure
+test/result.test.ts > Result helpers > map transforms a success and leaves a failure untouched
+test/services/bookingService.test.ts > BookingService.book > confirms a place in a session with room
+test/services/bookingService.test.ts > BookingService.book > lets a member rebook after cancelling
+test/services/bookingService.test.ts > BookingService.book > rejects a booking for a session that has started
+test/services/bookingService.test.ts > BookingService.book > rejects a booking that overlaps another of the member's sessions
+test/services/bookingService.test.ts > BookingService.book > rejects a booking when the session is full
+test/services/bookingService.test.ts > BookingService.book > returns not_found for an unknown member or session
+test/services/bookingService.test.ts > BookingService.book > tells a member who already has a place so, even when the session is full
+test/services/bookingService.test.ts > BookingService.cancel > marks the booking cancelled and frees the place
+test/services/bookingService.test.ts > BookingService.cancel > rejects a cancellation once the session has started
+test/services/bookingService.test.ts > BookingService.cancel > rejects cancelling twice
+test/services/bookingService.test.ts > BookingService.listForMember > lists the member's confirmed bookings by session start
+test/services/bookingService.test.ts > BookingService.listForSession > lists confirmed bookings oldest first with member summaries
+test/services/memberService.test.ts > MemberService.get > returns not_found for an unknown id
+test/services/memberService.test.ts > MemberService.register > rejects an email that is already registered, ignoring case
+test/services/memberService.test.ts > MemberService.register > stores the member with a generated id and the current time
+test/services/sessionService.test.ts > SessionService.changeCapacity > raises the capacity and the places left with it
+test/services/sessionService.test.ts > SessionService.changeCapacity > rejects a capacity below the confirmed bookings
+test/services/sessionService.test.ts > SessionService.changeCapacity > rejects a change once the session has started
+test/services/sessionService.test.ts > SessionService.get > reports the places left after confirmed bookings
+test/services/sessionService.test.ts > SessionService.listUpcoming > lists only sessions that have not started, soonest first
+test/services/sessionService.test.ts > SessionService.schedule > stores a valid session
