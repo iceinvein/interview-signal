@@ -39,8 +39,10 @@ every number the post quotes. The blog post is written last, in the blog repo.
   agents × 1.
 - Agents and exact invocations:
   - `sonnet`, `opus`, `haiku` (haiku in `algorithms` only):
-    `claude -p "<prompt>" --model <alias> --setting-sources project --output-format stream-json --verbose --allowedTools Read Write Edit Glob Grep Bash --permission-mode bypassPermissions --no-session-persistence --max-budget-usd <cap>`
-  - `codex`: `CODEX_HOME=<scratch> codex exec --skip-git-repo-check --sandbox workspace-write --json "<prompt>"`, where `<scratch>` holds only a copy of `~/.codex/auth.json` and a `config.toml` with no instructions. The operator's `~/.codex/AGENTS.md` must never be readable by a run.
+    `claude -p "<prompt>" --model <alias> --setting-sources project --output-format stream-json --verbose --allowedTools Read Write Edit Glob Grep Bash --permission-mode bypassPermissions --no-session-persistence --max-budget-usd <cap> --disallowedTools WebSearch WebFetch Workflow RemoteTrigger SendMessage`
+  - `codex`: `CODEX_HOME=<scratch> codex exec --skip-git-repo-check --sandbox workspace-write --json "<prompt>"`, where `<scratch>` holds only a copy of `~/.codex/auth.json` and a `config.toml` setting `model = "gpt-6-sol"`, `model_reasoning_effort = "high"` and `[sandbox_workspace_write] network_access = true`, with no instructions.
+  - Every agent runs under an allowlisted environment: `HOME`, `PATH`, `USER`, `LANG`, `TMPDIR`, `TZ=UTC`, `PWD`, plus `CODEX_HOME` for Codex.
+  - Network: both vendors may install packages; web search and fetch tools are off for both; `result.json` records `external_fetches` and `contamination` per run. The operator's `~/.codex/AGENTS.md` must never be readable by a run.
 - Per-run caps: $2.00 and 20 minutes wall clock, except `perf`: $25.00 and
   2 hours.
 - Every run starts in a fresh `mktemp -d` directory outside the repository,
@@ -48,7 +50,8 @@ every number the post quotes. The blog post is written last, in the blog repo.
   runs and scoring.
 - Run directory: `runs/<format>__<id>__<agent>__r<rep>/` containing
   `transcript.jsonl`, `stderr.txt`, `output/` (the final workspace, excluding
-  `node_modules`), and `result.json`:
+  `node_modules` and `.git`), `final_message.txt` (the agent's final message,
+  verbatim), and `result.json`:
   `{"format", "task", "agent", "rep", "wall_s", "cli", "model", "is_error", "cost_usd", "turns"}`.
   `transcript.jsonl` and `stderr.txt` are gitignored; everything else is
   committed.
