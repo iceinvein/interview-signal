@@ -54,7 +54,7 @@ describe("edge-cases", () => {
     expect(coinChange([7], 7)).toBe(1);
   });
   it("handles a coin at the denomination limit that cannot be used", () => {
-    expect(coinChange([2147483647], 10000)).toBe(-1);
+    expect(coinChange([2147483647], 2000)).toBe(-1);
   });
   it("falls back to small coins beside a coin at the denomination limit", () => {
     expect(coinChange([2147483647, 1], 3)).toBe(3);
@@ -65,22 +65,22 @@ describe("edge-cases", () => {
 });
 
 describe("performance", () => {
-  it("solves amount 10000 with coins 1, 2 and 5 in under 1000 ms", () => {
-    // 5 divides 10000, so 2000 fives reach it, and any fewer coins sum to
-    // at most 5 * 1999 < 10000.
+  it("solves amount 2000 with coins 1, 2 and 5 in under 1000 ms", () => {
+    // 5 divides 2000, so 400 fives reach it, and any fewer coins sum to
+    // at most 5 * 399 < 2000.
     let result: number | undefined;
     const ms = elapsedMs(() => {
-      result = coinChange([1, 2, 5], 10000);
+      result = coinChange([1, 2, 5], 2000);
     });
-    expect(result).toBe(2000);
+    expect(result).toBe(400);
     expect(ms).toBeLessThan(1000);
   });
   it("rejects an odd amount with twelve even coins in under 1000 ms", () => {
-    // Every coin is even, so every sum is even and 9999 is unreachable.
+    // Every coin is even, so every sum is even and 1999 is unreachable.
     const coins = Array.from({ length: 12 }, (_, i) => 2 * (i + 1));
     let result: number | undefined;
     const ms = elapsedMs(() => {
-      result = coinChange(coins, 9999);
+      result = coinChange(coins, 1999);
     });
     expect(result).toBe(-1);
     expect(ms).toBeLessThan(1000);

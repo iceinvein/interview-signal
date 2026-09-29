@@ -11,6 +11,6 @@ Constraints:
 - `1 <= coins.length <= 12`
 - `1 <= coins[i] <= 2^31 - 1`
 - All denominations in `coins` are distinct.
-- `0 <= amount <= 10000`
+- `0 <= amount <= 2000`
 
 Keep the exported name and signature exactly as shown. `solution.ts` must be self-contained: no imports other than Node built-ins.
