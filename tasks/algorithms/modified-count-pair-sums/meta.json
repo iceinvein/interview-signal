@@ -1,0 +1,8 @@
+{
+  "id": "modified-count-pair-sums",
+  "format": "algorithms",
+  "title": "Count Pair Sums",
+  "source": "Modified from LeetCode 1. Two Sum",
+  "license": "MIT (statement paraphrased; tests and reference written for this experiment)",
+  "variant": "modified"
+}

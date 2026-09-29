@@ -1,0 +1,8 @@
+{
+  "id": "known-two-sum",
+  "format": "algorithms",
+  "title": "Two Sum",
+  "source": "LeetCode 1. Two Sum",
+  "license": "MIT (statement paraphrased; tests and reference written for this experiment)",
+  "variant": "known"
+}

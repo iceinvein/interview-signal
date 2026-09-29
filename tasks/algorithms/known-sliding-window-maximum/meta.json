@@ -1,0 +1,8 @@
+{
+  "id": "known-sliding-window-maximum",
+  "format": "algorithms",
+  "title": "Sliding Window Maximum",
+  "source": "LeetCode 239. Sliding Window Maximum",
+  "license": "MIT (statement paraphrased; tests and reference written for this experiment)",
+  "variant": "known"
+}

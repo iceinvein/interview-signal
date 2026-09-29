@@ -1,0 +1,8 @@
+{
+  "id": "known-longest-increasing-subsequence",
+  "format": "algorithms",
+  "title": "Longest Increasing Subsequence",
+  "source": "LeetCode 300. Longest Increasing Subsequence",
+  "license": "MIT (statement paraphrased; tests and reference written for this experiment)",
+  "variant": "known"
+}

@@ -1,0 +1,11 @@
+{
+  "criteria": [
+    {
+      "id": "all-cases",
+      "text": "The solution passes every case in the test suite, including edge cases and the performance case.",
+      "kind": "auto",
+      "test_id": "all-cases"
+    }
+  ],
+  "trap": null
+}

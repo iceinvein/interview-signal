@@ -1,0 +1,8 @@
+{
+  "id": "custom-fewest-steady-groups",
+  "format": "algorithms",
+  "title": "Fewest Steady Groups",
+  "source": "authored",
+  "license": "MIT",
+  "variant": "custom"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "modified-coin-change-limited",
+  "format": "algorithms",
+  "title": "Coin Change with Limited Coins",
+  "source": "Modified from LeetCode 322. Coin Change",
+  "license": "MIT (statement paraphrased; tests and reference written for this experiment)",
+  "variant": "modified"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "known-longest-unique-substring",
+  "format": "algorithms",
+  "title": "Longest Substring Without Repeating Characters",
+  "source": "LeetCode 3. Longest Substring Without Repeating Characters",
+  "license": "MIT (statement paraphrased; tests and reference written for this experiment)",
+  "variant": "known"
+}

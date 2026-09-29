@@ -1,0 +1,8 @@
+{
+  "id": "modified-course-order-smallest",
+  "format": "algorithms",
+  "title": "Smallest Course Order",
+  "source": "Modified from LeetCode 207. Course Schedule",
+  "license": "MIT (statement paraphrased; tests and reference written for this experiment)",
+  "variant": "modified"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "modified-sliding-window-range",
+  "format": "algorithms",
+  "title": "Sliding Window Range",
+  "source": "Modified from LeetCode 239. Sliding Window Maximum",
+  "license": "MIT (statement paraphrased; tests and reference written for this experiment)",
+  "variant": "modified"
+}
