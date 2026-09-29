@@ -1,0 +1,8 @@
+{
+  "id": "modified-rain-water-walls",
+  "format": "algorithms",
+  "title": "Rain Water Between Walls",
+  "source": "Modified from LeetCode 42. Trapping Rain Water",
+  "license": "MIT (statement paraphrased; tests and reference written for this experiment)",
+  "variant": "modified"
+}

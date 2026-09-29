@@ -1,0 +1,8 @@
+{
+  "id": "custom-teleport-maze",
+  "format": "algorithms",
+  "title": "Shortest Path Through a Teleport Maze",
+  "source": "authored",
+  "license": "MIT",
+  "variant": "custom"
+}

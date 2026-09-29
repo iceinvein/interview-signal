@@ -1,0 +1,8 @@
+{
+  "id": "modified-islands-on-a-torus",
+  "format": "algorithms",
+  "title": "Islands on a Torus",
+  "source": "Modified from LeetCode 200. Number of Islands",
+  "license": "MIT (statement paraphrased; tests and reference written for this experiment)",
+  "variant": "modified"
+}

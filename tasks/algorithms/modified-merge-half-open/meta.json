@@ -1,0 +1,8 @@
+{
+  "id": "modified-merge-half-open",
+  "format": "algorithms",
+  "title": "Merge Half-Open Intervals",
+  "source": "Modified from LeetCode 56. Merge Intervals",
+  "license": "MIT (statement paraphrased; tests and reference written for this experiment)",
+  "variant": "modified"
+}

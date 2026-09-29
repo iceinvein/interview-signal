@@ -1,0 +1,8 @@
+{
+  "id": "custom-inventory-replay",
+  "format": "algorithms",
+  "title": "Inventory Replay with Undo and Redo",
+  "source": "authored",
+  "license": "MIT",
+  "variant": "custom"
+}

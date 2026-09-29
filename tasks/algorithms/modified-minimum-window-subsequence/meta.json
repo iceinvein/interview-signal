@@ -1,0 +1,8 @@
+{
+  "id": "modified-minimum-window-subsequence",
+  "format": "algorithms",
+  "title": "Minimum Window Subsequence",
+  "source": "Modified from LeetCode 76. Minimum Window Substring",
+  "license": "MIT (statement paraphrased; tests and reference written for this experiment)",
+  "variant": "modified"
+}

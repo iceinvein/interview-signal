@@ -1,0 +1,8 @@
+{
+  "id": "known-merge-intervals",
+  "format": "algorithms",
+  "title": "Merge Intervals",
+  "source": "LeetCode 56. Merge Intervals",
+  "license": "MIT (statement paraphrased; tests and reference written for this experiment)",
+  "variant": "known"
+}

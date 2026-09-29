@@ -1,0 +1,8 @@
+{
+  "id": "known-course-schedule",
+  "format": "algorithms",
+  "title": "Course Schedule",
+  "source": "LeetCode 207. Course Schedule",
+  "license": "MIT (statement paraphrased; tests and reference written for this experiment)",
+  "variant": "known"
+}

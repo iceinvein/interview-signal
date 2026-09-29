@@ -1,0 +1,8 @@
+{
+  "id": "known-number-of-islands",
+  "format": "algorithms",
+  "title": "Number of Islands",
+  "source": "LeetCode 200. Number of Islands",
+  "license": "MIT (statement paraphrased; tests and reference written for this experiment)",
+  "variant": "known"
+}

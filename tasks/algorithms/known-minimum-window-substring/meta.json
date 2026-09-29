@@ -1,0 +1,8 @@
+{
+  "id": "known-minimum-window-substring",
+  "format": "algorithms",
+  "title": "Minimum Window Substring",
+  "source": "LeetCode 76. Minimum Window Substring",
+  "license": "MIT (statement paraphrased; tests and reference written for this experiment)",
+  "variant": "known"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "modified-longest-substring-at-most-twice",
+  "format": "algorithms",
+  "title": "Longest Substring With Each Character At Most Twice",
+  "source": "Modified from LeetCode 3. Longest Substring Without Repeating Characters",
+  "license": "MIT (statement paraphrased; tests and reference written for this experiment)",
+  "variant": "modified"
+}

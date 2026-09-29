@@ -1,0 +1,8 @@
+{
+  "id": "modified-longest-non-decreasing",
+  "format": "algorithms",
+  "title": "Longest Non-Decreasing Subsequence",
+  "source": "Modified from LeetCode 300. Longest Increasing Subsequence",
+  "license": "MIT (statement paraphrased; tests and reference written for this experiment)",
+  "variant": "modified"
+}

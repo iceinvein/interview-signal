@@ -1,0 +1,8 @@
+{
+  "id": "known-coin-change",
+  "format": "algorithms",
+  "title": "Coin Change",
+  "source": "LeetCode 322. Coin Change",
+  "license": "MIT (statement paraphrased; tests and reference written for this experiment)",
+  "variant": "known"
+}
