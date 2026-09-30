@@ -328,3 +328,11 @@
   Codex FeedMe runs; redo the hand-check blind with a fresh agent; the
   controller writes ANALYSIS.md (the implementer's environment refused .md
   output).
+- **Codex connectors off (206ddeb, 63ad06b), merged.** `[features]` apps,
+  browser_use, computer_use, image_generation, plugins and remote_plugin
+  all false; probe fails on any codex_apps call. Transcript audit: no run
+  ever used browser, computer, image or plugin tools; the only out-of-bounds
+  calls were the connector in container FeedMe codex r1, r2, r5 and the web
+  search in excluded host r3. All 5 container Codex FeedMe runs moved to
+  `runs-excluded/feedme-codex-connector/` (a mixed set would compare
+  unequal conditions) and rerun.
