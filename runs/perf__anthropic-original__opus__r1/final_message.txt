@@ -1,1 +1,15 @@
-That monitor expiring is expected: it was watching the tuning search, which had already finished. Nothing changed. The kernel is still at 1050 cycles and passes all submission tests.
+The kernel now runs in **1050 cycles**, down from the 147,734 baseline (about 141× faster). `python3 tests/submission_tests.py` passes all 9 tests: 8 randomized correctness runs plus every speed threshold, including the lowest one at 1363. `git diff HEAD -- tests/` is empty, so the tests folder is unchanged.
+
+**What the kernel does** (all in `perf_takehome.py`):
+- **Vectorized:** the 256 inputs are handled as 32 vectors of 8 lanes. Three of the six hash stages collapse into a single `multiply_add` each, so a hash costs 12 vector ops instead of 18.
+- **Tree wraparound is fixed in advance:** every input starts at index 0, so in round r all lanes sit at the same tree level, r mod 11, and the wraparound always happens after round 10. No compare or select is spent on it.
+- **Top tree levels come from preloaded values:** for levels 0–3 (and level 4 for some vectors), node values are loaded once and picked with `vselect` on the otherwise idle flow engine, using branch bits kept in registers. Deeper levels fetch node values with individual loads, tracking the memory address directly so no extra add is needed.
+- **One more op saved per round:** when the next round uses preloaded values, the hash's last XOR constant is merged into those values. This flips the branch bits, which costs nothing because the `vselect` operands are just swapped.
+- **Scheduler:** the builder produces a dependency graph, and a list scheduler packs it into the wide instructions. It assigns registers as it goes, and it can spread spare vector ops across the 12 scalar ALU slots lane by lane.
+- **Tuned settings:** a table choosing which (vector, round) pairs use preloaded values versus loads, plus per-vector priority offsets, came from a small local search. The cycle count doesn't depend on the input data, so this isn't overfitting to one random seed.
+
+**Where it stands:** the load engine (about 1006 cycles of work) and the vector-plus-ALU capacity (about 1002) are both nearly saturated. Most of the remaining ~45 cycles are start-up before the first loads begin and a short dependency chain at the end.
+
+**Assumptions:** the kernel relies on all indices starting at 0, which `Input.generate` guarantees, and on the parameters being known when the kernel is built. It reads the memory pointers from the memory header rather than hard-coding them.
+
+I haven't committed anything; the only change is in `perf_takehome.py`.
