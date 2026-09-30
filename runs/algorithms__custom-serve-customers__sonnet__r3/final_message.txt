@@ -1,0 +1,5 @@
+I wrote `serveCustomers` in `solution.ts`, but I haven't run it or tested it, including on your example.
+
+It keeps a min-heap of when each server next becomes free. For each customer in index order, it takes the earliest-free server. The finish time is `max(arrival, free time) + duration`. It then puts that finish time back into the heap. A server that frees up exactly when a customer arrives serves them immediately.
+
+The heap holds `min(servers, n)` entries, because extra servers beyond the customer count never get used. That keeps memory small when `servers` is large. Each customer costs O(log k) time, so 200,000 customers is fast. The file has no imports.

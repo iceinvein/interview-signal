@@ -1,0 +1,10 @@
+I've written `countIslands` in `solution.ts` and it passes my quick tests, including the largest grids allowed.
+
+**How it works:** it goes through the grid cell by cell. Each time it finds land that hasn't been visited yet, it adds one to the count and marks every land cell connected to it (up, down, left, right) as visited. It keeps its own list of cells to visit instead of calling itself recursively, so a 1000×1000 island can't cause a stack overflow. The time and memory it takes grow in step with the number of cells. The file has no imports.
+
+**Test results:**
+- The standard 4×5 example returns 3.
+- `[[1,0],[0,1]]` returns 2, so diagonal cells are not joined.
+- `[[0]]` returns 0.
+- A 1000×1000 grid of all land returns 1 in about 8 ms.
+- A 1000×1000 checkerboard returns 500,000 in about 4 ms.

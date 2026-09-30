@@ -1,0 +1,3 @@
+I implemented `shortestTeleportPath` in `solution.ts` as a breadth-first search over the grid. I haven't compiled it or run any tests, including your `"Sa#a.E"` example.
+
+Each cell can move to its four neighbours (skipping walls) and, if it's a portal, to its twin. Every move costs 1. The search returns the distance as soon as it reaches `E`, or `-1` if `E` can't be reached. It uses flat typed arrays, so a 1000×1000 grid stays within memory and runs in time linear in the number of cells.

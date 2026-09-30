@@ -1,0 +1,5 @@
+I've written `rainWaterWithWalls` in `solution.ts`, using the exact signature you gave. I haven't run it or written any tests.
+
+It runs in linear time in two passes. The first pass, right to left, builds an array of the tallest height at or to the right of each bar, starting from `rightWall`. The second pass, left to right, tracks the tallest height on the left starting from `leftWall`. For each bar it adds `min(leftMax, rightMax) - heights[i]` to the total. An empty `heights` returns `0`.
+
+It needs no imports.

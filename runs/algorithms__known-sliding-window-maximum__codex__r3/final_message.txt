@@ -1,0 +1,1 @@
+Implemented `maxSlidingWindow` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.FE9b6buUqJ/solution.ts) using a monotonic deque. It runs in O(n) time. Randomized comparisons and a 100,000-element case passed.

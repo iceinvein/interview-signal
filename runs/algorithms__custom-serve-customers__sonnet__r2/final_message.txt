@@ -1,0 +1,5 @@
+I wrote `serveCustomers` in `solution.ts`, but I haven't run it or tested it, including on your example.
+
+It keeps a min-heap of when each server next becomes free. For each customer, in index order, it takes the earliest-free server. Service starts at the later of the customer's arrival and that server's free time, and the server is then free again at the finish time. Ties between servers don't affect the result.
+
+Only `min(servers, n)` servers can ever be used, so the heap has that size rather than `servers`. Time is O(n log min(servers, n)). The function returns `[]` when there are no customers.

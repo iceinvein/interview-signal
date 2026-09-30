@@ -1,0 +1,13 @@
+Done! I've implemented a cycle detection algorithm using DFS. 
+
+**How it works:**
+1. Build a directed graph where edge `b → a` means "course b must be taken before course a"
+2. Use a three-state tracking system (unvisited, visiting, visited) to detect cycles during DFS
+3. If we encounter a node currently in the visiting state, we've found a back edge (cycle)
+4. If any cycle exists, courses can't be completed; otherwise they can be
+
+**Key features:**
+- Correctly handles self-loops like `[a, a]` (detected as cycles)
+- Efficiently handles duplicate prerequisites (they naturally merge in the graph)
+- Time: O(numCourses + prerequisites.length)
+- Space: O(numCourses + prerequisites.length)

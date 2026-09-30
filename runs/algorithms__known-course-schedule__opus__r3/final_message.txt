@@ -1,0 +1,13 @@
+I wrote `canFinish` in `solution.ts`. A quick test run gave the expected answer on every case I tried.
+
+**How it works:** it repeatedly takes any course whose prerequisites are all done and marks it taken. This is Kahn's topological sort. If every course gets taken, the answer is `true`; if some are left over, they must form a cycle, so the answer is `false`. It runs in O(numCourses + prerequisites.length) time and uses typed arrays, so it stays fast at the maximum input sizes.
+
+**Edge cases:**
+- **`[a, a]`:** returns `false` straight away.
+- **Repeated pairs:** each copy counts once when a course's prerequisites are tallied and once when they're checked off, so the result is the same as with a single copy.
+
+**Tests I ran:**
+- **Small cases:** a simple chain, a two-course cycle, a self-loop, a repeated pair, and no prerequisites all gave the right result.
+- **Large cases:** a 100,000-course chain with every pair doubled returned `true`. Adding one edge to close it into a cycle made it return `false`.
+
+The test file was temporary and I deleted it, so `solution.ts` is the only file left, with no imports.

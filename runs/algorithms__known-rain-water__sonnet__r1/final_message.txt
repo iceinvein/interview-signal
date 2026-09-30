@@ -1,0 +1,3 @@
+I wrote `rainWater` in `solution.ts` with the exact signature you gave. I haven't run it or tested it.
+
+It uses two pointers that move inward from both ends, tracking the tallest bar seen so far on each side. At each step it processes the side with the lower current bar. The water over that bar is the running maximum on that side minus the bar's height, or zero if the bar is a new maximum. This runs in O(n) time and O(1) extra space, so it's fast enough for 100,000 bars. An empty or single-bar array returns `0`, and the file has no imports.

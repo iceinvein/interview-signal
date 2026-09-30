@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`abs % 100` isn't padded, so 105 \u2192 `$1.5` (should be `$1.05`) and 100 \u2192 `$1.0` (should be `$1.00`). Every rendered invoice amount whose cents are under 10 is wrong."
+        },
+        {
+          "label": "met",
+          "quote": "`abs % 100` isn't padded, so 105 \u2192 `$1.5` (should be `$1.05`) and 100 \u2192 `$1.0` (should be `$1.00`). Every rendered invoice amount whose cents are under 10 is wrong."
+        },
+        {
+          "label": "met",
+          "quote": "`abs % 100` isn't padded, so 105 \u2192 `$1.5` (should be `$1.05`) and 100 \u2192 `$1.0` (should be `$1.00`). Every rendered invoice amount whose cents are under 10 is wrong."
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`usageCharge` sets `tierWidth = tier.upTo`, so every tier after the first is too wide. ... **Fix:** `const tierWidth = tier.upTo === null ? billable : tier.upTo - previousCap;`"
+        },
+        {
+          "label": "met",
+          "quote": "`usageCharge` sets `tierWidth = tier.upTo`, so every tier after the first is too wide. ... **Fix:** `const tierWidth = tier.upTo === null ? billable : tier.upTo - previousCap;`"
+        },
+        {
+          "label": "met",
+          "quote": "`usageCharge` sets `tierWidth = tier.upTo`, so every tier after the first is too wide. `previousCap` is tracked (line 221) but never used. ... **Fix:** `const tierWidth = tier.upTo === null ? billable : tier.upTo - previousCap;`"
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period **already used** (0 at the start, 1 at the end, see its doc comment on line 138). `changePlan` stores this in a variable called `unused` and uses it both to credit \"Unused time on\" the old plan and to charge \"Remaining time on\" the new plan. Both lines use the elapsed share when they should use the remaining share."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period **already used** (0 at the start, 1 at the end, see its doc comment on line 138). `changePlan` stores this in a variable called `unused` and uses it both to credit \"Unused time on\" the old plan and to charge \"Remaining time on\" the new plan. Both lines use the elapsed share when they should use the remaining share."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period **already used** (0 at the start, 1 at the end, see its doc comment on line 138). `changePlan` stores this in a variable called `unused` and uses it both to credit \"Unused time on\" the old plan and to charge \"Remaining time on\" the new plan. Both lines use the elapsed share when they should use the remaining share."
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, which already subtracts the applied amount from `account.creditBalanceCents` (line 235). `finaliseInvoice` then subtracts `invoice.creditAppliedCents` again."
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, which already subtracts the applied amount from `account.creditBalanceCents` (line 235). `finaliseInvoice` then subtracts `invoice.creditAppliedCents` again."
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, which already subtracts the applied amount from `account.creditBalanceCents` (line 235). `finaliseInvoice` then subtracts `invoice.creditAppliedCents` again."
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "Finding 6 only notes \"Tax is also computed on the negative amount (line 259), which gives negative tax.\" Nowhere in FINDINGS.md does it say that credit should come off before tax is calculated."
+        },
+        {
+          "label": "not_met",
+          "quote": "The closest FINDINGS.md gets is finding 6: \"Tax is also computed on the negative amount (line 259), which gives negative tax.\" None of the findings says that credit is applied after tax, or that it should come off the discounted subtotal before tax is worked out."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"Tax is also computed on the negative amount (line 259), which gives negative tax.\" This is the only place FINDINGS.md discusses tax. It never says that credit is applied after tax when it should come off the discounted subtotal before tax."
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "\"If adjustments make `due` negative (for example, an immediate change to a plan with more included units but a lower price, after finding 1 is fixed)\": this treats the immediate timing as expected, and no finding identifies planChangeTiming's units-based rule as a bug."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"If adjustments make `due` negative (for example, an immediate change to a plan with more included units but a lower price, after finding 1 is fixed), `applyCredit` applies 0...\" FINDINGS.md treats the units-based immediate change as a normal case. It never says planChangeTiming (lines 152\u2013156) is wrong to decide by included units instead of monthly price."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"If adjustments make `due` negative (for example, an immediate change to a plan with more included units but a lower price, after finding 1 is fixed)\": this treats the immediate timing as correct, and no finding says planChangeTiming should decide by monthly price."
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "\"`percentOf(negative, pct)` then returns a negative `raw`, and `Math.min(raw, Math.max(0, subtotal))` = `Math.min(negative, 0)` gives a negative discount.\" The extra findings (5 negative discount, 6 negative total lost, 8 validatePlan never called, NaN checks, long descriptions overflowing) all read the code correctly, and each is either a real flaw or one of the listed debatable points (negative totals, validatePlan, NaN, overflow). None is a false positive."
+        },
+        {
+          "label": "met",
+          "quote": "\"`percentOf(negative, pct)` then returns a negative `raw`, and `Math.min(raw, Math.max(0, subtotal))` = `Math.min(negative, 0)` gives a negative discount.\" This is the only extra finding that is not on the list of debatable points, and it reads the code correctly. The code clamps with `Math.max(0, ...)`, so a discount is meant to be non-negative. Finding 6 (negative totals and refunds) and finding 8 (validatePlan never called) are on the debatable list, and so are the NaN and long-description notes. None of the extra findings misreads the code."
+        },
+        {
+          "label": "met",
+          "quote": "`percentOf(negative, pct)` then returns a negative `raw`, and `Math.min(raw, Math.max(0, subtotal))` = `Math.min(negative, 0)` gives a negative discount."
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

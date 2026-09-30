@@ -1,0 +1,1 @@
+Implemented [countPairsWithSum](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.uJ3EugsSRg/solution.ts) using a frequency map. It counts pairs by position in O(n) time, and checks passed for duplicates, negative values, empty input, and the maximum count.

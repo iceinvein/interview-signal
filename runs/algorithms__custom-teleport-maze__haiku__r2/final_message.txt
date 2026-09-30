@@ -1,0 +1,12 @@
+Done! I've implemented `shortestTeleportPath` using BFS. The algorithm:
+
+1. **Parses the grid** to find start `S`, exit `E`, and all portal positions (mapping each letter to its two coordinates)
+2. **Uses BFS** from `S` with queue entries of `(row, col, distance)`
+3. **For each cell**, explores:
+   - All 4 adjacent directions (if in bounds and not a wall)
+   - Portal jump to its twin (if currently on a portal letter)
+4. **Returns the distance** to `E`, or `-1` if unreachable
+
+For the example `"Sa#a.E"`: moves S→a(1)→jump to a(2)→.(3)→E(4) = **4 moves** ✓
+
+Time complexity: O(rows × cols) — each cell is visited once. Space: O(rows × cols) for the visited set.

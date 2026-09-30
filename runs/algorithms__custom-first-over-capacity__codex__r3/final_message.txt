@@ -1,0 +1,3 @@
+Implemented [firstOverCapacity](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.gGbFssaonY/solution.ts). It combines all booking changes at each time before checking capacity, so a booking that ends when another starts has already left.
+
+The examples, edge cases, and 1,000 randomized checks passed. Time complexity is O(n log n); space complexity is O(n).

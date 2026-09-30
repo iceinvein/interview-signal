@@ -1,0 +1,11 @@
+Done! I've implemented `cheapestLevel` using **ternary search** on the cost function.
+
+**How it works:**
+- The cost function is convex (piecewise linear), so it has a unique minimum
+- Ternary search efficiently finds the optimal level in O(n × log(max_height)) time
+- We narrow the search range to 3 integers, then check all remaining candidates
+
+**For your example** (heights = [1,2,3,4,5], raiseCost = 2, lowerCost = 1):
+- L = 2: raise 1→2 (cost 2) + lower 3,4,5 (cost 1+2+3 = 6) = **8** ✓
+
+The solution handles all constraints efficiently, including large height ranges up to 10⁶.

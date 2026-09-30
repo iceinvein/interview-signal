@@ -1,0 +1,9 @@
+I wrote `evaluateSheet` in `solution.ts`, but I haven't run it or any tests.
+
+It works in one pass over the cells:
+
+- **Parsing:** each cell's literal terms are summed up front. Each reference to a filled cell counts as one pending dependency, and empty cells contribute 0.
+- **Evaluation:** cells with no pending dependencies are resolved first. Each resolved cell adds its value into the cells that reference it, which may unblock them in turn.
+- **Cycles:** any cell that never resolves is either on a cycle (self-references included) or depends on one, so it gets `"#CYCLE"`.
+
+This is linear in the input size, and it uses queues and arrays rather than recursion, so long dependency chains at 100000 cells won't overflow the stack. All sums stay well under 2^53, so plain numbers are exact.

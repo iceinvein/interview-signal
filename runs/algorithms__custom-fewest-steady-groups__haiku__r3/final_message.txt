@@ -1,0 +1,10 @@
+Done! I've implemented a greedy algorithm that processes the scores from left to right, extending each group as far as possible while keeping the spread ≤ maxSpread. When adding the next score would violate the constraint, we start a new group.
+
+**Algorithm:**
+1. Handle empty array (return 0)
+2. Start with 1 group, tracking min/max of current group
+3. For each score, check if adding it keeps spread ≤ maxSpread
+4. If yes, update min/max and continue
+5. If no, increment group count and start fresh with the new score
+
+**Complexity:** O(n) time, O(1) space

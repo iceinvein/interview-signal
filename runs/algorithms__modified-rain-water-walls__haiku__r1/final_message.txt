@@ -1,0 +1,7 @@
+Done! The implementation uses a two-pass approach:
+
+1. **Left pass**: Precompute `maxFromLeft[i]` = max(leftWall, heights[0..i])
+2. **Right pass**: Precompute `maxFromRight[i]` = max(rightWall, heights[i..n-1])
+3. **Calculate water**: For each bar, the water level is `min(maxFromLeft[i], maxFromRight[i])`, and water held is `waterLevel - heights[i]`
+
+Time: O(n), Space: O(n)

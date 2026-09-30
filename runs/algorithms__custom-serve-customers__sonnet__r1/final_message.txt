@@ -1,0 +1,7 @@
+I wrote `serveCustomers` in `solution.ts`, but I haven't run it or tested it, including on your example.
+
+It keeps a min-heap of server free times. For each customer in index order, it takes the earliest-free server. Service starts at the later of the arrival time and that server's free time, and the server's new free time is the customer's finish time. Each customer costs O(log k), where k is the number of servers used, so the whole run is O(n log k).
+
+The heap only holds `min(servers, n)` entries, since no more servers than customers can ever be used. That means a large `servers` value with few customers doesn't allocate a big heap. Free times are kept in a `Float64Array`, which is exact for integers below 2^53.
+
+The file has no imports and keeps the exported signature as given. An empty `arrivals` returns an empty array.

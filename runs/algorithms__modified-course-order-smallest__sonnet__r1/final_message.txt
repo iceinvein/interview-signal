@@ -1,0 +1,10 @@
+I've written `courseOrder` in `solution.ts`, but I haven't run it or tested it.
+
+It builds the prerequisite graph and repeatedly takes the smallest-numbered course that has no remaining prerequisites, using a min-heap. That gives the lexicographically smallest valid order.
+
+- **Self-prerequisites:** any `[a, a]` pair returns `[]` right away.
+- **Repeated pairs:** duplicates are dropped, so they don't affect the count of remaining prerequisites.
+- **Cycles:** if the order comes out shorter than `numCourses`, there's a cycle and the function returns `[]`.
+- **Speed:** it should run in about O((n + m) log n), which is fine for the given limits.
+
+The file has no imports.

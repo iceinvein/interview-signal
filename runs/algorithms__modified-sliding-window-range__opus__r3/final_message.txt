@@ -1,0 +1,9 @@
+I implemented `slidingWindowRange` in `solution.ts`. It runs in O(n) time by keeping two monotonic deques of indices: one tracks the window's largest value and the other its smallest.
+
+- Each index is added to and removed from each deque at most once. The deques are backed by `Int32Array` buffers, so no array shifting is needed.
+- For each full window, the answer is `nums[maxQ[head]] - nums[minQ[head]]`. The largest possible difference is 2·10⁹, which a JS number holds exactly.
+- The file has no imports.
+
+**Testing:** I checked it against a brute-force version on 2,000 random arrays (lengths 1–20, all valid `k`, values from −5 to 5 so there were plenty of ties), and the results matched every time. I also tested the extreme case `[1e9, -1e9]` with `k = 2`, which correctly returns `[2000000000]`.
+
+Separately, several claude.ai connectors need to be authorized before they can be used: Atlassian Rovo, Figma, Gmail, Google Drive, Miro and Trello. You can do that in your claude.ai connector settings. None of them were needed for this task.

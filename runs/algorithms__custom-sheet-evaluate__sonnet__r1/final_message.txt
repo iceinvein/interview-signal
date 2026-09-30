@@ -1,0 +1,9 @@
+I implemented `evaluateSheet` in `solution.ts`. I haven't run it or tested it, including on your example.
+
+It works like this:
+- **Parsing:** Each formula is split on `+` into constants and cell references. A reference to an empty cell is dropped, since it contributes 0.
+- **Evaluation:** It processes cells in dependency order, starting with the ones that have no unresolved references. That order gives the same result as finding cycles directly.
+- **Cycles:** Any cell never reached is either on a cycle or depends on one, so it gets `"#CYCLE"`. Every other cell gets its number.
+- **Performance:** Running time is linear in the total input length.
+
+I didn't add a test file or a runner.

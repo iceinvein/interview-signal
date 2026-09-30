@@ -1,0 +1,3 @@
+Implemented the waitlist API: members can join a full session, view the queue with contact details, and leave it. Cancelling a booking promotes the first queued member when they still meet the existing booking rules. Added service and HTTP tests; all 67 tests pass, and typecheck is clean.
+
+Two limits matter before rollout: an overlapping booking can prevent promotion and leave the place open, and [CONTRIBUTING.md](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.adzaGYSXmt/CONTRIBUTING.md) requires data protection lead sign-off for exposing email on a session endpoint.

@@ -1,0 +1,1 @@
+Implemented `twoSum` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.enpXXRspTl/solution.ts). It uses a map to return `[i, j]` with `i < j` in O(n) time. The checks passed, including equal values and negative numbers.

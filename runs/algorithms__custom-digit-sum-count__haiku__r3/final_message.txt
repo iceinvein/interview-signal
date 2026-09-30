@@ -1,0 +1,10 @@
+Done! I've implemented a digit DP solution that counts integers from 0 to `limit` with digit sum equal to `target`.
+
+**How it works:**
+- Process digits left-to-right, tracking position, current sum, and whether we're still bounded by the limit (tight constraint)
+- At each position, try placing digits 0 through maxDigit (maxDigit is the current limit digit if tight, else 9)
+- Prune branches where digit sum exceeds target (impossible to reach exactly target)
+- Memoize states to avoid recomputation
+- Return 1 when we've processed all digits and sum equals target
+
+For `countDigitSum("20", 2)`: returns `3n`, counting 2, 11, and 20 ✓

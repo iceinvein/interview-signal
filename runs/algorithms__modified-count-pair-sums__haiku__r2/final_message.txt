@@ -1,0 +1,15 @@
+Done! I've implemented `countPairsWithSum` using a hash map approach that efficiently counts all pairs.
+
+**How it works:**
+- As we iterate through the array, for each number we check if its complement (`target - num`) has been seen before
+- If yes, we add the count of that complement to our result (each previous occurrence forms a valid pair)
+- Then we record the current number in the map
+
+**Complexity:**
+- **Time:** O(n) — single pass through the array
+- **Space:** O(n) — hash map stores at most n distinct values
+
+**Example:** For `nums = [1, 1, 1]` and `target = 2`:
+- At index 1: we see complement `1` was seen 1 time → count += 1
+- At index 2: we see complement `1` was seen 2 times → count += 2
+- Result: 3 pairs ✓

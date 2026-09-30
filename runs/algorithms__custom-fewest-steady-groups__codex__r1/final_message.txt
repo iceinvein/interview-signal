@@ -1,0 +1,3 @@
+Implemented [fewestSteadyGroups](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.JfgJw5VLLT/solution.ts). It finds the minimum number of contiguous steady groups in O(n) time and O(1) extra space.
+
+The example, edge cases, and exhaustive small inputs passed verification.

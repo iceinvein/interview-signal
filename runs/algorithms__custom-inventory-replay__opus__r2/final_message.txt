@@ -1,0 +1,13 @@
+I've written `replayInventory` in `solution.ts`. I ran it on the example from the prompt, on an empty log and on an undo/redo sequence, and all three gave the expected results. I didn't test it on large inputs.
+
+**How it works:** it keeps each item's stock in a map, plus two stacks of recorded actions: one to undo and one to redo. Each action is stored as the item and its change (positive for an add, negative for a remove).
+- **Add, or a remove that isn't rejected:** changes the stock, goes on the undo stack, and empties the redo stack.
+- **A rejected remove:** skipped completely, so both stacks stay as they were.
+- **Undo:** takes the latest action off the undo stack, reverses it and moves it to the redo stack. **Redo** does the opposite.
+- **Output:** items with stock above zero, sorted with plain `<` comparison.
+
+Each event takes constant time, and the final sort is O(k log k) for k items.
+
+Two things that could look like problems but aren't:
+- **Stock can't go negative.** Undo and redo always work in last-in, first-out order, so they only return the stock to states that already existed and were valid.
+- **Large totals stay exact.** The biggest possible total is 200,000 × 10^9 = 2×10^14, well below the largest whole number JavaScript can hold exactly (about 9×10^15).

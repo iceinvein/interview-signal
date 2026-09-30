@@ -1,0 +1,13 @@
+Done! I've implemented the rain water trapping algorithm with the following approach:
+
+**Algorithm:**
+1. Build a `leftMax` array where `leftMax[i]` = the maximum height from the left (including `leftWall`) up to position `i`
+2. Build a `rightMax` array where `rightMax[i]` = the maximum height from position `i` to the right (including `rightWall`)
+3. For each position, the water level = `min(leftMax[i], rightMax[i])`
+4. Sum the water trapped at each position = `waterLevel - heights[i]`
+
+**Complexity:**
+- Time: O(n) — three passes through the array
+- Space: O(n) — for the two auxiliary arrays
+
+The solution handles all cases: empty arrays, walls of any height, and correctly applies the min-of-maxes formula from the problem statement.

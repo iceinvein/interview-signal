@@ -1,0 +1,13 @@
+I implemented `longestNonDecreasing` in `solution.ts`. It runs in O(n log n) time, which is fast enough for 100,000 elements.
+
+**How it works:** It keeps a list called `tails`, where `tails[k]` is the smallest value that can end a non-decreasing subsequence of length `k+1`. For each number `x`, a binary search finds the first entry in `tails` that is strictly greater than `x`. If there is one, `x` replaces it; if not, `x` is added to the end. Searching for "strictly greater" rather than "greater or equal" is what lets equal values extend a subsequence. The answer is the final length of `tails`.
+
+**Checks run:**
+- `[2,2,2]` → 3
+- `[5,4,3]` → 1
+- `[1,3,2,2,5]` → 4
+- `[10,9,2,5,3,7,101,18]` → 4
+
+The file has no imports.
+
+Separately, several claude.ai connectors (Atlassian Rovo, Figma, Gmail, Google Drive, Miro and Trello) need to be authorised in your claude.ai connector settings before they can be used. This task didn't need them.

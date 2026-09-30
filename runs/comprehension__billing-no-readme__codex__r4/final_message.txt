@@ -1,0 +1,1 @@
+I wrote 13 findings to [FINDINGS.md](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.wKMATxx55L/FINDINGS.md). Each includes the relevant `billing.ts` line and why the behavior is wrong. I reproduced the main arithmetic and credit issues with Node.

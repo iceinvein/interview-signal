@@ -1,0 +1,12 @@
+I've implemented `shortestTeleportPath` in `solution.ts` and checked it on a few small cases and one full-size grid. All the answers were correct.
+
+**How it works:** it does a breadth-first search, which finds the shortest path because every move costs 1. Each cell has five possible moves: the four walking steps, plus a jump to its twin if it's a portal. The first pass over the grid records walls and pairs up each portal with its twin. The search stops as soon as it reaches `E` and returns `-1` if `E` can't be reached. The file has no imports.
+
+**Checks I ran:**
+- `"Sa#a.E"` → `4` (your example)
+- `"S#E"` → `-1` (exit walled off)
+- `"SE"` → `1`
+- A 3×3 grid where only a portal gets past a wall row → `5`
+- An open 1000×1000 grid with `S` and `E` in opposite corners → `1998`, in about 17 ms
+
+I ran these with a throwaway script and deleted it afterwards, so there are no test files in the directory.

@@ -1,0 +1,13 @@
+Done! I've implemented the course ordering function using **Kahn's algorithm with a min-heap** for topological sorting:
+
+**Key approach:**
+1. Build a dependency graph and track in-degrees (number of prerequisites) for each course
+2. Use a min-heap to always pick the smallest course number with no remaining prerequisites
+3. When processing a course, decrease the in-degree of all dependent courses
+4. When a course's in-degree reaches zero, add it to the heap
+5. If we can't process all courses, a cycle exists—return empty array
+
+**Why this works:**
+- By always selecting the smallest available course at each step (via the min-heap), we guarantee the lexicographically smallest ordering
+- The min-heap ensures efficiency: O((numCourses + prerequisites.length) × log(numCourses))
+- Cycles are detected if the result has fewer than numCourses entries

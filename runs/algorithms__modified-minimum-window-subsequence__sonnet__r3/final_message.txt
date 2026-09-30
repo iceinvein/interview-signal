@@ -1,0 +1,5 @@
+I wrote `minWindowSubsequence` in `solution.ts`. I haven't run it or tested it.
+
+It scans `s` once and keeps, for each prefix of `t`, the latest start position of a substring that contains that prefix as a subsequence. Whenever the last character of `t` is matched, it has a candidate window. It keeps a candidate only if it is strictly shorter than the best so far. Because ends are visited in increasing order, ties go to the earliest start. If nothing matches, it returns `""`.
+
+The cost is O(|s|·|t|), at most about 2 million steps under your constraints. It needs no imports.

@@ -1,0 +1,7 @@
+I implemented `firstOverCapacity` in `solution.ts`, but I haven't run it or tested it, including against your two examples.
+
+**Approach:** Every booking becomes two events, a start that adds `people` and an end that removes them. The events are sorted by time. The code applies every event at a given time before it checks the load, so a booking ending at time `t` has already left when another starts at `t`. It returns the first time where the load is over `capacity`, or `-1` if that never happens.
+
+**Speed:** The sort is a numeric `Float64Array` sort on `time * 2^19 + eventId`, so the whole thing is O(n log n) for up to 200,000 bookings. Each key stays below 2^53, so the integers are exact.
+
+The file uses no imports.

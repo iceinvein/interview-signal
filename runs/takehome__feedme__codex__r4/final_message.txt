@@ -1,0 +1,3 @@
+Completed the Node.js take-home and submitted [PR #290](https://github.com/feedmepos/se-take-home-assignment/pull/290). The interactive CLI handles VIP priority, 10-second cooking, bot removal, and requeuing unfinished orders. Run it with `npm start`; `./scripts/run.sh` generates the timestamped [result.txt](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.a7F5r1xBtb/submission/scripts/result.txt).
+
+All five unit tests, the build check, the live demo, and the GitHub Actions `verify-result` check passed.

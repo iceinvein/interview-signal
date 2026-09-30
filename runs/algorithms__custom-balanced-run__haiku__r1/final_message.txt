@@ -1,0 +1,11 @@
+Done! The solution uses a **prefix-sum with hash map** approach:
+
+**Algorithm:**
+- Maintain a running balance: `'x'` adds 1, `'y'` subtracts 1, other chars don't affect balance
+- Use a map to store the first occurrence of each balance value (starting with balance 0 at index -1)
+- When we encounter a balance we've seen before, any substring between those two positions is balanced
+- Track the maximum length found
+
+**Complexity:** O(n) time, O(n) space
+
+**Why it works:** A substring is balanced ⟺ its net balance is 0 ⟺ the prefix sum at its end equals the prefix sum before it starts.

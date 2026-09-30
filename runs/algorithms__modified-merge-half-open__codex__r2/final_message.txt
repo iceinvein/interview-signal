@@ -1,0 +1,1 @@
+Implemented `mergeHalfOpen` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.3qUh2fV86C/solution.ts). It omits empty intervals, merges overlapping intervals, and keeps touching intervals separate. All six edge-case checks passed.

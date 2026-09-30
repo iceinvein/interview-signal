@@ -1,0 +1,9 @@
+I wrote `canFinish` to `solution.ts`. I haven't run it or tested it.
+
+It uses Kahn's algorithm, which is a topological sort that repeatedly takes courses with no unmet prerequisites. It returns `true` only if every course gets taken.
+
+- **Cycles:** any cycle leaves at least one course whose prerequisites never clear, so the function returns `false`.
+- **Self-pairs:** a pair like `[a, a]` means course `a` can never have its prerequisites cleared, so the function returns `false`.
+- **Repeated pairs:** each copy is counted once when a course's prerequisites are tallied and once when it is cleared, so a repeat changes nothing.
+- **Scale:** it uses a loop and typed arrays instead of recursion, so 100,000 courses can't overflow the call stack. Time and memory grow linearly with courses plus prerequisites.
+- **Imports:** there are none.

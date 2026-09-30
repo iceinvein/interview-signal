@@ -1,0 +1,39 @@
+{
+  "format": "algorithms",
+  "task": "modified-minimum-window-subsequence",
+  "agent": "sonnet",
+  "rep": 2,
+  "results": [
+    {
+      "id": "basic",
+      "passed": true
+    },
+    {
+      "id": "edge-cases",
+      "passed": true
+    },
+    {
+      "id": "tie-breaks",
+      "passed": true
+    },
+    {
+      "id": "performance",
+      "passed": true
+    },
+    {
+      "id": "all-cases",
+      "passed": true
+    }
+  ],
+  "metrics": {
+    "cases_total": 17,
+    "cases_passed": 17,
+    "timed_out": 0
+  },
+  "auto_criteria": [
+    {
+      "id": "all-cases",
+      "passed": true
+    }
+  ]
+}

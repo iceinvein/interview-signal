@@ -1,0 +1,5 @@
+Completed the Node.js order controller and interactive CLI. It supports VIP priority, ten-second bot processing, cancellation, and requeueing.
+
+[Pull request #288](https://github.com/feedmepos/se-take-home-assignment/pull/288) is open, and the `backend-verify-result` check **passed**. All six tests pass; the demo writes timestamped output to [scripts/result.txt](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.dB08wyNIxV/scripts/result.txt).
+
+Run `./scripts/run.sh --interactive` for the interview demo. Commands and behavior are documented in [README.md](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.dB08wyNIxV/README.md).

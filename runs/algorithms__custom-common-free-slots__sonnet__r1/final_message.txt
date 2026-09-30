@@ -1,0 +1,11 @@
+I wrote `commonFreeSlots` to `solution.ts`. I haven't run it or tested it, including on your example.
+
+It works in four steps:
+1. It clips every busy interval to the day and drops any that fall entirely outside it.
+2. It sorts all the clipped intervals together, across all people.
+3. It sweeps through them, keeping a cursor at the end of the latest busy time seen so far. Any gap between the cursor and the next interval's start is free time, and it is kept if it is at least `minLength`.
+4. It checks the stretch from the cursor to `dayEnd` the same way.
+
+Touching intervals like `[1, 3]` and `[3, 5]` leave no gap, because the gap is only recorded when the next start is strictly greater than the cursor. With no people or no busy intervals, the whole day comes back as one slot, as long as the day is at least `minLength` long.
+
+The sort dominates the cost, so it runs in O(n log n) for at most 200,000 intervals.

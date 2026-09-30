@@ -1,0 +1,3 @@
+Implemented `minWindowSubsequence` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.gHNnRmtC7t/solution.ts). It uses `O(s.length × t.length)` time and `O(t.length)` space, and keeps the earliest start when shortest windows tie.
+
+Verified against a brute force reference on 393,480 exhaustive cases.

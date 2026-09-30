@@ -1,0 +1,13 @@
+I implemented `minWindowSubsequence` in `solution.ts` and it passes my tests. It has no imports.
+
+**How it works:**
+- It builds a lookup table: for each position in `s` and each letter, the first place at or after that position where the letter appears.
+- For each position where `t[0]` occurs, it follows that table through the rest of `t` to find the earliest point where the match ends. That gives the shortest window starting there.
+- A new window only replaces the best one if it is strictly shorter. Starts are checked left to right, so a tie goes to the window that starts earliest.
+- If `t` can't be matched from some start, it can't be matched from any later start either, so the search stops there.
+- Worst case is about `|s|·|t|` steps (roughly 2 million at the limits), plus a table of `(|s|+1)·26` 32-bit ints (about 2 MB).
+
+**Tests run:**
+- `("abcdebdde", "bde")` returns `"bcde"`, and a case with no match returns `""`.
+- 3,000 random small inputs matched a brute-force version exactly.
+- The worst case (20,000 × `a` searched for 100 × `a`) took 3 ms.

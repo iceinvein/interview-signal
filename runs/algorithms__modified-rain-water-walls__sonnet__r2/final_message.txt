@@ -1,0 +1,7 @@
+I implemented `rainWaterWithWalls` in `solution.ts`. I haven't run it or tested it.
+
+It follows your formula directly in two passes, so it runs in O(n) time and uses O(n) extra space:
+- **Right side:** a backward pass stores, for each bar, the maximum of `rightWall` and every bar from that position to the end.
+- **Left side:** a forward pass tracks the running maximum, starting from `leftWall`. For each bar it adds `min(leftMax, rightMax) - heights[i]` to the total.
+
+An empty `heights` returns `0`. The file has no imports.

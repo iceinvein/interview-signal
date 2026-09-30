@@ -1,0 +1,18 @@
+I found four definite bugs in `billing.ts`, one possible issue that depends on how billing is meant to work, and several minor problems. They're all written up in `FINDINGS.md`. I got these by reading the code only; I didn't run or test it.
+
+**Definite bugs:**
+1. **Credit is used up twice** (`billing.ts:235`, `:261`, `:294`): `buildInvoice` already takes the credit off the account, and then `finaliseInvoice` takes it off again. This can leave the balance negative. `previewInvoice` goes through the same path, so just previewing an invoice uses up credit, even though its comment says it doesn't change the account.
+2. **Usage tiers are sized wrong** (`billing.ts:217`): each tier's size is taken as `tier.upTo` when it should be `upTo - previousCap`. `previousCap` is tracked but never used, so every tier after the first gets too many units.
+3. **Plan-change proration is backwards** (`billing.ts:182`): `prorationFactor` returns the share of the period already *used*, but the code treats it as the unused share. It should be `1 - factor`, so early changes are refunded almost nothing and late ones almost a full month.
+4. **Money is displayed wrong** (`billing.ts:304`): the cents aren't padded to two digits, so 105 cents shows as `$1.5` instead of `$1.05`.
+
+**Possible issue (needs your call):** after a plan change mid-period, the invoice charges the new plan's full price and prices all of that period's usage on the new plan. If invoices are built after a period ends, the customer is overcharged. Whether this is a bug depends on whether you bill in advance or after the fact.
+
+**Minor:**
+- `NaN` gets past the tax and discount checks.
+- Tier caps aren't checked to be whole numbers.
+- `validatePlan` is never called when an invoice is built.
+- A zero-length period produces `NaN`.
+- Rounding treats negative amounts differently from positive ones.
+- The usage line's label shows total units rather than billable units.
+- Long descriptions run into the amount in the rendered invoice.

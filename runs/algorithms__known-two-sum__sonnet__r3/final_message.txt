@@ -1,0 +1,9 @@
+I wrote `twoSum` to `solution.ts`. I haven't run it or tested it.
+
+It makes one pass over the array and keeps a `Map` from each value to its index. For each `nums[j]`, it checks whether `target - nums[j]` is already in the map. If so, it returns `[i, j]`, and `i < j` because `i` comes from an earlier position. Otherwise it stores `nums[j]` and moves on.
+
+- **Duplicates:** A position is only added to the map after it has been checked, so it can't pair with itself. Equal values at different positions still work.
+- **Speed:** It runs in O(n) time and O(n) space, which is fine for 100,000 elements.
+- **No-match case:** The `throw` after the loop is only there to satisfy the return type, since the constraints guarantee a match.
+
+The file has no imports and keeps the exact exported signature.

@@ -1,0 +1,10 @@
+Done! I've implemented `coinChangeLimited` using dynamic programming.
+
+The algorithm works by processing each coin denomination sequentially, respecting its count limit:
+
+1. **DP array** tracks the minimum coins needed for each amount
+2. **For each coin type**, we create a fresh copy of the DP state and update it with all possible ways to use that coin (1 to count times)
+3. **Key insight**: Using a separate `newDp` array prevents accidentally using the same coin more times than allowed—we read from the previous state and write to the new state
+4. **Final answer**: Returns the minimum coins for the target amount, or -1 if impossible
+
+The solution correctly handles all edge cases including amount=0 (returns 0) and impossible targets (returns -1).

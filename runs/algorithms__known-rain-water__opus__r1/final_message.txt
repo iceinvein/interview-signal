@@ -1,0 +1,15 @@
+I've written `rainWater` in `solution.ts`, and it gives the right answers on a few quick checks.
+
+It moves two pointers in from each end of the row, keeping track of the tallest bar seen so far on each side. At each step it works on the side whose current bar is shorter. Either that bar becomes the new tallest on its side, or it holds water up to that side's tallest bar. It runs in O(n) time and uses O(1) extra memory, so 100,000 bars is fine.
+
+Quick checks (run with `tsx`):
+
+| Input | Result |
+|---|---|
+| `[0,1,0,2,1,0,1,3,2,1,2,1]` | 6 |
+| `[4,2,0,3,2,5]` | 9 |
+| `[]` | 0 |
+| `[5]` | 0 |
+| `[3,3,3]` | 0 |
+
+The file has no imports, and the exported name and signature are exactly as you gave them.

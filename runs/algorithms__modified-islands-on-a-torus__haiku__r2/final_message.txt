@@ -1,0 +1,13 @@
+Done! I've implemented `countIslandsTorus` with the following approach:
+
+**Algorithm:** BFS-based connected components using a custom neighbor function that accounts for wrapping:
+- For each unvisited land cell, run BFS to explore all connected land cells through the toroidal topology
+- Increment the island count for each new component found
+
+**Key details:**
+- Wrapping uses modulo arithmetic: `(position ± 1 + dimension) % dimension`
+- Single-row grids: vertical wrapping is excluded (upR and downR both equal r when rows=1)
+- Single-column grids: horizontal wrapping is excluded (leftC and rightC both equal c when cols=1)
+- This prevents "a cell being its own neighbour" from creating false connections
+
+**Complexity:** O(rows × cols) time and space for the visited array and BFS queue.

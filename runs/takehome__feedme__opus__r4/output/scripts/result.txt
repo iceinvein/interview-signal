@@ -1,0 +1,53 @@
+McDonald's Order Management System
+
+[01:00:21] System initialized with 0 bots
+> normal
+[01:00:21] Created Normal Order #1001 - Status: PENDING
+> vip
+[01:00:21] Created VIP Order #1002 - Status: PENDING
+> normal
+[01:00:21] Created Normal Order #1003 - Status: PENDING
+> +bot
+[01:00:21] Bot #1 created - Status: ACTIVE
+[01:00:21] Bot #1 picked up VIP Order #1002 - Status: PROCESSING
+> +bot
+[01:00:21] Bot #2 created - Status: ACTIVE
+[01:00:21] Bot #2 picked up Normal Order #1001 - Status: PROCESSING
+> wait 3
+> vip
+[01:00:24] Created VIP Order #1004 - Status: PENDING
+> wait 2
+> -bot
+[01:00:26] Bot #2 destroyed while processing Normal Order #1001
+[01:00:26] Normal Order #1001 returned to PENDING
+> status
+[01:00:26] Status
+- Bots (1): #1 PROCESSING #1002
+- PENDING (3): #1004(VIP), #1001, #1003
+- COMPLETE (0, 0 VIP, 0 Normal): -
+> wait 6
+[01:00:31] Bot #1 completed VIP Order #1002 - Status: COMPLETE (Processing time: 10s)
+[01:00:31] Bot #1 picked up VIP Order #1004 - Status: PROCESSING
+> +bot
+[01:00:32] Bot #3 created - Status: ACTIVE
+[01:00:32] Bot #3 picked up Normal Order #1001 - Status: PROCESSING
+> wait 20
+[01:00:41] Bot #1 completed VIP Order #1004 - Status: COMPLETE (Processing time: 10s)
+[01:00:41] Bot #1 picked up Normal Order #1003 - Status: PROCESSING
+[01:00:42] Bot #3 completed Normal Order #1001 - Status: COMPLETE (Processing time: 10s)
+[01:00:42] Bot #3 is now IDLE - No pending orders
+[01:00:51] Bot #1 completed Normal Order #1003 - Status: COMPLETE (Processing time: 10s)
+[01:00:51] Bot #1 is now IDLE - No pending orders
+> -bot
+[01:00:52] Bot #3 destroyed while IDLE
+> status
+[01:00:52] Status
+- Bots (1): #1 IDLE
+- PENDING (0): -
+- COMPLETE (4, 2 VIP, 2 Normal): #1002(VIP), #1004(VIP), #1001, #1003
+> quit
+
+Final Status:
+- Bots (1): #1 IDLE
+- PENDING (0): -
+- COMPLETE (4, 2 VIP, 2 Normal): #1002(VIP), #1004(VIP), #1001, #1003

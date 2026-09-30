@@ -1,0 +1,15 @@
+Done! I've implemented `canFinish` using Kahn's algorithm for topological sorting.
+
+**How it works:**
+- Build a directed graph where each prerequisite `[a, b]` means course `b` must come before `a`
+- Track the in-degree (number of prerequisites) for each course
+- Start with all courses that have no prerequisites
+- Process each course and decrement the in-degree of its dependent courses
+- When a course's in-degree reaches 0, it can be taken next
+- If we can process all courses, there's no cycle and return `true`; otherwise `false`
+
+**Key properties:**
+- Self-loops like `[a, a]` increment the in-degree and never reach 0, correctly returning `false`
+- Cycles naturally prevent courses from reaching 0 in-degree
+- Time complexity: O(numCourses + prerequisites.length)
+- Space complexity: O(numCourses + prerequisites.length)

@@ -1,0 +1,9 @@
+I implemented `countPairsWithSum` in `solution.ts`. It makes one pass over the array and keeps a `Map` counting how many times each value has appeared so far. At each element it adds the count of earlier values equal to `target - x`, then records `x`. That keeps `i < j`, never pairs a position with itself, and runs in O(n) time.
+
+The sums never go above about 2·10^9, and the largest count is about 5·10^9, both well within the range where a JavaScript `number` is exact. So the result is exact with no need for BigInt.
+
+I checked it against a brute-force version on 2,000 random arrays, and they always agreed. The edge cases also gave the right answers:
+- an empty array, and a single element, both return 0
+- `[1,1,1]` with target 2 returns 3
+- `-1e9 + 1e9` with target 0 returns 1
+- 100,000 equal values return 4,999,950,000, which matches n(n−1)/2

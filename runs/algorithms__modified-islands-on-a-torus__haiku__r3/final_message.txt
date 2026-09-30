@@ -1,0 +1,13 @@
+Done! I've implemented `countIslandsTorus` using a standard connected components approach with DFS.
+
+**Key approach:**
+- **Torus wraparound**: Uses modulo arithmetic `(index ± 1 + size) % size` to handle edges that wrap around
+- **Self-neighbor filtering**: Excludes neighbors that are the same cell (occurs in single-row or single-column grids)
+- **Connected components**: Uses DFS to mark all connected land cells, incrementing the island count for each new component found
+
+**Algorithm:**
+1. For each unvisited land cell, start a DFS
+2. DFS recursively visits all land neighbors (up, down, left, right with wraparound)
+3. Count how many separate DFS calls were needed (= number of islands)
+
+Time: O(rows × cols), Space: O(rows × cols)

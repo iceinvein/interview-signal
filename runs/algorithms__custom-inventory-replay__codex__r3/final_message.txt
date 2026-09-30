@@ -1,0 +1,3 @@
+Implemented `replayInventory` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.0CGSIE1TCb/solution.ts). It handles rejected removes, undo and redo history, and character-code sorting.
+
+The example, edge cases, and a 200,000-event check passed.

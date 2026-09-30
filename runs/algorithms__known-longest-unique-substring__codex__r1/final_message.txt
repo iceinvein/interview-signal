@@ -1,0 +1,1 @@
+Implemented `lengthOfLongestSubstring` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.5SymrDb0DD/solution.ts). It uses a sliding window with O(n) time and constant space. All seven runtime checks passed; a TypeScript compiler was unavailable in the environment.

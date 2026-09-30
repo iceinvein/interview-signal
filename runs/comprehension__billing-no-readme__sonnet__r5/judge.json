@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "**Line 304: cents are not zero-padded.** `abs % 100` is interpolated directly, so 5 cents renders as `$0.5`, and $12.05 renders as `$12.5`."
+        },
+        {
+          "label": "met",
+          "quote": "Line 304: cents are not zero-padded. `abs % 100` is interpolated directly, so 5 cents renders as `$0.5`, and $12.05 renders as `$12.5`."
+        },
+        {
+          "label": "met",
+          "quote": "**Line 304: cents are not zero-padded.** `abs % 100` is interpolated directly, so 5 cents renders as `$0.5`, and $12.05 renders as `$12.5`."
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 217: tier width is the cumulative cap, not the tier's width. ... `tierWidth` should be `tier.upTo - previousCap`. As written, tier 2 (for example, `upTo: 200` after `upTo: 100`) is treated as 200 units wide, so tiers overbill at the earlier price."
+        },
+        {
+          "label": "met",
+          "quote": "`tierWidth` should be `tier.upTo - previousCap`. As written, tier 2 (for example, `upTo: 200` after `upTo: 100`) is treated as 200 units wide, so tiers overbill at the earlier price."
+        },
+        {
+          "label": "met",
+          "quote": "`tierWidth` should be `tier.upTo - previousCap`. As written, tier 2 (for example, `upTo: 200` after `upTo: 100`) is treated as 200 units wide, so tiers overbill at the earlier price."
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period already used, but the variable is named `unused` and is applied as if it were the remaining share. The credit for the old plan and the charge for the new plan should both use `1 - used`."
+        },
+        {
+          "label": "met",
+          "quote": "\"`prorationFactor` returns the share of the period already used, but the variable is named `unused` and is applied as if it were the remaining share. The credit for the old plan and the charge for the new plan should both use `1 - used`.\""
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period already used, but the variable is named `unused` and is applied as if it were the remaining share. The credit for the old plan and the charge for the new plan should both use `1 - used`."
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`applyCredit` (called from `buildInvoice`) already subtracts the applied credit from `account.creditBalanceCents`. `finaliseInvoice` then subtracts `creditAppliedCents` again at line 294, so customers lose double the credit they used. `previewInvoice` goes through `buildInvoice` too, so it consumes credit despite its doc comment (\"without changing the account\")."
+        },
+        {
+          "label": "met",
+          "quote": "`applyCredit` (called from `buildInvoice`) already subtracts the applied credit from `account.creditBalanceCents`. `finaliseInvoice` then subtracts `creditAppliedCents` again at line 294, so customers lose double the credit they used. `previewInvoice` goes through `buildInvoice` too, so it consumes credit despite its doc comment (\"without changing the account\")."
+        },
+        {
+          "label": "met",
+          "quote": "`applyCredit` (called from `buildInvoice`) already subtracts the applied credit from `account.creditBalanceCents`. `finaliseInvoice` then subtracts `creditAppliedCents` again at line 294, so customers lose double the credit they used. `previewInvoice` goes through `buildInvoice` too, so it consumes credit despite its doc comment (\"without changing the account\")."
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "\"The \"discount\" becomes a surcharge, and tax at line 259 is also computed on a negative base.\" FINDINGS.md never says that credit is applied after tax, to the taxed amount, when it should come off before tax."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"The 'discount' becomes a surcharge, and tax at line 259 is also computed on a negative base.\" That is the only place FINDINGS.md talks about tax on lines 258-260. None of its nine findings says that credit is applied after tax, or that it should come off the discounted subtotal before tax is charged."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"`applyCredit` (called from `buildInvoice`) already subtracts the applied credit from `account.creditBalanceCents`. `finaliseInvoice` then subtracts `creditAppliedCents` again\" \u2014 the only credit findings are about double deduction and preview mutation. No finding says credit should come off before tax."
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "The closest item is Finding 5: \"Lines 249 and 185-194: an immediate plan change can double-bill.\" It covers how the invoice is built, not the timing rule. FINDINGS.md never says that planChangeTiming decides by included units instead of monthly price."
+        },
+        {
+          "label": "not_met",
+          "quote": "The closest finding is #5: \"Lines 249 and 185-194: an immediate plan change can double-bill.\" It never says that planChangeTiming (line 155) decides the timing by included units instead of monthly price."
+        },
+        {
+          "label": "not_met",
+          "quote": "Finding 5 (\"Lines 249 and 185-194: an immediate plan change can double-bill.\") is the closest one, but it covers double-billing. None of the findings says that planChangeTiming uses included units instead of monthly price."
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "\"Line 130 (and 146): `Math.round` rounds half-values up on negative amounts... Negative proration credits and positive charges therefore round asymmetrically by a cent.\" This misreads the code: line 188 is `-prorate(current.monthlyPriceCents, unused)`, which rounds a positive value and then negates it, so the rounding is symmetric."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"Line 130 (and 146): `Math.round` rounds half-values up on negative amounts... Negative proration credits and positive charges therefore round asymmetrically by a cent.\" Line 188 rounds a positive amount and then negates it (`-prorate(current.monthlyPriceCents, unused)`), so this finding misreads the code."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"Line 130 (and 146): `Math.round` rounds half-values up on negative amounts... Negative proration credits and positive charges therefore round asymmetrically by a cent.\" Line 188 negates after rounding (`-prorate(current.monthlyPriceCents, unused)`), so the finding misreads the code."
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

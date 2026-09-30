@@ -1,0 +1,7 @@
+Done! The implementation uses a greedy algorithm with **O(n) time** and **O(1) space** complexity:
+
+1. For each starting position, extend the current group as far as possible while `max - min ≤ maxSpread`
+2. When we can't extend further, increment the group count and move to the next position
+3. This greedy approach is optimal because stopping early would only increase total groups unnecessarily
+
+The solution handles all edge cases including empty sequences, single elements, and sequences fitting in one group.

@@ -1,0 +1,10 @@
+I found six bugs in `billing.ts` and wrote them to `FINDINGS.md`, most severe first. I found them by reading the code and working through the examples by hand; I didn't run it.
+
+1. **Credit is taken twice (line 294):** `buildInvoice` already takes the credit off the balance through `applyCredit` (line 235). `finaliseInvoice` then takes it off again. With 1000 credit and 600 due, the balance ends at −200 instead of 400. After that, `validateAccount` rejects the account on its next invoice.
+2. **`previewInvoice` changes the account (line 282):** it's documented as not changing anything, but it goes through the same `applyCredit` call. Every preview uses up the customer's credit for real.
+3. **Plan-change proration is backwards (line 182):** `prorationFactor` returns the share of the period already used, but the code treats it as the unused share. It should be `1 - prorationFactor(...)`. As written, upgrading on day 3 of 30 refunds and charges about 10% of each plan instead of about 90%.
+4. **Usage tiers are sized wrongly (line 217):** `upTo` is a running total, so a tier covers `upTo - previousCap` units. The code uses `upTo` alone, which lets later tiers take too many units. `previousCap` is updated but never used. In the example in the file, 250 billable units come to 1750 instead of 1550.
+5. **`formatMoney` doesn't pad cents (line 304):** 105 cents shows as `$1.5` instead of `$1.05`, and 1 cent shows as `$0.1`.
+6. **Percent discount can add to the bill (line 230):** if proration credits make the subtotal negative, the discount comes out negative and the amount due goes up. It needs to be clamped at 0 from below as well.
+
+Each entry in the file includes a suggested fix.

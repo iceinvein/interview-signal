@@ -1,0 +1,12 @@
+Done! I've implemented the solution using a **sliding window** approach:
+
+**Algorithm:**
+- Maintain a frequency map of characters in the current window
+- Expand the window by moving the right pointer, adding each new character
+- When any character appears more than twice, shrink the window from the left until all characters appear at most twice
+- Track the maximum window size encountered
+
+**Time complexity:** O(n) — each character is processed at most twice (once when added, once when removed)  
+**Space complexity:** O(k) — at most k unique characters in the map (where k ≤ 95 printable ASCII characters)
+
+The solution handles all edge cases: empty strings return 0, single characters return 1, and strings with diverse characters work correctly.

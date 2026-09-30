@@ -1,0 +1,16 @@
+{
+  "name": "feedme-order-controller",
+  "version": "1.0.0",
+  "description": "McDonald's cooking bot order controller (CLI)",
+  "type": "module",
+  "main": "src/cli.js",
+  "scripts": {
+    "start": "node src/cli.js",
+    "simulate": "node src/simulate.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "Apache-2.0"
+}

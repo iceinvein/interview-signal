@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`abs % 100` is printed without padding. 105\u00a2 renders as `$1.5` instead of `$1.05`, and 100\u00a2 renders as `$1.0`."
+        },
+        {
+          "label": "met",
+          "quote": "`abs % 100` is printed without padding. 105\u00a2 renders as `$1.5` instead of `$1.05`, and 100\u00a2 renders as `$1.0`."
+        },
+        {
+          "label": "met",
+          "quote": "## 5. `formatMoney` doesn't zero-pad cents \u2014 line 304 \u2014 `abs % 100` is printed without padding. 105\u00a2 renders as `$1.5` instead of `$1.05`"
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`upTo` is a cumulative cap ... The width of a tier is `tier.upTo - previousCap`, but the code uses `tier.upTo`. ... The code charges 100\u00d710 + 150\u00d75 = 1750\u00a2, putting all 150 remaining units in tier 2."
+        },
+        {
+          "label": "met",
+          "quote": "`upTo` is a cumulative cap ... The width of a tier is `tier.upTo - previousCap`, but the code uses `tier.upTo`. ... The code charges 100\u00d710 + 150\u00d75 = 1750\u00a2, putting all 150 remaining units in tier 2."
+        },
+        {
+          "label": "met",
+          "quote": "`upTo` is a cumulative cap ... The width of a tier is `tier.upTo - previousCap`, but the code uses `tier.upTo`. ... The code charges 100\u00d710 + 150\u00d75 = 1750\u00a2, putting all 150 remaining units in tier 2."
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period **already used** (its doc comment says 0 at start, 1 at end). `changePlan` stores that in a variable named `unused` and uses it for both \"Unused time on old plan\" and \"Remaining time on new plan\". The share should be `1 - prorationFactor(period, at)`."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period **already used** (its doc comment says 0 at start, 1 at end). `changePlan` stores that in a variable named `unused` and uses it for both \"Unused time on old plan\" and \"Remaining time on new plan\". The share should be `1 - prorationFactor(period, at)`."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period **already used** (its doc comment says 0 at start, 1 at end). `changePlan` stores that in a variable named `unused` and uses it for both \"Unused time on old plan\" and \"Remaining time on new plan\". The share should be `1 - prorationFactor(period, at)`."
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit` (line 261), which already subtracts the applied amount from `account.creditBalanceCents` (line 235). `finaliseInvoice` then subtracts `invoice.creditAppliedCents` again at line 294."
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit` (line 261), which already subtracts the applied amount from `account.creditBalanceCents` (line 235). `finaliseInvoice` then subtracts `invoice.creditAppliedCents` again at line 294. ... Its doc comment says it shows the invoice \"without changing the account\", but it goes through `buildInvoice` \u2192 `applyCredit`, which changes `creditBalanceCents`."
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit` (line 261), which already subtracts the applied amount from `account.creditBalanceCents` (line 235). `finaliseInvoice` then subtracts `invoice.creditAppliedCents` again at line 294."
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "FINDINGS.md never says credit should come off before tax. Finding 6 only suggests tax \"should be calculated on `Math.max(0, subtotal - discount)`\", and none of the findings mention the order of credit and tax."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"Tax is also calculated on a negative base, which produces negative tax.\" Finding 6 is the only finding that touches lines 259\u2013260, and nothing in FINDINGS.md says credit should come off before tax."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"Tax is also calculated on a negative base, which produces negative tax.\" This is the only finding about tax at line 259. FINDINGS.md never says that credit is applied after tax when it should come off before tax."
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "\"## 3. Proration uses the elapsed share instead of the remaining share \u2014 line 182\": this is the only plan-change finding. Nothing says that planChangeTiming (line 155) decides by included units instead of monthly price."
+        },
+        {
+          "label": "not_met",
+          "quote": "FINDINGS.md never mentions planChangeTiming or lines 152\u2013156. The nearest related finding is \"## 3. Proration uses the elapsed share instead of the remaining share \u2014 line 182\", which is about proration, not about deciding timing by included units instead of monthly price."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"## 3. Proration uses the elapsed share instead of the remaining share \u2014 line 182\": this is the only plan-change finding. FINDINGS.md never says that planChangeTiming (lines 152\u2013156) decides by included units instead of monthly price."
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "**Line 253:** the usage line shows total `unitsUsed` rather than the billable units actually charged (after `includedUnits`), which misleads the customer."
+        },
+        {
+          "label": "not_met",
+          "quote": "**Line 253:** the usage line shows total `unitsUsed` rather than the billable units actually charged (after `includedUnits`), which misleads the customer."
+        },
+        {
+          "label": "not_met",
+          "quote": "**Line 253:** the usage line shows total `unitsUsed` rather than the billable units actually charged (after `includedUnits`), which misleads the customer."
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

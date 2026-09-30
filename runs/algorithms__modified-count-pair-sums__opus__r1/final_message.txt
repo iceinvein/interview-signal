@@ -1,0 +1,15 @@
+I've implemented `countPairsWithSum` in `solution.ts`. It makes one pass over the array and keeps a `Map` of how many times each value has appeared so far. For each element `x`, it adds the count of earlier values equal to `target - x`, then records `x`. That runs in O(n) time.
+
+- **Pairs are counted by position:** each element is only matched against elements before it, so every pair with `i < j` is counted once and no element is paired with itself.
+- **Exact large counts:** the biggest possible count (about 5·10⁹) is well within the range where a JavaScript `number` holds integers exactly.
+- **Sums stay exact:** `target - x` is at most about 2·10⁹ in size, so there's no precision loss there either.
+
+I ran a few quick checks and all gave the expected results:
+
+| Input | Target | Result |
+|---|---|---|
+| `[1,2,3,4,3]` | 6 | 2 |
+| `[]` | 1 | 0 |
+| `[3,3,3]` | 6 | 3 |
+| `[5]` | 10 | 0 |
+| 100,000 zeros | 0 | 4,999,950,000 |

@@ -1,0 +1,16 @@
+Done! I've implemented the function using a **sliding window** approach:
+
+**Algorithm:**
+1. Maintain a `Map` tracking each character's most recent index
+2. Use a `left` pointer for the window's start; iterate `right` through the string
+3. When we encounter a character already in the current window (index ≥ `left`), move `left` to skip the duplicate
+4. Track the maximum window size
+
+**Time:** O(n) — single pass through the string  
+**Space:** O(1) — at most 95 printable ASCII characters in the map
+
+**Examples:**
+- `"abcabcbb"` → `3` (substring `"abc"`)
+- `"bbbbb"` → `1` (substring `"b"`)
+- `"pwwkew"` → `3` (substring `"wke"`)
+- `""` → `0`

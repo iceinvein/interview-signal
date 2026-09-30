@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 304 \u2014 Money is rendered without a two-digit cents field. `formatMoney(1)` returns `$0.1` instead of `$0.01`, and `formatMoney(105)` returns `$1.5` instead of `$1.05`."
+        },
+        {
+          "label": "met",
+          "quote": "Line 304 \u2014 Money is rendered without a two-digit cents field. `formatMoney(1)` returns `$0.1` instead of `$0.01`, and `formatMoney(105)` returns `$1.5` instead of `$1.05`."
+        },
+        {
+          "label": "met",
+          "quote": "Line 304 \u2014 Money is rendered without a two-digit cents field. `formatMoney(1)` returns `$0.1` instead of `$0.01`, and `formatMoney(105)` returns `$1.5` instead of `$1.05`."
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 217 \u2014 Graduated tier widths are calculated from zero for every tier. A bounded tier's width is `tier.upTo - previousCap`, not `tier.upTo`. With caps of 10 and 20 and 25 billable units, the code charges 10 units in tier one and 15 in tier two; it should charge 10 in each and 5 in tier three."
+        },
+        {
+          "label": "met",
+          "quote": "Line 217 \u2014 Graduated tier widths are calculated from zero for every tier. A bounded tier's width is `tier.upTo - previousCap`, not `tier.upTo`. With caps of 10 and 20 and 25 billable units, the code charges 10 units in tier one and 15 in tier two; it should charge 10 in each and 5 in tier three."
+        },
+        {
+          "label": "met",
+          "quote": "Line 217 \u2014 Graduated tier widths are calculated from zero for every tier.** A bounded tier's width is `tier.upTo - previousCap`, not `tier.upTo`. With caps of 10 and 20 and 25 billable units, the code charges 10 units in tier one and 15 in tier two; it should charge 10 in each and 5 in tier three."
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 182 \u2014 Proration uses elapsed time instead of unused time. `prorationFactor` returns the share already used, but both lines at 188 and 192 must cover the unused share. For a change one quarter into a period, the code credits and charges one quarter of each price instead of three quarters."
+        },
+        {
+          "label": "met",
+          "quote": "Line 182 \u2014 Proration uses elapsed time instead of unused time. `prorationFactor` returns the share already used, but both lines at 188 and 192 must cover the unused share. For a change one quarter into a period, the code credits and charges one quarter of each price instead of three quarters."
+        },
+        {
+          "label": "met",
+          "quote": "Line 182 \u2014 Proration uses elapsed time instead of unused time.** `prorationFactor` returns the share already used, but both lines at 188 and 192 must cover the unused share. For a change one quarter into a period, the code credits and charges one quarter of each price instead of three quarters."
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`previewInvoice` calls `buildInvoice`, which calls `applyCredit` and decrements `account.creditBalanceCents`. The README says preview must leave the account unchanged."
+        },
+        {
+          "label": "met",
+          "quote": "\"`previewInvoice` calls `buildInvoice`, which calls `applyCredit` and decrements `account.creditBalanceCents`. The README says preview must leave the account unchanged.\" and \"Finalising consumes the same credit twice... A 500-cent credit used on a final invoice leaves the balance at -500 cents rather than zero.\""
+        },
+        {
+          "label": "met",
+          "quote": "`previewInvoice` calls `buildInvoice`, which calls `applyCredit` and decrements `account.creditBalanceCents`. The README says preview must leave the account unchanged. ... `buildInvoice` has already decremented the balance through `applyCredit`; `finaliseInvoice` subtracts `invoice.creditAppliedCents` again."
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 259 \u2014 Tax is calculated before account credit is deducted. The README taxes the amount left after both discount and credit. ... Line 261 \u2014 Credit can be applied to tax. `applyCredit` receives `due`, which already includes tax, rather than the subtotal after discount."
+        },
+        {
+          "label": "met",
+          "quote": "Line 259 \u2014 Tax is calculated before account credit is deducted. The README taxes the amount left after both discount and credit. ... Line 261 \u2014 Credit can be applied to tax. `applyCredit` receives `due`, which already includes tax, rather than the subtotal after discount."
+        },
+        {
+          "label": "met",
+          "quote": "4. **Line 259 \u2014 Tax is calculated before account credit is deducted.** The README taxes the amount left after both discount and credit. ... 5. **Line 261 \u2014 Credit can be applied to tax.** `applyCredit` receives `due`, which already includes tax, rather than the subtotal after discount."
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 155 \u2014 Plan changes use the wrong criterion. The code makes a change immediate when the new plan includes more units. The README requires an immediate change only when the new plan's **monthly price** is higher. An upgrade with the same or fewer included units is wrongly delayed, while a cheaper plan with more included units is wrongly applied immediately."
+        },
+        {
+          "label": "met",
+          "quote": "Line 155 \u2014 Plan changes use the wrong criterion.** The code makes a change immediate when the new plan includes more units. The README requires an immediate change only when the new plan's **monthly price** is higher. An upgrade with the same or fewer included units is wrongly delayed, while a cheaper plan with more included units is wrongly applied immediately."
+        },
+        {
+          "label": "met",
+          "quote": "Line 155 \u2014 Plan changes use the wrong criterion.** The code makes a change immediate when the new plan includes more units. The README requires an immediate change only when the new plan's **monthly price** is higher. An upgrade with the same or fewer included units is wrongly delayed, while a cheaper plan with more included units is wrongly applied immediately."
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "\"Lines 100\u2013104 \u2014 Tier cap validation accepts invalid numbers. A bounded `upTo` of `NaN` passes `tier.upTo <= previousCap`...\" \u2014 the extra findings (9\u201312) are accurate or on the debatable list; findings 1\u20138 match the planted bugs, with correct examples."
+        },
+        {
+          "label": "met",
+          "quote": "\"A bounded `upTo` of `NaN` passes `tier.upTo <= previousCap`... `usageCharge` then produces `NaN`\" and \"With 1.5 billable units at 1 cent per unit, it returns 1.5 cents\". The code does behave this way, so these extra findings describe real faults, not misreadings."
+        },
+        {
+          "label": "met",
+          "quote": "\"With 1.5 billable units at 1 cent per unit, it returns 1.5 cents, contrary to the README's requirement that every amount be an integer number of cents.\""
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

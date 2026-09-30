@@ -1,0 +1,12 @@
+I've written `maxSlidingWindow` in `solution.ts` using a monotonic deque, so it runs in O(n) time and uses O(n) memory.
+
+**How it works:** The deque holds positions in the array whose values get smaller from front to back.
+- Before adding a new position, it drops any positions at the back whose values are less than or equal to the new value, since they can never be a block's largest again.
+- It removes the front position once it falls outside the current block.
+- The front of the deque then always holds the largest value in the current block.
+
+The deque is a preallocated `Int32Array` with head and tail pointers, which avoids the slowdown of `Array.prototype.shift()`.
+
+**Testing:** It gave the correct results for three hand-picked cases, including the standard example `[1,3,-1,-3,5,3,6,7], k=3 → [3,3,5,5,6,7]`. It also matched a simple brute-force version on 500 random inputs.
+
+Separately, several claude.ai connectors (Atlassian Rovo, Figma, Gmail, Google Drive, Miro, Trello) need to be authorized in your claude.ai connector settings before they can be used. This task didn't need any of them.

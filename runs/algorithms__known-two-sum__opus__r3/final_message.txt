@@ -1,0 +1,19 @@
+I implemented `twoSum` in `solution.ts` using a single pass with a hash map, so it runs in O(n) time and O(n) memory:
+
+```ts
+export function twoSum(nums: number[], target: number): [number, number] {
+  const seen = new Map<number, number>();
+  for (let j = 0; j < nums.length; j++) {
+    const i = seen.get(target - nums[j]);
+    if (i !== undefined) return [i, j];
+    if (!seen.has(nums[j])) seen.set(nums[j], j);
+  }
+  throw new Error("no valid pair");
+}
+```
+
+- **Order of positions:** for each position `j`, it looks up the value `target - nums[j]` among positions it has already passed. Any match was stored earlier, so `i < j` always holds and a position can't be paired with itself.
+- **Equal values:** two positions holding the same value (like `[3,3]` with target 6) work, because the first one is stored before the second one is checked.
+- **Number range:** values stay within about ±2·10⁹, so there's no precision problem with JavaScript numbers.
+
+I ran a few quick checks with Node and all gave the right answer: `[2,7,11,15]→9`, `[3,3]→6`, `[3,2,4]→6`, a case using the ±10⁹ limits, and a 100,000-element array where the pair is at the end. The file has no imports.

@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 304 \u2014 Money formatting omits the leading zero in the cents field.** `formatMoney(105)` returns `$1.5` instead of `$1.05`"
+        },
+        {
+          "label": "met",
+          "quote": "Line 304 \u2014 Money formatting omits the leading zero in the cents field. `formatMoney(105)` returns `$1.5` instead of `$1.05`"
+        },
+        {
+          "label": "met",
+          "quote": "Line 304 \u2014 Money formatting omits the leading zero in the cents field.** `formatMoney(105)` returns `$1.5` instead of `$1.05`, and `formatMoney(5)` returns `$0.5` instead of `$0.05`."
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 217 \u2014 Later usage tiers are too wide. `upTo` is a cumulative billable-unit cap, so a bounded tier's width is `tier.upTo - previousCap`. The code uses the entire cap for every tier."
+        },
+        {
+          "label": "met",
+          "quote": "Line 217 \u2014 Later usage tiers are too wide. `upTo` is a cumulative billable-unit cap, so a bounded tier's width is `tier.upTo - previousCap`. The code uses the entire cap for every tier. With caps of 10 and 20 and 25 billable units, it charges 10 units in tier one and 15 in tier two instead of 10 in each bounded tier and 5 in the final tier."
+        },
+        {
+          "label": "met",
+          "quote": "Line 217 \u2014 Later usage tiers are too wide.** `upTo` is a cumulative billable-unit cap, so a bounded tier's width is `tier.upTo - previousCap`. The code uses the entire cap for every tier. With caps of 10 and 20 and 25 billable units, it charges 10 units in tier one and 15 in tier two instead of 10 in each bounded tier and 5 in the final tier."
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 182 \u2014 Proration uses the elapsed share of the month. `prorationFactor` returns the share already used, but both proration lines must use the *unused* share (`1 - prorationFactor(...)`)."
+        },
+        {
+          "label": "met",
+          "quote": "Line 182 \u2014 Proration uses the elapsed share of the month. `prorationFactor` returns the share already used, but both proration lines must use the *unused* share (`1 - prorationFactor(...)`)."
+        },
+        {
+          "label": "met",
+          "quote": "Line 182 \u2014 Proration uses the elapsed share of the month. `prorationFactor` returns the share already used, but both proration lines must use the *unused* share (`1 - prorationFactor(...)`)."
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`previewInvoice` calls `buildInvoice`, which calls `applyCredit`; that function immediately subtracts the applied amount from `account.creditBalanceCents`. A preview must leave the account unchanged."
+        },
+        {
+          "label": "met",
+          "quote": "`previewInvoice` calls `buildInvoice`, which calls `applyCredit`; that function immediately subtracts the applied amount from `account.creditBalanceCents`. A preview must leave the account unchanged."
+        },
+        {
+          "label": "met",
+          "quote": "`previewInvoice` calls `buildInvoice`, which calls `applyCredit`; that function immediately subtracts the applied amount from `account.creditBalanceCents`. A preview must leave the account unchanged."
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Lines 259\u2013261 \u2014 Credit is applied after tax instead of before it. Tax is calculated on `subtotal - discount`, then credit is taken from the tax-inclusive total. The rules require credit to reduce the discounted subtotal first, with tax calculated only on the remainder."
+        },
+        {
+          "label": "met",
+          "quote": "Lines 259\u2013261 \u2014 Credit is applied after tax instead of before it. Tax is calculated on `subtotal - discount`, then credit is taken from the tax-inclusive total. The rules require credit to reduce the discounted subtotal first, with tax calculated only on the remainder."
+        },
+        {
+          "label": "met",
+          "quote": "Lines 259\u2013261 \u2014 Credit is applied after tax instead of before it. Tax is calculated on `subtotal - discount`, then credit is taken from the tax-inclusive total. The rules require credit to reduce the discounted subtotal first, with tax calculated only on the remainder."
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 155 \u2014 Plan changes are timed by included units instead of price. ... A more expensive plan with the same allowance is incorrectly deferred; a cheaper plan with a larger allowance is incorrectly applied immediately."
+        },
+        {
+          "label": "met",
+          "quote": "Line 155 \u2014 Plan changes are timed by included units instead of price. ... A more expensive plan with the same allowance is incorrectly deferred; a cheaper plan with a larger allowance is incorrectly applied immediately."
+        },
+        {
+          "label": "met",
+          "quote": "Line 155 \u2014 Plan changes are timed by included units instead of price. ... A more expensive plan with the same allowance is incorrectly deferred; a cheaper plan with a larger allowance is incorrectly applied immediately."
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "\"Lines 100\u2013104 \u2014 Tier-cap validation accepts fractional and non-finite caps. The comparison only checks that a cap is greater than the previous one; it never checks that it is a finite integer.\" This is accurate. Findings 8\u201313 all describe real behaviour, and none of them misreads the code."
+        },
+        {
+          "label": "met",
+          "quote": "\"Lines 100\u2013104 \u2014 Tier-cap validation accepts fractional and non-finite caps. The comparison only checks that a cap is greater than the previous one; it never checks that it is a finite integer.\" (This, like every other extra finding, accurately describes the code; none misreads it.)"
+        },
+        {
+          "label": "met",
+          "quote": "\"Lines 100\u2013104 \u2014 Tier-cap validation accepts fractional and non-finite caps. ... A cap of 1.5 passes validation ... `NaN` also passes because comparisons with it are false.\" The extra findings (8\u201313) accurately describe what the code does; none misreads the code."
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

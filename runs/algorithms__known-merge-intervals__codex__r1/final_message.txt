@@ -1,0 +1,1 @@
+Implemented `mergeIntervals` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.toWcAMOs63/solution.ts). It returns intervals sorted by start, merges overlaps and shared endpoints, and leaves the input unchanged. Five edge-case checks passed.

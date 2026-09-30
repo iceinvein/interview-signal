@@ -1,0 +1,26 @@
+{
+  "format": "algorithms",
+  "task": "known-longest-increasing-subsequence",
+  "agent": "codex",
+  "rep": 1,
+  "cli": "codex-cli 0.158.0",
+  "model": "gpt-6-sol",
+  "effort": "high",
+  "is_error": false,
+  "cost_usd": null,
+  "turns": 1,
+  "codex_steps": 9,
+  "usage": {
+    "input_tokens": 94260,
+    "cached_input_tokens": 83328,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 1610,
+    "reasoning_output_tokens": 89
+  },
+  "contamination": [],
+  "external_fetches": [],
+  "timed_out": false,
+  "interrupted": null,
+  "exit_code": 0,
+  "wall_s": 52.976
+}

@@ -1,0 +1,12 @@
+I found 8 bugs in `billing.ts` and wrote them to `FINDINGS.md`, each with the line, the reason and a suggested fix. I found them by reading the code; I didn't run anything to confirm them.
+
+1. **Lines 182/188/192, prorating plan changes:** `prorationFactor` returns the share of the period already used, but `changePlan` treats it as the unused share. Both the credit for the old plan and the charge for the new plan are therefore wrong. For example, upgrading on day 1 credits and charges about 1/30 of a month instead of about 29/30.
+2. **Line 217, tiered usage:** `usageCharge` treats each tier's `upTo` as that tier's size, not a running total, so later tiers are too wide and customers are overcharged. `previousCap` is tracked but never used.
+3. **Line 294, credit taken twice:** `buildInvoice` already takes the credit off the account (line 235), then `finaliseInvoice` takes it off again. The balance can go negative, and then the account fails validation on its next invoice.
+4. **Lines 233–236/282, preview changes the account:** `previewInvoice` goes through `applyCredit`, so every preview uses up real credit, even though its doc comment says it doesn't change the account.
+5. **Line 230, negative discount:** when the subtotal is negative, a percent discount comes out negative and cuts what the customer is owed.
+6. **Lines 234/260–270, lost refunds:** when an invoice total is negative, the amount isn't added back to the account's credit, so the customer loses it. Tax is also worked out on the negative amount.
+7. **Line 304, money formatting:** cents aren't padded to two digits, so 105 shows as `$1.5`.
+8. **Lines 246–251, plans not checked:** `validatePlan` is never called before billing. A plan with no unlimited last tier silently doesn't charge usage above its top limit.
+
+The file also lists two minor issues: `NaN` gets past the tax-rate and discount range checks, and a long line description runs into its amount on the rendered invoice.

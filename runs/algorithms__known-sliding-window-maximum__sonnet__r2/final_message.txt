@@ -1,0 +1,3 @@
+I implemented `maxSlidingWindow` in `solution.ts` using a monotonic deque of indices, so it runs in O(n). I haven't run it or tested it.
+
+For each new element it drops the front index if it has slid out of the window, then pops back any indices whose values are less than or equal to the new one. The front of the deque is then the maximum of the current window. It needs no imports.

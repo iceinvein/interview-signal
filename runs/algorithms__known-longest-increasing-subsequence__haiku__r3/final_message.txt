@@ -1,0 +1,9 @@
+Done! I've implemented the longest increasing subsequence function using a binary search approach.
+
+**Algorithm:** The solution maintains a `tails` array where `tails[i]` represents the smallest tail element of all increasing subsequences of length `i+1`. For each number, we binary search to find where it fits:
+- If it's larger than everything, it extends the longest sequence
+- Otherwise, it replaces a larger element (which improves future candidates)
+
+**Complexity:** O(n log n) time, O(n) space — efficient even for arrays with 100,000 elements.
+
+**Example:** For `[10, 9, 2, 5, 3, 7, 101, 18]`, the function correctly returns 4 (the LIS is `[2, 3, 7, 101]` or `[2, 3, 7, 18]`).

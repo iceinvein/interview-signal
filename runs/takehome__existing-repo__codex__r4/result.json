@@ -1,0 +1,26 @@
+{
+  "format": "takehome",
+  "task": "existing-repo",
+  "agent": "codex",
+  "rep": 4,
+  "cli": "codex-cli 0.158.0",
+  "model": "gpt-6-sol",
+  "effort": "high",
+  "is_error": false,
+  "cost_usd": null,
+  "turns": 1,
+  "codex_steps": 22,
+  "usage": {
+    "input_tokens": 507364,
+    "cached_input_tokens": 469248,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 11614,
+    "reasoning_output_tokens": 3615
+  },
+  "contamination": [],
+  "external_fetches": [],
+  "timed_out": false,
+  "interrupted": null,
+  "exit_code": 0,
+  "wall_s": 285.354
+}

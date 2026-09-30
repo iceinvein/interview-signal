@@ -1,0 +1,5 @@
+I wrote `longestBalancedRun` in `solution.ts`. I haven't run it or tested it, including on your `"xxayx"` example.
+
+It scans the string once, adding 1 to a running balance for each lowercase `'x'` and subtracting 1 for each lowercase `'y'`. It stores the first index where each balance value appeared. When the same balance shows up again, the stretch between the two positions is balanced, and the function keeps the longest such stretch. Other characters, including `'X'` and `'Y'`, leave the balance unchanged.
+
+The function runs in O(n) time and uses an `Int32Array` of size 2n+1 for the first-seen indices. That fits the 1,000,000-character limit. It returns `0` for the empty string. The file has no imports.

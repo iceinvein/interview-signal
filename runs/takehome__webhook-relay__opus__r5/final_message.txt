@@ -1,0 +1,18 @@
+I've built the relay and written the README. All 21 tests pass on five repeated runs, the typecheck is clean, and a manual run with `npm start` returned the right 202, 429 (with `Retry-After`) and 404 responses and logged the retries.
+
+**One requirement I deliberately didn't implement:** #7 asks for full request bodies in the logs. The same brief says those bodies routinely contain customers' API keys and access tokens, so doing it would copy live credentials into the log pipeline. Instead, each request log has the tenant, webhook id, content type, body size and a SHA-256 of the body. On-call can hash a payload the tenant gives them to confirm we received exactly that, without us storing it. Every delivery attempt is logged too, with its status or error and outcome. A test sends a fake secret and checks it never appears in the logs. The README explains this and suggests safer options if bodies really are needed. It's the kind of call they say they want to see, but you should know I made it.
+
+**How it's built**
+- **No runtime dependencies.** Node 24 runs the TypeScript directly, so there's no build step. The only dev dependencies are `typescript` and `@types/node`, for `npm run typecheck`. Tests use `node:test`.
+- **Isolation:** each tenant has its own queue and rate limiter. A tenant can have at most 10 deliveries in progress and 1,000 webhooks waiting; past that it gets a 503. Each attempt times out after 10 s. So a hung destination can only use up its own tenant's capacity.
+- **Rate limit:** at most `requestsPerSecond` accepted in any one-second window, so there's no double burst where two seconds meet. Rejected requests don't count against it.
+- **Retries:** the wait doubles from `initialBackoffMs`, and `maxAttempts` includes the first try. Redirects count as failures and aren't followed, so tenants' credentials never go to a URL that isn't in our config.
+- **Time-dependent tests:** these use an injected fake clock instead of sleeping. They check attempts happen at exactly 0, 1000, 3000 and 7000 ms, and that nothing fires at 999 ms. The end-to-end tests use real local HTTP servers.
+
+The README also covers the other decisions and the questions I'd ask them: retrying 4xx responses, jitter and a maximum wait, delivery order, forwarding the providers' signature headers, the missing inbound authentication, and rate limits across several instances. It ends with next steps, starting with a durable queue.
+
+Files are in the working directory:
+- `src/`: `config.ts`, `rate-limiter.ts`, `dispatcher.ts`, `http-sender.ts`, `relay.ts`, `main.ts`, `log.ts`
+- `test/`
+- `README.md`
+- `tenants.example.json`

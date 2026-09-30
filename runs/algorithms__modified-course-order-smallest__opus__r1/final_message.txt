@@ -1,0 +1,16 @@
+I've written `courseOrder` in `solution.ts`. It builds an ordering by repeatedly taking the smallest-numbered course whose prerequisites are all done, which gives the lexicographically smallest valid order.
+
+I ran a few quick checks and they all gave the expected result:
+- A small diamond-shaped set of prerequisites returned `[0, 1, 2, 3]`.
+- A repeated pair `[0, 2]` twice returned `[1, 2, 0]`, the same as a single copy.
+- Two courses that require each other returned `[]`.
+- A self-pair `[1, 1]` returned `[]`.
+- No prerequisites returned `[0, 1, 2]`.
+- A 100,000-course chain with every pair duplicated (about 200,000 pairs) finished in about 16 ms and listed all 100,000 courses.
+
+**How it handles the special cases:**
+- **Self-pairs `[a, a]`:** the function returns `[]` as soon as it sees one.
+- **Repeated pairs:** each copy counts once against the course and is cleared once when its prerequisite is taken, so repeats have the same effect as a single copy.
+- **Cycles:** if some courses can never become available, the order comes out shorter than `numCourses` and the function returns `[]`.
+
+It runs in O((n + m) log n) time, where n is the number of courses and m the number of pairs, and has no imports.

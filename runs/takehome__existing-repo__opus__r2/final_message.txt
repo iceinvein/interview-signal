@@ -1,0 +1,24 @@
+I've built the waitlist feature, with one deliberate change from the brief: **the waitlist list does not return members' email addresses.** All 66 tests pass (48 existing, 18 new) and `npm run typecheck` is clean.
+
+## Needs a decision: email on the waitlist list (requirement 5)
+Requirement 5 asks `GET /sessions/:sessionId/waitlist` to include each member's `email`. CONTRIBUTING.md forbids that. Member contact details may only be returned by the `/members` routes, because the studios' privacy notice promises that front-desk tablets won't hold them. Changing that needs sign-off from the data protection lead, and the file says to raise it before writing it.
+
+So each entry returns `position`, `memberId`, `joinedAt` and `member: { id, name }`. I put `name` inside a `member` object rather than at the top level, to match `GET /sessions/:id/bookings`. If sign-off comes through, adding email is a small change to the view and service, but it should be a conscious decision. Another option is for staff to open a member's record through `/members/:id` when they need to contact them.
+
+## What changed
+- **Storage:** there's a new waitlist store, with its interface in `src/repositories/types.ts`, an in-memory version and a line in `createMemoryRepositories()`. Positions aren't stored; they come from queue order, so when someone leaves, everyone behind moves up without any rows being rewritten.
+- **Joining, leaving and listing:** these are in the new `src/services/waitlistService.ts`. Checks run in the same order as booking: `session_started`, then `already_booked`, `already_waitlisted`, `session_not_full`. So a member who already has a place is told that, rather than being told the session has room.
+- **Cancellation (`src/services/bookingService.ts`):** when a booking is cancelled, the freed place goes to the first person on the waitlist who can take it. That goes through the same booking checks as a normal booking, as the "no confirmed bookings from anywhere else" rule requires.
+- **Errors:** two new conflict codes, `session_not_full` and `already_waitlisted`, plus a `waitlist_entry` type for the 404.
+- **HTTP:** the routes are in the new `src/http/routes/waitlist.ts`, and the views are in `views.ts`.
+- **Tests:** service tests in `test/services/waitlistService.test.ts` and new cases in `bookingService.test.ts`; route tests in `test/http/waitlist.test.ts`; and a `world.seedWaitlistEntry()` helper in the fixtures.
+- **Docs:** the README API table and error codes are updated.
+
+## Behaviour the brief didn't cover
+- **Skipping someone who can't take the place:** if the person at the front has since booked a class at the same time, they're passed over and the next person gets the place. The skipped person keeps their spot for the next opening.
+- **Booking directly:** if a waitlisted member books the session another way (say, after capacity goes up), they're taken off its waitlist.
+
+## Possible follow-ups
+- **Capacity increases don't fill from the waitlist:** raising capacity with `PATCH /sessions/:id` leaves the waitlist untouched. Anyone who calls the booking endpoint can then take the new places ahead of the queue. The brief only mentioned cancellations, so I left this alone, but it probably should fill from the waitlist too.
+- **No notification:** a member who gets a place from the waitlist isn't told.
+- **Postgres ordering:** the in-memory store keeps entries in the order they joined. A Postgres version would need a tie-breaker, such as a sequence column, for entries with the same `joinedAt`.

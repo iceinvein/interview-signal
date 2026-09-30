@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Money formatting omits the second decimal digit (`billing.ts:304`).** The cents remainder is interpolated without zero padding. For example, 105 cents displays as `$1.5` instead of `$1.05`"
+        },
+        {
+          "label": "met",
+          "quote": "Money formatting omits the second decimal digit (`billing.ts:304`). The cents remainder is interpolated without zero padding. For example, 105 cents displays as `$1.5` instead of `$1.05`"
+        },
+        {
+          "label": "met",
+          "quote": "The cents remainder is interpolated without zero padding. For example, 105 cents displays as `$1.5` instead of `$1.05`"
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Later usage tiers have the wrong width (`billing.ts:217`).** `tier.upTo` is a cumulative cap, but the code uses it as the width of each tier. `previousCap` is tracked but never subtracted."
+        },
+        {
+          "label": "met",
+          "quote": "**Later usage tiers have the wrong width (`billing.ts:217`).** `tier.upTo` is a cumulative cap, but the code uses it as the width of each tier. `previousCap` is tracked but never subtracted. For 250 billable units with caps of 100 and 200 and prices of 1, 2, and 3 cents, the function returns 400 cents instead of 450 cents."
+        },
+        {
+          "label": "met",
+          "quote": "**Later usage tiers have the wrong width (`billing.ts:217`).** `tier.upTo` is a cumulative cap, but the code uses it as the width of each tier. `previousCap` is tracked but never subtracted."
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Plan-change proration uses elapsed time as remaining time (`billing.ts:182`). `prorationFactor` explicitly returns the share already used. Both the unused-time credit and remaining-time charge use that share. A change one quarter into a month bills one quarter of each plan instead of three quarters"
+        },
+        {
+          "label": "met",
+          "quote": "Plan-change proration uses elapsed time as remaining time (`billing.ts:182`). `prorationFactor` explicitly returns the share already used. Both the unused-time credit and remaining-time charge use that share. A change one quarter into a month bills one quarter of each plan instead of three quarters"
+        },
+        {
+          "label": "met",
+          "quote": "Plan-change proration uses elapsed time as remaining time (`billing.ts:182`). `prorationFactor` explicitly returns the share already used. Both the unused-time credit and remaining-time charge use that share. A change one quarter into a month bills one quarter of each plan instead of three quarters"
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`previewInvoice` calls `buildInvoice`, which calls `applyCredit` and subtracts the applied credit from `account.creditBalanceCents`... contradicting its documented promise not to change the account\" and \"`buildInvoice` already deducts the applied credit in `applyCredit`; `finaliseInvoice` subtracts the same amount again."
+        },
+        {
+          "label": "met",
+          "quote": "\"`previewInvoice` calls `buildInvoice`, which calls `applyCredit` and subtracts the applied credit from `account.creditBalanceCents`... contradicting its documented promise not to change the account\" and \"`buildInvoice` already deducts the applied credit in `applyCredit`; `finaliseInvoice` subtracts the same amount again.\""
+        },
+        {
+          "label": "met",
+          "quote": "\"`previewInvoice` calls `buildInvoice`, which calls `applyCredit` and subtracts the applied credit from `account.creditBalanceCents`... contradicting its documented promise not to change the account\" and \"`buildInvoice` already deducts the applied credit in `applyCredit`; `finaliseInvoice` subtracts the same amount again.\""
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "No finding covers the order of credit and tax. The closest is finding 8, \"A percent discount can become negative (`billing.ts:229-230`)\", which is about discount sign, not about credit being applied after tax at lines 258-261."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"8. **A percent discount can become negative (`billing.ts:229-230`).\" \u2014 no finding says that credit is applied after tax. Findings 1\u20132 cover how credit is deducted, not the order of credit and tax at lines 258-260."
+        },
+        {
+          "label": "not_met",
+          "quote": "Finding 8 covers lines 229-230 and says \"A percent discount can become negative,\" but no finding says credit is applied after tax instead of before it."
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "\"4. **Plan-change proration uses elapsed time as remaining time (`billing.ts:182`).**\" This is the only plan-change finding. None of the findings says planChangeTiming (lines 152-156) picks the timing from included units when it should use monthly price."
+        },
+        {
+          "label": "not_met",
+          "quote": "4. **Plan-change proration uses elapsed time as remaining time (`billing.ts:182`).** \u2014 the only plan-change finding; none of the findings says planChangeTiming decides by included units instead of monthly price."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"4. **Plan-change proration uses elapsed time as remaining time (`billing.ts:182`).**\" \u2014 this is the only plan-change finding. None of the findings says planChangeTiming (lines 152-156) decides by included units instead of monthly price."
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "5. **The same period can be invoiced repeatedly (`billing.ts:286-295`).** `finaliseInvoice` records no issued period and has no idempotency check. Calling it twice for the same account and period returns two full subscription invoices, contrary to the module's stated one-invoice-per-period behavior."
+        },
+        {
+          "label": "not_met",
+          "quote": "5. **The same period can be invoiced repeatedly (`billing.ts:286-295`).** `finaliseInvoice` records no issued period and has no idempotency check. Calling it twice for the same account and period returns two full subscription invoices, contrary to the module's stated one-invoice-per-period behavior."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"The same period can be invoiced repeatedly (`billing.ts:286-295`). `finaliseInvoice` records no issued period and has no idempotency check. Calling it twice for the same account and period returns two full subscription invoices, contrary to the module's stated one-invoice-per-period behavior.\""
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

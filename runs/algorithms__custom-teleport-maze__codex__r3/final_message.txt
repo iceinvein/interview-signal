@@ -1,0 +1,3 @@
+Implemented `shortestTeleportPath` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.nvOyTsrbRc/solution.ts). It uses breadth-first search to find the fewest moves, treating each step or optional portal jump as one move. Time and memory usage are both O(rows × columns).
+
+Verified the example, five edge cases, and a 1000 × 1000 grid.

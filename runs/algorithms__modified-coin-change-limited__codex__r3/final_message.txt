@@ -1,0 +1,3 @@
+Implemented `coinChangeLimited` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.OEBipPF618/solution.ts). It finds the minimum coin count while respecting each denomination’s limit, returning `-1` when the amount cannot be made.
+
+Verified with fixed cases and 1,000 comparisons against a brute force solver.

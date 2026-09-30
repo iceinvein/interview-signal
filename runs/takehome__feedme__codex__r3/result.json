@@ -1,0 +1,30 @@
+{
+  "format": "takehome",
+  "task": "feedme",
+  "agent": "codex",
+  "rep": 3,
+  "cli": "codex-cli 0.158.0",
+  "model": "gpt-6-sol",
+  "effort": "high",
+  "is_error": false,
+  "cost_usd": null,
+  "turns": 1,
+  "codex_steps": 85,
+  "usage": {
+    "input_tokens": 3186335,
+    "cached_input_tokens": 3075712,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 25394,
+    "reasoning_output_tokens": 9232
+  },
+  "contamination": [
+    "reference/"
+  ],
+  "external_fetches": [
+    "https://github.com/iceinvein/feedme-backend-service.git"
+  ],
+  "timed_out": false,
+  "interrupted": null,
+  "exit_code": 0,
+  "wall_s": 713.969
+}

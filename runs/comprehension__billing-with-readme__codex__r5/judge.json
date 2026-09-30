@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "| 304 | `formatMoney` does not pad the cent part to two digits. For example, 105 cents renders as `$1.5` instead of `$1.05`. |"
+        },
+        {
+          "label": "met",
+          "quote": "| 304 | `formatMoney` does not pad the cent part to two digits. For example, 105 cents renders as `$1.5` instead of `$1.05`. |"
+        },
+        {
+          "label": "met",
+          "quote": "| 304 | `formatMoney` does not pad the cent part to two digits. For example, 105 cents renders as `$1.5` instead of `$1.05`. |"
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "| 217 | A bounded tier's `upTo` is a cumulative cap, but the code treats it as that tier's width. With caps of 100 and 200 and 250 billable units, it assigns 150 units to the second tier and none to the third; the correct split is 100, 100, and 50. |"
+        },
+        {
+          "label": "met",
+          "quote": "| 217 | A bounded tier's `upTo` is a cumulative cap, but the code treats it as that tier's width. With caps of 100 and 200 and 250 billable units, it assigns 150 units to the second tier and none to the third; the correct split is 100, 100, and 50. |"
+        },
+        {
+          "label": "met",
+          "quote": "| 217 | A bounded tier's `upTo` is a cumulative cap, but the code treats it as that tier's width. With caps of 100 and 200 and 250 billable units, it assigns 150 units to the second tier and none to the third; the correct split is 100, 100, and 50. |"
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "| 182 | `prorationFactor` is the **used** share of the month, but the change lines use it as the **unused** share. An upgrade at the start of a period produces zero credit and zero new-plan charge; at the end it prorates the full month. |"
+        },
+        {
+          "label": "met",
+          "quote": "| 182 | `prorationFactor` is the **used** share of the month, but the change lines use it as the **unused** share. An upgrade at the start of a period produces zero credit and zero new-plan charge; at the end it prorates the full month. |"
+        },
+        {
+          "label": "met",
+          "quote": "| 182 | `prorationFactor` is the **used** share of the month, but the change lines use it as the **unused** share. An upgrade at the start of a period produces zero credit and zero new-plan charge; at the end it prorates the full month. |"
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`buildInvoice` consumes account credit through `applyCredit`, so `previewInvoice` changes the account even though a preview must leave it untouched. ... `finaliseInvoice` subtracts applied credit again after `buildInvoice` has already subtracted it."
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` consumes account credit through `applyCredit`, so `previewInvoice` changes the account even though a preview must leave it untouched. ... `finaliseInvoice` subtracts applied credit again after `buildInvoice` has already subtracted it."
+        },
+        {
+          "label": "met",
+          "quote": "\"`buildInvoice` consumes account credit through `applyCredit`, so `previewInvoice` changes the account even though a preview must leave it untouched.\" and \"`finaliseInvoice` subtracts applied credit again after `buildInvoice` has already subtracted it.\""
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "| 259\u2013261 | Tax is calculated before credit, and credit is then applied to the tax-inclusive amount. The rules require credit to reduce the post-discount subtotal before tax. On a 1,000-cent subtotal with 500 cents of credit and 10% tax, the code bills 600 cents rather than 550. |"
+        },
+        {
+          "label": "met",
+          "quote": "| 259\u2013261 | Tax is calculated before credit, and credit is then applied to the tax-inclusive amount. The rules require credit to reduce the post-discount subtotal before tax. On a 1,000-cent subtotal with 500 cents of credit and 10% tax, the code bills 600 cents rather than 550. |"
+        },
+        {
+          "label": "met",
+          "quote": "| 259\u2013261 | Tax is calculated before credit, and credit is then applied to the tax-inclusive amount. The rules require credit to reduce the post-discount subtotal before tax. On a 1,000-cent subtotal with 500 cents of credit and 10% tax, the code bills 600 cents rather than 550. |"
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "| 155 | Plan-change timing uses included units instead of monthly price. It can apply a cheaper plan immediately or delay a more expensive plan, contrary to the price-based timing rule. |"
+        },
+        {
+          "label": "met",
+          "quote": "| 155 | Plan-change timing uses included units instead of monthly price. It can apply a cheaper plan immediately or delay a more expensive plan, contrary to the price-based timing rule. |"
+        },
+        {
+          "label": "met",
+          "quote": "| 155 | Plan-change timing uses included units instead of monthly price. It can apply a cheaper plan immediately or delay a more expensive plan, contrary to the price-based timing rule. |"
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "| 226\u2013230 | A percentage discount on a negative subtotal becomes a negative discount. For example, `discountAmount(-500, { code: \"X\", kind: \"percent\", value: 10 })` returns -50, which increases the amount due instead of discounting it."
+        },
+        {
+          "label": "met",
+          "quote": "| 226\u2013230 | A percentage discount on a negative subtotal becomes a negative discount. For example, `discountAmount(-500, { code: \"X\", kind: \"percent\", value: 10 })` returns -50, which increases the amount due instead of discounting it."
+        },
+        {
+          "label": "met",
+          "quote": "| 131 | Binary floating-point arithmetic can round an exact half cent down. For example, 64.6% of 250 cents is exactly 161.5 cents and must round to 162, but `percentOf(250, 64.6)` returns 161. |"
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

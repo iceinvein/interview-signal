@@ -1,0 +1,11 @@
+I've implemented `evaluateSheet` in `solution.ts`. It gives the expected result on the example and on the extra cases I tried.
+
+**How it works:**
+1. Each cell name is mapped to a number. Each formula is read once into two parts: the sum of its integer literals, and a list of the filled cells it references. References to empty cells are dropped, since they add 0.
+2. It then walks the dependencies depth-first, using an explicit stack instead of recursion, so long reference chains can't overflow the call stack. A cell is marked `#CYCLE` if it reaches a cell that is still being processed (meaning it found a loop) or a cell already marked `#CYCLE`. Otherwise its value is its literal sum plus the values of the cells it references.
+3. Each cell and each reference is handled once, so the run time grows linearly with the input size. Plain JS numbers are exact here because every sum stays within ±10^15.
+
+**What I ran:**
+- The example gives `{ A1: "#CYCLE", B1: "#CYCLE", C1: 4, D1: 3 }`, as expected.
+- A mixed case with a self-reference (`A1: "=A1"`), a three-cell loop, a cell that depends on that loop, and a cell referenced twice all came out correct.
+- A 100,000-cell chain gave the right values and didn't overflow the stack. Closing that chain into one big loop marks all of it `#CYCLE`.

@@ -1,0 +1,26 @@
+{
+  "format": "algorithms",
+  "task": "modified-islands-on-a-torus",
+  "agent": "codex",
+  "rep": 2,
+  "cli": "codex-cli 0.158.0",
+  "model": "gpt-6-sol",
+  "effort": "high",
+  "is_error": false,
+  "cost_usd": null,
+  "turns": 1,
+  "codex_steps": 10,
+  "usage": {
+    "input_tokens": 113998,
+    "cached_input_tokens": 106112,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 3024,
+    "reasoning_output_tokens": 1132
+  },
+  "contamination": [],
+  "external_fetches": [],
+  "timed_out": false,
+  "interrupted": null,
+  "exit_code": 0,
+  "wall_s": 76.359
+}

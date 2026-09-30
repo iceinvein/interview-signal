@@ -1,0 +1,3 @@
+Implemented `slidingWindowRange` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.7LByJ58mvG/solution.ts). It uses monotonic queues to compute each range in O(n) time.
+
+Verified against a direct calculation on randomized cases and a 100,000-element input.

@@ -1,0 +1,13 @@
+I've built the webhook relay in `/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.nIdzgnpRVb`. All 24 tests pass and `npm run typecheck` is clean. I started it with `npm start`, posted a webhook to a known tenant and one to an unknown tenant, and got `202` and `404`. I did not run a successful forward against a real destination outside the tests.
+
+It has no runtime dependencies, because it uses `node:http` and Node's built-in `fetch`. Node 24 runs the TypeScript directly, so there is no build step.
+
+**Where I departed from the brief**
+- **Request bodies are not logged.** The brief asks for full-body logging, but it also says payloads routinely carry customers' API keys and tokens. I log the method, path, tenant, content type, status, byte count and webhook id, plus the outcome of each delivery attempt. On-call can trace an event through the `X-Webhook-Id`. A test checks that a secret in a payload never reaches the log. The README explains this and the question I'd ask the team.
+- **Rate limit is a sliding window, not a token bucket.** "At most N per second" is only strictly true with a sliding window. A test checks that no one-second span ever admits more than the limit.
+- **Undelivered events are capped per tenant.** Each tenant holds at most 1000 undelivered events, and bodies are capped at 1 MiB. Past the event cap, new webhooks get a `503` with `Retry-After`. Otherwise a dead destination would grow memory without limit.
+- **Redirects aren't followed.** A `3xx` counts as a failed attempt, so a payload can't be bounced to a host the tenant didn't configure.
+
+Retries follow the brief exactly, including retrying 4xx responses. The retry, backoff and limiter tests run on a fake clock, so the timing assertions are exact. Separate tests use real sockets and a real local destination server.
+
+The README lists what's not done, including durability, running multiple instances, inbound authentication and graceful drain. Those are where I'd go next.

@@ -1,0 +1,3 @@
+I wrote `countIslands` to `solution.ts`. I haven't run it or tested it.
+
+It uses an iterative flood fill with an explicit stack, so a 1000×1000 grid of land can't overflow the call stack. It only checks up, down, left and right, and the edges count as water. A separate visited array tracks progress, so the input grid is never modified. It runs in O(rows × cols) time and memory. The file has no imports.

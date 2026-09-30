@@ -1,0 +1,3 @@
+I wrote `maxSlidingWindow` in `solution.ts` using a monotonic deque of indices, so it runs in O(n) time. I haven't run it or tested it.
+
+The deque keeps indices whose values decrease from front to back. At each step it drops the front index once it leaves the window. It then pops back entries that are less than or equal to the new value. The front of the deque is the current window's maximum. The function has no imports.

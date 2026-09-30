@@ -1,0 +1,13 @@
+I've implemented `rainWater` in `solution.ts`. I ran it on five inputs and each returned the expected answer:
+
+| Input | Result |
+|---|---|
+| `[0,1,0,2,1,0,1,3,2,1,2,1]` | 6 |
+| `[4,2,0,3,2,5]` | 9 |
+| `[]` | 0 |
+| `[5]` | 0 |
+| `[1,2,3]` | 0 |
+
+It moves inward from both ends at once, always stepping from the side with the lower bar and keeping track of the tallest bar seen so far on each side. The water over a bar is that side's tallest bar minus the bar's own height. This works because the other side is already known to have a bar at least as tall. It makes one pass over the row and uses no extra arrays, so 100,000 bars is not a problem. The largest possible total is about 10¹⁰, which a JavaScript number holds exactly.
+
+The file has no imports, and the exported name and signature are exactly as given.

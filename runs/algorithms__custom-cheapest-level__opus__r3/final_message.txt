@@ -1,0 +1,8 @@
+I've written `cheapestLevel` in `solution.ts`. It returns 8 for your example, matches a brute-force check on 2,000 random cases, and ran in about 6 ms on 200,000 heights.
+
+**How it works:**
+- The total cost goes up in straight lines between the column heights and bends only at those heights. So the cheapest level is always one of the existing heights, and only those need checking.
+- It sorts the heights (using a typed array so the sort is numeric) and keeps a running sum of the heights below each one. That gives the raise and lower cost at each distinct height in constant time, so the whole thing takes O(n log n).
+- All numbers stay well below 2^53. The sum of heights is at most 2×10^11 and the cost at most about 2×10^14.
+
+It has no imports.

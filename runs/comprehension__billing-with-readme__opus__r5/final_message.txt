@@ -1,0 +1,13 @@
+I found seven bugs in `billing.ts` and wrote them to `FINDINGS.md`, each with its line, the rule it breaks, and a suggested fix. I found them by reading the code against `README.md`; I didn't run anything.
+
+1. **Line 155:** whether a plan change happens now or at the next period is decided by comparing included units, but rule 5 says to compare monthly price.
+2. **Line 182:** the plan-change credit and charge use the share of the month already used instead of the share left, so the amounts are backwards (rule 5).
+3. **Line 217:** usage tiers treat `upTo` as the size of each tier rather than a running total, so tiers after the first are billed too many units (rule 4). The value needed for the fix is already tracked on line 221 but never used.
+4. **Lines 259–261:** tax is worked out before credit is taken off, so customers pay tax on the part credit covers (rules 7 and 8).
+5. **Lines 235 and 261:** previewing an invoice uses up the account's credit (rule 7).
+6. **Line 294:** finalising an invoice takes the credit off twice. The balance can go negative, and the next invoice for that account then fails with an error.
+7. **Line 304:** `formatMoney` doesn't pad cents, so 105 cents shows as `$1.5` instead of `$1.05`.
+
+I also noted two smaller issues:
+- **Line 131:** rounding of negative halves, and floating-point error when the percentage isn't a whole number, may not match rule 1.
+- **Plan checks never run:** `validatePlan` isn't called when building an invoice or changing plans, so badly set-up usage tiers are accepted without error.

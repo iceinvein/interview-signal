@@ -1,0 +1,3 @@
+Implemented [longestNonDecreasing](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.3n2AF9cUXF/solution.ts) using binary search. It counts equal values and runs in O(n log n) time.
+
+Verified with fixed cases, 7,500 randomized checks, and 100,000 equal values.

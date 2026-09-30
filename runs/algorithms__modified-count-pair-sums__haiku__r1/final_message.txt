@@ -1,0 +1,12 @@
+Done! I've implemented `countPairsWithSum` using a hash map approach:
+
+**How it works:**
+- For each number, we check if its complement (`target - num`) has appeared before
+- If it has, we add the count of those previous occurrences (each forms a valid pair where `i < j`)
+- Then we record the current number in the map for future iterations
+
+**Complexity:**
+- Time: O(n) — single pass through the array
+- Space: O(n) — hash map stores unique values
+
+This naturally ensures `i < j` pairing since we only count complements seen in earlier positions, and correctly counts multiple pairs using the same values at different positions.

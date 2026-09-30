@@ -1,0 +1,3 @@
+Implemented the waitlist endpoints with queue positions, the requested conflict and 404 responses, removal, and automatic promotion when a confirmed booking is cancelled. Added service and HTTP tests, and updated the API docs. `npm test` passes (67 tests), and `npm run typecheck` is clean.
+
+Two review points remain: the requested email field conflicts with the privacy rule in `CONTRIBUTING.md` and needs data protection lead sign-off before deployment. Promotion follows the existing booking rules; if the front member has since booked an overlapping class, they remain queued and the freed place stays open.

@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`abs % 100` isn't padded to two digits: 505\u00a2 shows as `$5.5` (should be `$5.05`), 1000\u00a2 as `$10.0`, and 0 as `$0.0`."
+        },
+        {
+          "label": "met",
+          "quote": "`abs % 100` isn't padded to two digits: 505\u00a2 shows as `$5.5` (should be `$5.05`), 1000\u00a2 as `$10.0`, and 0 as `$0.0`."
+        },
+        {
+          "label": "met",
+          "quote": "`abs % 100` isn't padded to two digits: 505\u00a2 shows as `$5.5` (should be `$5.05`), 1000\u00a2 as `$10.0`, and 0 as `$0.0`."
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`UsageTier.upTo` is the cumulative number of billable units the tier runs up to... So a tier's width is `tier.upTo - previousCap`, not `tier.upTo`. ... Actual: 100\u00d710 + 200\u00d75 + 0 = 2000\u00a2. Customers get billed at the more expensive middle tier for units that belong in a cheaper later tier."
+        },
+        {
+          "label": "met",
+          "quote": "`UsageTier.upTo` is the cumulative number of billable units the tier runs up to, and `validatePlan` (lines 100\u2013105) requires the caps to strictly increase. So a tier's width is `tier.upTo - previousCap`, not `tier.upTo`."
+        },
+        {
+          "label": "met",
+          "quote": "So a tier's width is `tier.upTo - previousCap`, not `tier.upTo`. The loop already tracks `previousCap` (line 221) but never uses it. ... Actual: 100\u00d710 + 200\u00d75 + 0 = 2000\u00a2. Customers get billed at the more expensive middle tier for units that belong in a cheaper later tier."
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period *already used* (0 at the start, 1 at the end; see its doc comment on line 138). `changePlan` treats that number as the unused share. Both lines are wrong: the credit for \"Unused time on <current>\" and the charge for \"Remaining time on <next>\" grow as the period goes on, when they should shrink."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period *already used* (0 at the start, 1 at the end; see its doc comment on line 138). `changePlan` treats that number as the unused share."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period *already used* (0 at the start, 1 at the end; see its doc comment on line 138). `changePlan` treats that number as the unused share."
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, and `applyCredit` subtracts from `account.creditBalanceCents` (line 235). `previewInvoice` is documented as \"without changing the account\", but it calls `buildInvoice` directly, so every preview uses up the customer's credit."
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, and `applyCredit` subtracts from `account.creditBalanceCents` (line 235). `previewInvoice` is documented as \"without changing the account\", but it calls `buildInvoice` directly, so every preview uses up the customer's credit. ... `buildInvoice` has already taken the applied credit off the balance through `applyCredit`, and line 294 takes it off again."
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, and `applyCredit` subtracts from `account.creditBalanceCents` (line 235). `previewInvoice` is documented as \"without changing the account\", but it calls `buildInvoice` directly, so every preview uses up the customer's credit."
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "The only credit findings in FINDINGS.md are #3 (\"`previewInvoice` changes the account's credit balance\") and #4 (\"`finaliseInvoice` takes the credit off twice\"). None of the findings says that credit is applied after tax (lines 258\u2013260) when it should come off the discounted subtotal before tax."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"## 3. `previewInvoice` changes the account's credit balance (lines 233\u2013236, 261, 282)\": none of the eight findings says credit is applied after tax, or that tax should be charged only on what is left after credit."
+        },
+        {
+          "label": "not_met",
+          "quote": "The eight findings cover tiers, proration, preview credit, double credit, formatMoney, negative discount, NaN and validatePlan. None of them says that credit is applied after tax (lines 258\u2013261), when the rules say it should come off the discounted subtotal before tax is charged."
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "\"A negative subtotal can happen: an immediate change only needs `includedUnits` to go up (line 155), so the new plan can be cheaper than the old one.\" FINDINGS.md brings up the included-units rule only to show how a subtotal can go negative for finding 6. It never says that deciding timing by included units instead of monthly price is a bug, or that a cheaper plan wrongly takes effect at once or a pricier plan wrongly waits."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"A negative subtotal can happen: an immediate change only needs `includedUnits` to go up (line 155), so the new plan can be cheaper than the old one.\" This is given only as the reason for the discount bug. The rule itself is never reported as wrong."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"A negative subtotal can happen: an immediate change only needs `includedUnits` to go up (line 155), so the new plan can be cheaper than the old one.\" This is used only to explain Finding 6, and planChangeTiming is never flagged as wrong for deciding by units instead of price."
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "When proration adjustments make the subtotal negative, `percentOf(subtotal, value)` is negative. `Math.min(raw, Math.max(0, subtotal))` keeps that negative number, so `discountCents` is negative."
+        },
+        {
+          "label": "met",
+          "quote": "When proration adjustments make the subtotal negative, `percentOf(subtotal, value)` is negative. `Math.min(raw, Math.max(0, subtotal))` keeps that negative number, so `discountCents` is negative."
+        },
+        {
+          "label": "met",
+          "quote": "`Math.min(raw, Math.max(0, subtotal))` keeps that negative number, so `discountCents` is negative. The discount then shrinks the customer's credit (subtotal \u22121000\u00a2 with a 10% discount gives a net of \u2212900\u00a2)"
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

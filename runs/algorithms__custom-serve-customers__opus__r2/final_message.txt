@@ -1,0 +1,10 @@
+I've implemented `serveCustomers` in `solution.ts` and it passes all my checks.
+
+**How it works:** I keep a min-heap of the times each server becomes free, all starting at 0. For each customer in index order, I take the server that frees up earliest (the top of the heap). Service starts at the later of the arrival time and that free time, and the finish time goes back into the heap. The heap only needs `min(servers, n)` entries, since no more servers than customers can ever be used. The whole thing runs in O(n log min(servers, n)).
+
+**What I checked:**
+- **Examples:** the example in your spec returns `[10, 1, 2, 3]`. Empty input returns `[]`. A zero-length service followed by another customer at the same time on one server gives `[5, 8]`.
+- **Random tests:** 2,000 random cases matched a simple brute-force version exactly.
+- **Speed:** 200,000 customers with 100,000 servers and durations of 10^9 finished in about 10 ms.
+
+The file has no imports, and the exported name and signature are unchanged.

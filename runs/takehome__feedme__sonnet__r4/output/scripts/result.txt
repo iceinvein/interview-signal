@@ -1,0 +1,37 @@
+[00:55:13] > normal
+[00:55:13] Order #1 (NORMAL) added to PENDING
+[00:55:13] > normal
+[00:55:13] Order #2 (NORMAL) added to PENDING
+[00:55:13] > vip
+[00:55:13] Order #3 (VIP) added to PENDING
+[00:55:13] > status
+[00:55:13] status: bots: [], pending: [#3 (VIP), #1 (NORMAL), #2 (NORMAL)], processing: [], complete: []
+[00:55:14] > +bot
+[00:55:14] Bot 1 added
+[00:55:14] Bot 1 started order #3 (VIP)
+[00:55:15] > +bot
+[00:55:15] Bot 2 added
+[00:55:15] Bot 2 started order #1 (NORMAL)
+[00:55:15] > status
+[00:55:15] status: bots: [1:BUSY, 2:BUSY], pending: [#2 (NORMAL)], processing: [#3 (VIP)@bot1, #1 (NORMAL)@bot2], complete: []
+[00:55:16] > vip
+[00:55:16] Order #4 (VIP) added to PENDING
+[00:55:17] > -bot
+[00:55:17] Bot 2 removed, order #1 (NORMAL) returned to PENDING
+[00:55:17] > status
+[00:55:17] status: bots: [1:BUSY], pending: [#4 (VIP), #1 (NORMAL), #2 (NORMAL)], processing: [#3 (VIP)@bot1], complete: []
+[00:55:18] > +bot
+[00:55:18] Bot 3 added
+[00:55:18] Bot 3 started order #4 (VIP)
+[00:55:18] > status
+[00:55:18] status: bots: [1:BUSY, 3:BUSY], pending: [#1 (NORMAL), #2 (NORMAL)], processing: [#3 (VIP)@bot1, #4 (VIP)@bot3], complete: []
+[00:55:24] Bot 1 completed order #3 (VIP), moved to COMPLETE
+[00:55:24] Bot 1 started order #1 (NORMAL)
+[00:55:28] Bot 3 completed order #4 (VIP), moved to COMPLETE
+[00:55:28] Bot 3 started order #2 (NORMAL)
+[00:55:34] Bot 1 completed order #1 (NORMAL), moved to COMPLETE
+[00:55:34] Bot 1 is IDLE
+[00:55:38] Bot 3 completed order #2 (NORMAL), moved to COMPLETE
+[00:55:38] Bot 3 is IDLE
+[00:55:39] > status
+[00:55:39] status: bots: [1:IDLE, 3:IDLE], pending: [], processing: [], complete: [#3 (VIP), #4 (VIP), #1 (NORMAL), #2 (NORMAL)]

@@ -1,0 +1,13 @@
+Done! I've implemented `shortestTeleportPath` using **BFS (Breadth-First Search)** to find the shortest path:
+
+**Algorithm:**
+1. **Parse the grid** to locate start (S), end (E), and all portal twin pairs (a-z)
+2. **BFS from start**: For each position, explore:
+   - Adjacent cells in 4 directions (if not walls)
+   - Teleport to portal twin (if standing on a portal)
+3. **Return distance** when reaching E, or -1 if unreachable
+
+**Key details:**
+- Portals are optional—you can walk through them without teleporting
+- Uses a visited Set to avoid revisiting cells and ensure shortest path
+- Correctly handles the example: S→a(1)→jump to a(2)→.(3)→E(4) = 4 moves

@@ -1,0 +1,5 @@
+I wrote `longestNonDecreasing` in `solution.ts`. I haven't run it or tested it.
+
+It keeps a sorted list of the smallest possible last value for each subsequence length. For each number, it binary-searches for the first entry strictly greater than that number and replaces it, or appends the number if there is none. Searching for a strictly greater entry is what lets equal values extend a subsequence, so `[2, 2, 2]` gives `3`. The answer is the length of that list.
+
+It runs in O(n log n) time and O(n) space, which is fine for 100,000 elements. It has no imports and uses the exported signature you gave.

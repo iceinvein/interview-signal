@@ -1,0 +1,7 @@
+I implemented `cheapestLevel` in `solution.ts`. It returns 8 for your example, matched a brute-force check on 2,000 random small cases, and ran in about 12 ms on 200,000 random heights.
+
+**How it works:** as `L` changes, the total cost only changes slope at the column heights, so the cheapest level is always one of the heights. The function sorts the heights and keeps a running sum of the columns below the current one. Using that, it works out the cost at each height in constant time and returns the smallest. Overall it runs in O(n log n).
+
+**Precision:** the largest intermediate value is about 2×10⁵ × 10⁶ × 1000 = 2×10¹⁴, which is well below 2^53, so plain JS numbers are exact.
+
+The file has no imports and keeps the exported name and signature exactly as given.

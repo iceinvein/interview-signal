@@ -1,0 +1,9 @@
+I've written `maxSlidingWindow` in `solution.ts`. It returns the correct results on the sample inputs and matched a simple brute-force version on 500 random test cases.
+
+It uses a monotonic deque, a queue of index positions whose values always decrease from front to back. It runs in O(n) time with O(n) extra memory:
+
+- For each index `i`, it first drops the front index if it has fallen outside the window.
+- It then removes indices from the back while their values are `<=` `nums[i]`, since those can never be a window's maximum again, and adds `i`.
+- Once the first full window is reached (`i >= k - 1`), the front of the deque holds the index of the current window's maximum.
+
+The deque is stored in an `Int32Array` with head and tail pointers, which avoids the O(n) cost of `Array.shift()`. The file has no imports and keeps the exact exported signature.

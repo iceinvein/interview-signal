@@ -1,0 +1,1 @@
+Implemented `minWindowSubsequence` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.NKppKXLPOl/solution.ts). It returns the shortest qualifying substring, choosing the earliest start on ties. It uses O(|s| × |t|) time and O(|t|) space, and passed 7,620 exhaustive cases against a brute-force check.

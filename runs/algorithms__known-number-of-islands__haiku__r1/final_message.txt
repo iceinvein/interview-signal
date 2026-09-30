@@ -1,0 +1,13 @@
+Done. The implementation uses **depth-first search (DFS)** to find connected components of land cells:
+
+**Algorithm:**
+1. Iterate through each cell in the grid
+2. When finding land (1) that hasn't been explored, increment the island counter and run DFS
+3. DFS marks all connected land cells as visited (0) by exploring in 4 directions: up, down, left, right
+4. Each DFS call represents a new island
+
+**Complexity:**
+- Time: O(rows × cols) — each cell visited once
+- Space: O(rows × cols) worst case for the recursion stack (entire grid is one island)
+
+The solution modifies the input grid in place to mark visited cells, which is the standard space-efficient approach.

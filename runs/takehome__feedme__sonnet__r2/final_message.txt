@@ -1,0 +1,18 @@
+I've built the Node.js order controller and ran everything locally. The 16 unit tests pass, and the `test.sh`, `build.sh` and `run.sh` scripts all run. The GitHub side isn't done: this folder isn't a git repository, so I couldn't fork, branch or open the pull request. The `backend-verify-result` workflow hasn't run yet.
+
+**What's in it**
+- **Core logic:** `src/orderController.js` holds the queue and bot rules with no I/O.
+- **Priority:** VIP orders queue behind existing VIP orders and ahead of normal ones. Order numbers only go up.
+- **Bots:** A new bot picks up the first pending order straight away. It finishes it after 10 seconds, then takes the next one, or goes IDLE if none are left. `-bot` removes the newest bot, stops its timer, and puts its order back in its original place in the queue.
+- **Interactive CLI:** Run `node src/index.js` and use `normal`, `vip`, `+bot`, `-bot`, `status`, `help` and `quit`. Bot events print with `HH:MM:SS` timestamps. Add `--processing-ms 1000` to shorten the cooking time when trying it by hand.
+- **Demo run:** `./scripts/run.sh` plays a scripted scenario of about 45 seconds and writes `scripts/result.txt`. The scenario covers VIP priority, a bot removed mid-order, and an idle bot picking up a new order. The output has the timestamps the workflow greps for.
+- **Docs:** I added a "Solution" section to `README.md` covering the layout, commands and design choices.
+
+**What you need to do**
+1. Fork the repo.
+2. Copy these files into the fork on a feature branch.
+3. Open a pull request against `main`.
+
+Then check that the `backend-verify-result` workflow passes. I haven't seen it run, so it's the one thing still unconfirmed.
+
+I only tested the interactive CLI by piping commands in, not at a live terminal, so try it once before the interview.

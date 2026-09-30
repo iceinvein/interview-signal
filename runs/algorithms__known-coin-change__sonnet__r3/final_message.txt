@@ -1,0 +1,5 @@
+I wrote `coinChange` in `solution.ts` using bottom-up dynamic programming. I haven't run it or tested it.
+
+`dp[a]` holds the fewest coins that make amount `a`. It starts at `Infinity`, except `dp[0] = 0`. For each amount from 1 to `amount`, it tries every coin that fits and keeps the smallest count. It returns `-1` if `dp[amount]` is still `Infinity`, so an `amount` of 0 returns 0.
+
+Coins as large as 2^31 − 1 are skipped by the `c <= a` check, so they never index out of range. The run time is O(`amount` × `coins.length`), at most about 24,000 steps. The file has no imports.

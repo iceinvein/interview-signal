@@ -1,0 +1,15 @@
+I wrote `lengthOfLIS` in `solution.ts`. It runs in O(n log n) time, which is fast enough for 100,000 elements.
+
+**How it works:** it keeps a list where entry `i` is the smallest possible last value of any strictly increasing subsequence of length `i + 1`. For each number, a binary search finds the first entry that is greater than or equal to it, and the number replaces that entry. If no entry is that large, the number is added to the end. Because the search stops at values equal to the number, equal values never make a sequence longer, so only strictly increasing runs count. The answer is the length of the list.
+
+I ran it on a few cases and all gave the expected results:
+
+| Input | Result |
+|---|---|
+| `[10,9,2,5,3,7,101,18]` | 4 |
+| `[0,1,0,3,2,3]` | 4 |
+| `[7,7,7,7]` | 1 |
+| `[5]` | 1 |
+| 0 to 99,999 in order | 100000 |
+
+The file has no imports.

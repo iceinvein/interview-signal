@@ -1,0 +1,26 @@
+{
+  "format": "perf",
+  "task": "anthropic-original",
+  "agent": "codex",
+  "rep": 1,
+  "cli": "codex-cli 0.158.0",
+  "model": "gpt-6-sol",
+  "effort": "high",
+  "is_error": false,
+  "cost_usd": null,
+  "turns": 1,
+  "codex_steps": 86,
+  "usage": {
+    "input_tokens": 7484815,
+    "cached_input_tokens": 7354624,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 54789,
+    "reasoning_output_tokens": 27348
+  },
+  "contamination": [],
+  "external_fetches": [],
+  "timed_out": false,
+  "interrupted": null,
+  "exit_code": 0,
+  "wall_s": 1888.629
+}

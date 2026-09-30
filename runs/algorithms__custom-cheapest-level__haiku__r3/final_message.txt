@@ -1,0 +1,14 @@
+Done! The implementation uses an efficient approach:
+
+1. **Key insight**: The cost function is convex, so the optimal level must be one of the existing heights in the array.
+
+2. **Algorithm**:
+   - Sort the heights and compute prefix sums for efficient calculation
+   - For each unique height as a candidate level `L`:
+     - Calculate cost to raise all columns below `L`
+     - Calculate cost to lower all columns above `L`
+   - Return the minimum total cost
+
+3. **Time complexity**: O(n log n) for sorting; **Space complexity**: O(n)
+
+The solution correctly handles the example: for [1,2,3,4,5] with costs 2 and 1, level 2 gives cost (1×2) + (1+2+3)×1 = **8**.

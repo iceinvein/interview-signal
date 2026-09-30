@@ -1,0 +1,53 @@
+{
+  "format": "algorithms",
+  "task": "custom-common-free-slots",
+  "agent": "sonnet",
+  "rep": 2,
+  "cli": "2.1.285 (Claude Code)",
+  "model": "claude-sonnet-5-5",
+  "effort": null,
+  "is_error": false,
+  "cost_usd": 0.0454786,
+  "turns": 2,
+  "codex_steps": null,
+  "usage": {
+    "input_tokens": 4,
+    "cache_creation_input_tokens": 8263,
+    "cache_read_input_tokens": 26493,
+    "output_tokens": 712,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 8263,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "not_available",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 263,
+        "cache_read_input_tokens": 16147,
+        "cache_creation_input_tokens": 2462,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 2462
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "contamination": [],
+  "external_fetches": [],
+  "timed_out": false,
+  "interrupted": null,
+  "exit_code": 0,
+  "wall_s": 8.256
+}

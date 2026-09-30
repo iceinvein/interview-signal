@@ -1,0 +1,9 @@
+Done! The solution uses a sweep line algorithm with events:
+
+1. **Create events**: For each booking, create a start event (+people, type 1) and end event (-people, type 0)
+2. **Sort events**: Sort by time, with end events processed before start events at the same time (since people leave before others arrive)
+3. **Sweep through time**: Track current occupancy and return the first time it exceeds capacity
+4. **Check on starts**: Only check if we've exceeded capacity after processing a start event (when people actually arrive)
+
+Time complexity: O(n log n) for sorting | Space: O(n) for events
+The approach handles all constraints including large time values (up to 10^9) by only processing actual event times.

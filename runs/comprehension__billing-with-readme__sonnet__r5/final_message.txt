@@ -1,0 +1,13 @@
+I found seven bugs in `billing.ts` and wrote them to `FINDINGS.md`. I read the code against `README.md` but didn't run it or write any tests.
+
+1. **Line 155, plan change timing.** It compares `includedUnits`, but rule 5 goes by monthly price. Upgrades can be deferred and downgrades can take effect immediately.
+2. **Lines 182, 188, 191, proration.** `prorationFactor` returns the share of the period already used, and it's applied directly. The credit and charge should use the unused share, `1 - factor`.
+3. **Lines 217–221, usage tiers.** `upTo` is a running total (rule 4), but the code uses it as the width of the tier. It should be `upTo - previousCap`, and `previousCap` is tracked but never used.
+4. **Lines 259–261, tax and credit order.** Tax is charged on the post-discount amount and credit is then taken off the taxed total. Rules 7 and 8 require discount, then credit, then tax on what's left.
+5. **Lines 233–237, 261 and 282, preview.** `applyCredit` lowers the account's credit balance, and `previewInvoice` goes through it. A preview therefore consumes credit, which rule 7 forbids.
+6. **Lines 237 and 294, finalise.** Credit is deducted once inside `buildInvoice` and again in `finaliseInvoice`. The balance can go negative. Making `buildInvoice` not change the account fixes both this and #5.
+7. **Line 304, `formatMoney`.** The cents aren't zero-padded, so 505 cents prints as `$5.5`.
+
+I also noted what I checked and left out. The period handling, the subscription charge and the discount cap all match the README.
+
+I also noted one possible floating-point issue in `percentOf`, but I couldn't find a case where it gives the wrong answer.

@@ -1,0 +1,10 @@
+I found eight problems in `billing.ts` and wrote them to `FINDINGS.md`, most serious first. I found them by reading the code; I didn't write or run any tests. Each entry in the file has the line, a worked example and a suggested fix.
+
+1. **Usage tiers overcharge (line 217):** each tier's `upTo` is a running total, but the code uses it as the tier's size. So units that belong in a later, cheaper tier get billed at an earlier, pricier rate. For example, 300 billable units come to 2000¢ instead of 1600¢.
+2. **Plan-change proration is backwards (line 182):** `prorationFactor` returns the share of the period already *used*, but the code treats it as the share left. The refund and charge get bigger the later in the month the change happens, when they should get smaller.
+3. **Previewing an invoice spends credit (lines 235, 282):** `previewInvoice` is meant to leave the account alone, but it takes the credit off the customer's balance.
+4. **Finalising an invoice takes credit off twice (line 294):** the balance can go negative. Validation then fails on that account's next invoice, so it can't be billed again.
+5. **Money shows the wrong cents (line 304):** cents aren't padded to two digits, so `$5.05` shows as `$5.5`.
+6. **A percent discount on a negative subtotal goes negative (line 230):** the discount then eats into the customer's credit instead of reducing what they owe.
+7. **Validation lets `NaN` through (lines 115, 119):** a `NaN` tax rate or percent discount passes the range checks and turns the invoice totals into `NaN`.
+8. **Plans are never checked before billing (line 246):** `buildInvoice` doesn't call `validatePlan`, so a broken plan in the catalogue gets billed without any error. This is less certain than the others, because the calling code may check plans elsewhere.

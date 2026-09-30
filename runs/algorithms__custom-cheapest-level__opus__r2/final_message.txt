@@ -1,0 +1,10 @@
+I wrote `cheapestLevel` in `solution.ts` and tested it. It returns `8` for the example, and it matched a brute-force check on 2,000 random small inputs. A full-size input (200,000 columns, heights up to 10^6) ran in about 6 ms.
+
+**How it works:**
+- **Where the best level is:** the total cost is a convex, piecewise-linear function of `L`, and it only bends at the column heights. So the minimum is always at one of the heights, and those are the only levels worth checking.
+- **Checking each height quickly:** I sort the heights (as a `Float64Array`, so the sort is numeric) and keep a running prefix sum. The cost at each distinct height `h[i]` is then:
+  `raiseCost·(L·i − prefix) + lowerCost·(suffix − L·(n−i))`
+  where `prefix` is the sum of the heights below index `i` and `suffix` is the sum of the rest. Each check is constant time, so the whole thing is O(n log n), dominated by the sort.
+- **Precision:** the largest possible cost is about 1000 × 2·10^5 × 10^6 = 2·10^14, which is well below 2^53, so plain numbers are exact.
+
+The file is self-contained, with no imports.

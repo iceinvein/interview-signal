@@ -1,0 +1,9 @@
+I implemented `replayInventory` in `solution.ts`, but I haven't run it or tested it, including against your example.
+
+It replays the log with two stacks, one for undo and one for redo:
+
+- **Add and remove:** a recorded add or remove goes on the undo stack and clears the redo stack. A remove that would take stock below zero is skipped entirely, so it touches neither stack.
+- **Undo and redo:** an `undo` pops the undo stack, reverses that action and pushes it onto the redo stack. A `redo` does the opposite. Either one does nothing when its stack is empty.
+- **Result:** the function returns only items with stock above zero, sorted by plain string comparison.
+
+It runs in O(n log k) time, where k is the number of distinct items. That is fine for 200,000 events.

@@ -1,0 +1,10 @@
+Done! The implementation uses the key insight that since the cost function is piecewise linear in the level L, the minimum cost will always occur at one of the existing heights in the array.
+
+**Algorithm:**
+1. Extract unique heights and sort them
+2. For each candidate level, use binary search to partition heights into "raise" and "lower" groups
+3. Use prefix sums to efficiently calculate the total cost for each level
+4. Return the minimum cost found
+
+**Time complexity:** O(n log n) for sorting plus O(k log n) for checking k unique heights
+**Space complexity:** O(n) for the sorted arrays and prefix sums

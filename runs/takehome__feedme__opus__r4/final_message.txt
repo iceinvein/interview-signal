@@ -1,0 +1,32 @@
+I've built the take-home as a plain Node.js CLI with no dependencies. The tests, build and demo all pass locally, but nothing is committed, pushed or opened as a PR yet. Committing failed, and I don't have the upstream repo URL, so I can't fork it.
+
+**What I tested:**
+- `./scripts/test.sh`: all 15 unit tests pass. They use Node's built-in test runner with fake timers, so they finish in milliseconds.
+- `./scripts/build.sh` and `./scripts/run.sh` both succeed. The run takes about 31s because it uses the real 10-second cooking time.
+- `scripts/result.txt` has 24 lines with `HH:MM:SS` timestamps, which is what the workflow's check looks for. The demo shows VIP orders jumping ahead of normal ones, and a bot removed mid-cook whose order goes back to its original spot. It also shows a new bot taking that order, bots going idle, and an idle bot being removed. Sample:
+  ```
+  [00:58:12] Bot #2 destroyed while processing Normal Order #1001
+  [00:58:12] Normal Order #1001 returned to PENDING
+  - PENDING (3): #1004(VIP), #1001, #1003
+  ```
+- The interactive CLI works in a real terminal, including errors for unknown commands and for removing a bot when there are none.
+
+**How it's built:**
+- **`src/orderController.js`**: the order and bot logic, with no printing. The pending queue is always sorted VIP first, then by order number. Order numbers only go up, so a new VIP order lands behind earlier VIPs and ahead of normal orders. A cancelled order also goes straight back to its original position with no extra tracking.
+- **`src/logger.js`**: turns what the controller does into timestamped log lines.
+- **`src/cli.js`**: `npm start` opens the interactive CLI. Commands are `n`, `v`, `+`, `-`, `s`, `wait <sec>`, `help` and `q`. `run.sh` feeds `scripts/demo.txt` through the same command loop, so the CI output comes from the same code you'll demo in the interview.
+- **`SOLUTION.md`**: usage, design and assumptions. For example, order numbers start at 1001, and a cancelled order starts its 10 seconds over when it's picked up again.
+
+One rough edge: in interactive mode, log lines from bots finishing can print over the `> ` prompt. It's only cosmetic.
+
+**Why nothing is committed:** your global git config signs commits with the passphrase-protected key `~/.ssh/mr_github`, and I can't type a passphrase here. I didn't want to turn signing off for you. My first attempt at a commit also changed the files mid-way, so I removed the `.git` folder I'd created, which had no commits in it. The folder is now a clean set of files.
+
+**To submit** (I kept copies of the original placeholder scripts at `/tmp/orig-*.sh`):
+1. Fork the FeedMe repo on GitHub and clone it.
+2. `git checkout -b feature/order-controller`
+3. Copy in `src/`, `test/`, `package.json`, `package-lock.json`, `.gitignore`, `SOLUTION.md` and `scripts/`.
+4. Commit and push, then open a PR against `main` in your fork. The workflow only runs on PRs into `main`, and you'll need to allow Actions on the fork.
+
+If you send me the fork URL, I can do steps 2–4 once you've unlocked the key, for example with `ssh-add ~/.ssh/mr_github`.
+
+(Separately, several claude.ai connectors such as Gmail and Google Drive need authorising in your connector settings, but none of them were needed for this.)

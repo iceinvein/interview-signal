@@ -1,0 +1,18 @@
+I implemented `rainWaterWithWalls` in `solution.ts`. It runs in O(n) time and uses O(n) memory.
+
+**How it works:**
+- One pass from right to left records the highest point on the right of each bar, starting from `rightWall`.
+- A second pass from left to right keeps the highest point so far on the left, starting from `leftWall`. At each bar it adds `min(left, right) - heights[i]` to the total.
+- Both maxima include the bar itself, so the water over any bar is never negative.
+- The largest possible total is about 10¹⁰, which fits exactly in a JavaScript number.
+- An empty `heights` array returns `0`.
+
+I ran a quick check with `tsx` and all five cases gave the expected answers:
+
+| `heights` | `leftWall` | `rightWall` | Result |
+|---|---|---|---|
+| `[0,1,0,2,1,0,1,3,2,1,2,1]` | 0 | 0 | 6 (the standard example) |
+| `[]` | 5 | 5 | 0 |
+| `[0,0]` | 3 | 2 | 4 |
+| `[1,0,1]` | 0 | 5 | 1 |
+| `[2,0]` | 0 | 0 | 0 |

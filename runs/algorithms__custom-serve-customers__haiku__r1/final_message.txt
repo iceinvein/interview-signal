@@ -1,0 +1,14 @@
+Done! I've implemented the solution using a min-heap to efficiently track which server becomes free earliest.
+
+**Algorithm:**
+1. Initialize a min-heap with all `servers` free times starting at 0
+2. For each customer in order:
+   - Pop the server with minimum free time
+   - Calculate service start as `max(arrival, serverFreeTime)`
+   - Calculate finish time as `start + duration`
+   - Push updated server free time back to heap
+3. Return array of finish times
+
+**Complexity:** O(n·log s) where n = customers and s = servers. With up to 200,000 customers and 100,000 servers, this is efficient enough.
+
+The solution correctly handles the example: with arrivals=[0,0,0,0], durations=[10,1,1,1], servers=2, it returns [10,1,2,3] as expected.

@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "12. **Line 304 \u2014 `formatMoney()` does not pad the cents to two digits.** For example, 5 cents renders as `$0.5` instead of `$0.05`, and 105 cents renders as `$1.5` instead of `$1.05`."
+        },
+        {
+          "label": "met",
+          "quote": "Line 304 \u2014 `formatMoney()` does not pad the cents to two digits.** For example, 5 cents renders as `$0.5` instead of `$0.05`, and 105 cents renders as `$1.5` instead of `$1.05`."
+        },
+        {
+          "label": "met",
+          "quote": "Line 304 \u2014 `formatMoney()` does not pad the cents to two digits.** For example, 5 cents renders as `$0.5` instead of `$0.05`, and 105 cents renders as `$1.5` instead of `$1.05`."
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Lines 217\u2013221 \u2014 Usage tier caps are treated as tier widths.** `upTo` is a cumulative cap, so a bounded tier's width is `tier.upTo - previousCap`. With caps of 10 and 20 followed by an unbounded tier, 25 billable units are charged as 10 units in the first tier and 15 in the second; the last 5 should be in the third tier."
+        },
+        {
+          "label": "met",
+          "quote": "Lines 217\u2013221 \u2014 Usage tier caps are treated as tier widths.** `upTo` is a cumulative cap, so a bounded tier's width is `tier.upTo - previousCap`. With caps of 10 and 20 followed by an unbounded tier, 25 billable units are charged as 10 units in the first tier and 15 in the second; the last 5 should be in the third tier."
+        },
+        {
+          "label": "met",
+          "quote": "Lines 217\u2013221 \u2014 Usage tier caps are treated as tier widths.** `upTo` is a cumulative cap, so a bounded tier's width is `tier.upTo - previousCap`. With caps of 10 and 20 followed by an unbounded tier, 25 billable units are charged as 10 units in the first tier and 15 in the second; the last 5 should be in the third tier."
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 182 \u2014 Proration uses the elapsed share instead of the unused share. `prorationFactor()` returns 0 at the period start and 1 at the end, but `changePlan()` applies it to both *unused* old-plan time and *remaining* new-plan time. ... Use `1 - prorationFactor(period, at)`."
+        },
+        {
+          "label": "met",
+          "quote": "Line 182 \u2014 Proration uses the elapsed share instead of the unused share. `prorationFactor()` returns 0 at the period start and 1 at the end, but `changePlan()` applies it to both *unused* old-plan time and *remaining* new-plan time. ... Use `1 - prorationFactor(period, at)`."
+        },
+        {
+          "label": "met",
+          "quote": "Line 182 \u2014 Proration uses the elapsed share instead of the unused share. `prorationFactor()` returns 0 at the period start and 1 at the end, but `changePlan()` applies it to both *unused* old-plan time and *remaining* new-plan time. ... Use `1 - prorationFactor(period, at)`."
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Findings 3 and 4 cover the criterion. Finding 3: \"`previewInvoice()` calls `buildInvoice()`, which calls the mutating `applyCredit()`... contrary to the preview's documented promise not to change the account.\" Finding 4: \"`buildInvoice()` already deducts `creditAppliedCents`; `finaliseInvoice()` deducts it again.\""
+        },
+        {
+          "label": "met",
+          "quote": "\"`previewInvoice()` calls `buildInvoice()`, which calls the mutating `applyCredit()`... contrary to the preview's documented promise not to change the account.\" and \"`buildInvoice()` already deducts `creditAppliedCents`; `finaliseInvoice()` deducts it again.\""
+        },
+        {
+          "label": "met",
+          "quote": "\"`previewInvoice()` calls `buildInvoice()`, which calls the mutating `applyCredit()`... contrary to the preview's documented promise not to change the account.\" and \"`buildInvoice()` already deducts `creditAppliedCents`; `finaliseInvoice()` deducts it again.\""
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "\"Lines 261 and 293\u2013295 \u2014 Finalising an invoice consumes credit twice.\" None of the 14 findings says that credit is applied after tax or that tax should be charged on the subtotal minus credit."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"Lines 261 and 293\u2013295 \u2014 Finalising an invoice consumes credit twice.\" None of the findings says credit should come off the discounted subtotal before tax is calculated."
+        },
+        {
+          "label": "not_met",
+          "quote": "The closest findings are #3 and #4: \"Lines 261 and 282 \u2014 Previewing an invoice consumes account credit\" and \"Finalising an invoice consumes credit twice\". Neither says that credit is applied after tax to the taxed amount. None of the 14 findings covers the credit-before-tax ordering."
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "Finding 1 is about line 182: \"Proration uses the elapsed share instead of the unused share.\" None of the 14 findings says that planChangeTiming (lines 152\u2013156) decides timing by included units instead of monthly price."
+        },
+        {
+          "label": "not_met",
+          "quote": "Line 182 is the only plan-change finding: \"Line 182 \u2014 Proration uses the elapsed share instead of the unused share.\" None of the 14 findings says that planChangeTiming (lines 152\u2013156) decides by included units rather than monthly price."
+        },
+        {
+          "label": "not_met",
+          "quote": "Line 182 is the only finding about plan changes: \"Proration uses the elapsed share instead of the unused share.\" None of the 14 findings says that planChangeTiming (lines 152\u2013156) decides by included units instead of monthly price."
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "\"Finalisation does not enforce one invoice per billing period. Calling `finaliseInvoice()` again with the same account and period issues another invoice; there is no issued-period check or recorded invoice.\" This treats a descriptive doc comment as an enforcement requirement in a stateless module. Finding 14 likewise calls the deliberate clamp in prorationFactor a bug (\"An out-of-period `at` is silently clamped\")."
+        },
+        {
+          "label": "not_met",
+          "quote": "13. **Lines 292\u2013295 \u2014 Finalisation does not enforce one invoice per billing period.** Calling `finaliseInvoice()` again with the same account and period issues another invoice; there is no issued-period check or recorded invoice."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"13. Lines 292\u2013295 \u2014 Finalisation does not enforce one invoice per billing period. Calling finaliseInvoice() again with the same account and period issues another invoice; there is no issued-period check or recorded invoice.\" The header only describes the module's purpose, so this flags correct behaviour as a bug."
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

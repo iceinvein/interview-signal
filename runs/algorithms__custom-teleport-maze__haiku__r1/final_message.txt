@@ -1,0 +1,14 @@
+Done! I've implemented the `shortestTeleportPath` function using BFS (breadth-first search).
+
+**Algorithm:**
+1. Parse the grid to locate start ('S'), end ('E'), and portal positions (a-z)
+2. Build a bidirectional map of portal twins
+3. Run BFS from start, where each move (step or portal jump) costs 1
+4. Return the distance when reaching end, or -1 if unreachable
+
+**For the example** `"Sa#a.E"`:
+- Move from S to first 'a' (1 move)
+- Jump to second 'a' (2 moves)
+- Step right twice to E (4 moves total) ✓
+
+Time: O(rows × cols) | Space: O(rows × cols)

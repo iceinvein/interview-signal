@@ -1,0 +1,5 @@
+I wrote `mergeIntervals` in `solution.ts`. I didn't run or test it.
+
+It copies the input and sorts the copy by start, so the caller's array and its intervals aren't changed. It then makes one pass. An interval whose start is at or before the current merged end extends that interval, so touching intervals like `[1, 2]` and `[2, 3]` combine into `[1, 3]`. Otherwise it starts a new interval. An empty input gives an empty result, and duplicates merge like any other overlap.
+
+Sorting makes it O(n log n), which is fine for 100,000 intervals. It has no imports.

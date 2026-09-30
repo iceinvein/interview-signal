@@ -1,0 +1,3 @@
+Implemented `coinChangeLimited` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.hljViBDVVs/solution.ts). It finds the minimum coins while respecting each denomination’s supply, returns `-1` when the amount is unreachable, and returns `0` for amount `0`.
+
+Verified with edge cases and 3,000 randomized comparisons against a brute-force solver.

@@ -1,0 +1,17 @@
+I reviewed `billing.ts` and wrote the findings to `FINDINGS.md`. I only read the code and didn't run or test anything.
+
+**Bugs**
+1. **Lines 217–221:** `usageCharge` uses each tier's cumulative `upTo` as its width instead of `upTo - previousCap`. Later tiers are overcharged or never reached.
+2. **Lines 261 and 294:** Credit is deducted twice. `buildInvoice` deducts it, then `finaliseInvoice` deducts it again.
+3. **Lines 261 and 282:** `previewInvoice` changes the account. It burns credit through `applyCredit`, despite its doc comment.
+4. **Lines 182–193:** Proration uses the share of the period already used, not the unused share. Both lines are backwards.
+5. **Line 304:** `formatMoney` doesn't pad cents, so 505 cents prints as `$5.5`.
+
+`FINDINGS.md` also lists smaller edge cases and one possible bug that depends on intent:
+- **Edge cases:**
+  - `NaN` passes validation.
+  - Non-integer inputs are accepted.
+  - `validatePlan` is never called.
+  - Rounding is asymmetric for negative amounts.
+  - A zero-length period gives `NaN`.
+- **Depends on intent:** After an immediate plan change, the new plan may be charged twice if the invoice covers the current period.

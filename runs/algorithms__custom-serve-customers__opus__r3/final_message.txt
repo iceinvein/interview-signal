@@ -1,0 +1,9 @@
+I've implemented `serveCustomers` in `solution.ts`, and it passes the checks below.
+
+**How it works:** the code keeps each server's next free time in a min-heap. For each customer in index order, it takes the server that frees up earliest (the top of the heap). Service ends at `max(arrival, freeTime) + duration`. That end time replaces the old free time at the top of the heap and is moved down to its correct place. This takes O(n log min(servers, n)) time. The heap is capped at `min(servers, n)` entries, because any servers beyond the number of customers are never used.
+
+**Tests:**
+- The example from the spec returns `[10, 1, 2, 3]`.
+- An empty input returns `[]`.
+- 2,000 random cases matched a simple reference version that checks every server for each customer.
+- A maximum-size input (200,000 customers, 100,000 servers) ran in about 9 ms.

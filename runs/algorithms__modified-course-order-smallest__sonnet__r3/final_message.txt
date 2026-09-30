@@ -1,0 +1,8 @@
+I wrote `courseOrder` to `solution.ts`, but I haven't compiled it or run any tests.
+
+It uses Kahn's topological sort, with a min-heap holding the courses that are ready to take. Each step takes the smallest ready course, which gives the lexicographically smallest valid order.
+
+- **Impossible cases:** a self-pair `[a, a]` returns `[]` immediately. So does any cycle, detected when fewer than `numCourses` courses get ordered.
+- **Repeated pairs:** duplicates are skipped, so a repeated prerequisite isn't counted twice.
+- **Speed:** it runs in O((n + m) log n), which should be fine for 100,000 courses and 200,000 prerequisites.
+- **Dependencies:** the file has no imports.

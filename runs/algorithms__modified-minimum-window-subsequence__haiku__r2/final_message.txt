@@ -1,0 +1,10 @@
+Done! The solution implements a two-pointer greedy approach:
+
+**Algorithm:**
+1. For each starting position `i` in `s`, find the shortest substring starting there that contains `t` as a subsequence
+2. Use a pointer `j` to scan and `tIdx` to track the current character index in `t`
+3. Advance `tIdx` whenever characters match, always advance `j`
+4. Record the shortest valid substring (first occurrence wins ties)
+5. Return the result or empty string if no valid substring exists
+
+**Complexity:** O(n²) time where n is the length of `s`, O(1) space.

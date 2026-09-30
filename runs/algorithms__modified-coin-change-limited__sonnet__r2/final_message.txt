@@ -1,0 +1,5 @@
+I implemented `coinChangeLimited` in `solution.ts`. I haven't run it or tested it.
+
+It's a min-coins DP over amounts `0..amount`. Each denomination's count is split into chunks of 1, 2, 4, … coins, with the last chunk taking whatever remains. Each chunk is treated as a single item that can be taken or skipped. That lets any number from 0 to `counts[i]` be formed without exceeding the limit. It does at most about 12 × 14 passes over 10,000 amounts, so it runs quickly.
+
+It returns `-1` if `amount` can't be reached and `0` for `amount === 0`. A count of `0` adds no chunks, so that denomination is never used. The file has no imports.

@@ -1,0 +1,3 @@
+Implemented the waitlist endpoints with queue positions, removal, and automatic promotion when a confirmed booking is cancelled. Added service and HTTP tests and documented the API in [README.md](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.K2HORnf85Y/README.md). All 62 tests pass; TypeScript typecheck is clean.
+
+**Release note:** Promotion follows the existing booking rules, so a member who has since booked an overlapping class is not promoted. The requested email field also needs the data protection signoff required by `CONTRIBUTING.md`.

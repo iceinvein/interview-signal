@@ -1,0 +1,8 @@
+Done. The solution uses an event-based sweep algorithm:
+
+1. **Create events** for each booking start (type=1) and end (type=0)
+2. **Sort by time**, with end events before start events at the same time (since people leaving at T have already left when new arrivals occur at T)
+3. **Track occupancy** by processing all events at each time point
+4. **Return the earliest time** when occupancy exceeds capacity
+
+This runs in O(n log n) time with O(n) space, handling all constraints correctly.

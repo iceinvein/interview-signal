@@ -1,0 +1,15 @@
+I implemented `lengthOfLIS` in `solution.ts`. It runs in O(n log n) time, which handles 100,000 elements easily.
+
+**How it works:** it keeps a list where entry `k` is the smallest possible last value of an increasing subsequence of length `k+1`. For each number, a binary search finds the first entry that is greater than or equal to it and replaces that entry. If no such entry exists, the number is added to the end. Because the search stops on equal values too, a repeated value replaces an entry instead of making the list longer, so equal values never count as increasing. The answer is the list's final length.
+
+**Checks I ran:**
+
+| Input | Expected | Got |
+|---|---|---|
+| `[10,9,2,5,3,7,101,18]` | 4 | 4 |
+| `[0,1,0,3,2,3]` | 4 | 4 |
+| `[7,7,7,7]` | 1 | 1 |
+| `[5]` | 1 | 1 |
+| 100,000 increasing numbers | 100000 | 100000 |
+
+The file has no imports, and the exported name and signature are exactly as given.

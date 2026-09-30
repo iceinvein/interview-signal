@@ -1,0 +1,11 @@
+Done! I've implemented the solution using these key steps:
+
+1. **Parsing**: Split each formula by `+` to extract terms, classifying each as either a number (matching `/^-?\d+$/`) or a cell reference.
+
+2. **Cycle Detection**: Use DFS with three states (UNVISITED, VISITING, VISITED). When encountering a VISITING node, we've found a back edge indicating a cycle. Mark all involved cells as in a cycle.
+
+3. **Propagation**: Iteratively mark any cell that depends on a cycle cell as also being in a cycle.
+
+4. **Evaluation**: For non-cycle cells, recursively sum the terms with memoization. Empty cells (not in input) contribute 0. The result includes exactly the keys from the input.
+
+For the example `{ A1: "=B1+C1", B1: "=A1", C1: "4", D1: "=C1+E1+-1" }`, the algorithm correctly identifies A1 and B1 as a cycle, evaluates C1 as 4, and D1 as 3 (since E1 is empty and contributes 0).

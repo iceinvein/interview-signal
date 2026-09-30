@@ -1,0 +1,18 @@
+Done! I've implemented `slidingWindowRange` using a **deque-based sliding window** approach:
+
+**How it works:**
+- Maintains two deques: one for maximum indices (in decreasing order of values), one for minimum indices (in increasing order of values)
+- As we slide through the array, we remove outdated indices and maintain the monotonic property
+- For each complete window, the front of each deque gives us the current max/min
+- The front element is always the extremum for the current window
+
+**Complexity:**
+- **Time:** O(n) — each element is added and removed from the deques at most once
+- **Space:** O(k) — deques store at most k indices
+
+**Example:** For `nums = [1, 3, 1, 2, 0, 5]` and `k = 3`:
+- Window [1, 3, 1]: max=3, min=1, diff=2
+- Window [3, 1, 2]: max=3, min=1, diff=2  
+- Window [1, 2, 0]: max=2, min=0, diff=2
+- Window [2, 0, 5]: max=5, min=0, diff=5
+- Result: `[2, 2, 2, 5]`

@@ -1,0 +1,16 @@
+Waitlists are in, except that `GET /sessions/:sessionId/waitlist` does not return each member's `email`. All 66 tests pass and the typecheck is clean.
+
+**Email on the waitlist:** `CONTRIBUTING.md` says member contact details may only leave the `/members` routes. It calls this a privacy-notice commitment and says changing it needs sign-off from the data protection lead. Front-desk tablets are the very clients that rule is meant to protect. Each waitlist entry therefore has `position`, `memberId`, `name` and `joinedAt`, and no `email`. I couldn't ask anyone from here, so I didn't make that call for the team. If the data protection lead approves, the change is small: `waitlistRowView` in `src/http/views.ts` needs an `email` field, and `list` in `src/services/waitlistService.ts` needs to return the full member instead of `toSummary(member)`. In the meantime, staff can look up `email` through `GET /members/:id`.
+
+**What I changed:**
+- **New storage:** there is a `WaitlistEntry` type, a `WaitlistRepository` interface and an in-memory version, registered in `createMemoryRepositories()`. Queue order is insertion order, and `position` is worked out when the list is read, so leaving the queue moves everyone up.
+- **New service:** `WaitlistService` (`src/services/waitlistService.ts`) has `join`, `leave` and `list`. `ConflictCode` gains `session_not_full` and `already_waitlisted`, and `EntityName` gains `waitlist_entry` for the 404 on leaving.
+- **Routes:** `POST`, `DELETE` (204) and `GET` for the waitlist are in `src/http/routes/sessions.ts`, with new views.
+- **Auto-promotion:** `BookingService.cancel` now offers the freed place to the waitlist. It goes through the same `checkCanBook` rules and confirmed-booking creation as a normal booking, so the capacity rule holds. The promoted member leaves the queue.
+- **Tests:** `test/services/waitlistService.test.ts` and `test/http/waitlist.test.ts`, written in the existing style.
+
+**Choices the spec left open:**
+- **Check order on join:** the order is `session_started`, then `already_booked`, then `already_waitlisted`, then `session_not_full`. That follows the existing `book` precedent.
+- **Ineligible members at promotion:** if the member at the front can no longer take the place (for example, they've since booked a clashing session), they keep their spot and the place goes to the next eligible person. The alternative is to drop them or stall the queue.
+- **Joining while clashing:** joining doesn't check for overlapping bookings.
+- **Capacity increases:** raising a session's capacity via `PATCH` doesn't promote anyone from the waitlist. Only cancellations do.

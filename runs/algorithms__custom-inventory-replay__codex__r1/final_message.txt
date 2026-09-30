@@ -1,0 +1,1 @@
+Implemented `replayInventory` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.0Ae8FrAZe7/solution.ts). It handles undo and redo, preserves pending redo after a rejected remove, and returns positive stock sorted by character-code order. All six focused cases passed.

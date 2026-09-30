@@ -1,0 +1,3 @@
+I implemented `slidingWindowRange` in `solution.ts`. I haven't run it or tested it.
+
+It uses two monotonic deques, one tracking the window maximum and one the minimum. It runs in O(n) time. Each window's result is the front of the max deque minus the front of the min deque. The function has the exact exported signature you gave and uses no imports.

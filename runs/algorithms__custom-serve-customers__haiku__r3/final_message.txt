@@ -1,0 +1,18 @@
+Done! I've implemented the function using a min-heap to efficiently track which server becomes free earliest at each step.
+
+**Algorithm:**
+1. Initialize a min-heap with all `servers` being free at time 0
+2. For each customer (in strict order):
+   - Pop the server with the earliest free time
+   - Calculate when service starts: `max(arrival_time, server_free_time)`
+   - Calculate when service ends: `start_time + duration`
+   - Push the server back to the heap with its new free time
+   - Record the finish time
+
+**Complexity:** O(n × log m) where n is customers and m is servers, which handles the constraints efficiently (up to 200,000 customers and 100,000 servers).
+
+The solution correctly traces through your example:
+- Customer 0: takes server 1, finishes at 10
+- Customer 1: takes server 2, finishes at 1  
+- Customer 2: takes server 2 (free at 1), finishes at 2
+- Customer 3: takes server 2 (free at 2), finishes at 3

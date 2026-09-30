@@ -1,0 +1,5 @@
+I implemented `countPairsWithSum` in `solution.ts`. I haven't run it or written any tests.
+
+It makes one pass over the array and keeps a `Map` of how many times each value has appeared so far. For each number `n`, it adds the count of earlier values equal to `target - n`, then records `n`. Each pair is therefore counted once, by position, and a position never pairs with itself. It runs in O(n) time.
+
+The count stays exact as a `number`, since the largest possible total (about 5·10⁹) is far below 2⁵³. An empty array or a case with no matching pairs returns `0`.

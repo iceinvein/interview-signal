@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`${abs % 100}` prints one digit for values under 10. 505 cents renders as `$5.5` and 500 cents as `$5.0`, and both read as wrong amounts. Fix: `String(abs % 100).padStart(2, \"0\")`."
+        },
+        {
+          "label": "met",
+          "quote": "`${abs % 100}` prints one digit for values under 10. 505 cents renders as `$5.5` and 500 cents as `$5.0`, and both read as wrong amounts. Fix: `String(abs % 100).padStart(2, \"0\")`."
+        },
+        {
+          "label": "met",
+          "quote": "## 7. `formatMoney` does not pad the cents (line 304) \u2014 `${abs % 100}` prints one digit for values under 10. 505 cents renders as `$5.5` and 500 cents as `$5.0`, and both read as wrong amounts."
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`tierWidth = tier.upTo` is the cumulative cap, but it is used as the number of units in that tier. For tiers `[{upTo: 100}, {upTo: 300}, {upTo: null}]`, the second tier should hold 200 units (300 \u2212 100) but holds up to 300."
+        },
+        {
+          "label": "met",
+          "quote": "`tierWidth = tier.upTo` is the cumulative cap, but it is used as the number of units in that tier. For tiers `[{upTo: 100}, {upTo: 300}, {upTo: null}]`, the second tier should hold 200 units (300 \u2212 100) but holds up to 300."
+        },
+        {
+          "label": "met",
+          "quote": "`tierWidth = tier.upTo` is the cumulative cap, but it is used as the number of units in that tier. For tiers `[{upTo: 100}, {upTo: 300}, {upTo: null}]`, the second tier should hold 200 units (300 \u2212 100) but holds up to 300."
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period already **used** (0 at the start, 1 at the end). The variable is misleadingly named `unused` and is applied as-is to both lines. The credit for the old plan and the charge for the new plan are therefore based on the elapsed time, not the remaining time."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period already **used** (0 at the start, 1 at the end). The variable is misleadingly named `unused` and is applied as-is to both lines. The credit for the old plan and the charge for the new plan are therefore based on the elapsed time, not the remaining time."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period already **used** (0 at the start, 1 at the end). The variable is misleadingly named `unused` and is applied as-is to both lines. The credit for the old plan and the charge for the new plan are therefore based on the elapsed time, not the remaining time."
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, which does `account.creditBalanceCents -= applied`. `previewInvoice` calls `buildInvoice`, so every preview consumes credit. ... Line 294 then deducts `creditAppliedCents` again. The balance drops by twice the credit used and can go negative."
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, which does `account.creditBalanceCents -= applied`. `previewInvoice` calls `buildInvoice`, so every preview consumes credit. ... Line 294 then deducts `creditAppliedCents` again. The balance drops by twice the credit used and can go negative."
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, which does `account.creditBalanceCents -= applied`. `previewInvoice` calls `buildInvoice`, so every preview consumes credit. ... Line 294 then deducts `creditAppliedCents` again. The balance drops by twice the credit used and can go negative."
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Rules 7 and 8 require the order subtotal \u2192 discount \u2192 credit \u2192 tax. Credit must come off the post-discount amount, and tax is charged on what remains (post-discount, post-credit). As written, tax is charged on amounts the credit covers, and the credit is spent on tax."
+        },
+        {
+          "label": "met",
+          "quote": "Rules 7 and 8 require the order subtotal \u2192 discount \u2192 credit \u2192 tax. Credit must come off the post-discount amount, and tax is charged on what remains (post-discount, post-credit). As written, tax is charged on amounts the credit covers, and the credit is spent on tax."
+        },
+        {
+          "label": "met",
+          "quote": "Rules 7 and 8 require the order subtotal \u2192 discount \u2192 credit \u2192 tax. Credit must come off the post-discount amount, and tax is charged on what remains (post-discount, post-credit). As written, tax is charged on amounts the credit covers, and the credit is spent on tax."
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`planChangeTiming` returns `\"immediate\"` when `next.includedUnits > current.includedUnits`. Rule 5 keys on the **monthly price** ... A cheaper plan with more included units is applied immediately, so the customer gets a mid-period downgrade with a proration credit."
+        },
+        {
+          "label": "met",
+          "quote": "`planChangeTiming` returns `\"immediate\"` when `next.includedUnits > current.includedUnits`. Rule 5 keys on the **monthly price**... A cheaper plan with more included units is applied immediately, so the customer gets a mid-period downgrade with a proration credit."
+        },
+        {
+          "label": "met",
+          "quote": "`planChangeTiming` returns `\"immediate\"` when `next.includedUnits > current.includedUnits`. Rule 5 keys on the **monthly price** ... A cheaper plan with more included units is applied immediately, so the customer gets a mid-period downgrade with a proration credit."
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "## 6. Finalising consumes credit twice (lines 237 and 294) \u2014 rule 7\n`finaliseInvoice` calls `buildInvoice`, which already deducts the credit inside `applyCredit`. Line 294 then deducts `creditAppliedCents` again."
+        },
+        {
+          "label": "met",
+          "quote": "## Checked and not flagged ... `percentOf` uses `Math.round`, which rounds halves up for non-negative amounts. ... I did not see a concrete failing case."
+        },
+        {
+          "label": "met",
+          "quote": "## 6. Finalising consumes credit twice (lines 237 and 294) \u2014 rule 7 ... ## Checked and not flagged ... I did not see a concrete failing case."
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

@@ -1,0 +1,3 @@
+Implemented `countIslandsTorus` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.KtTuA8xHRx/solution.ts). It uses an iterative traversal with wrapped, orthogonal neighbours and runs in O(rows × columns) time and space.
+
+Verified edge cases, diagonal separation, wrapped corners, input preservation, and a 1000×1000 land grid.

@@ -1,0 +1,3 @@
+Implemented `minWindowSubsequence` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.RSvnR0puTt/solution.ts). It returns the shortest qualifying window, choosing the earliest start on ties. Time complexity is O(|s| × |t|), with O(|t|) space.
+
+Verified against a brute-force solution on 131,040 exhaustive cases.

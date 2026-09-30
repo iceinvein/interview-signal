@@ -1,0 +1,16 @@
+I've implemented `longestSubstringAtMostTwice` in `solution.ts`, and it gave the expected answers on a few quick checks.
+
+It uses a sliding window. The window grows one character at a time, and a table counts how often each character code appears inside it. When adding a character pushes its count to 3, the window's left edge moves right until that count is back to 2. The answer is the longest window seen along the way. Each character enters and leaves the window at most once, so it runs in O(n) time, and the count table is a fixed size.
+
+The checks I ran:
+
+| Input | Result |
+|---|---|
+| `""` | 0 |
+| `"a"` | 1 |
+| `"aaa"` | 2 |
+| `"aabbaa"` | 4 |
+| `"abcabcabc"` | 6 |
+| `"aA aA aA"` | 6 (case and spaces handled correctly) |
+
+The file has no imports and keeps the exact exported name and signature.

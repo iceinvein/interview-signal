@@ -1,0 +1,17 @@
+I implemented `countPairsWithSum` in `solution.ts`, and it gave the right answer on every quick test I ran.
+
+**How it works:** it goes through the array once and uses a `Map` to count how many times each value has already appeared. For each element `x`, it adds the number of earlier elements equal to `target - x`, then records `x`. Because each element only pairs with earlier positions, `i < j` holds automatically and no position is paired with itself. It runs in O(n) time and uses O(n) memory.
+
+**Large counts:** the largest possible count is about 5 × 10⁹. That is well below 2⁵³, the limit up to which a JavaScript `number` holds whole numbers exactly, so the count is returned exactly.
+
+**Tests run:**
+
+| Input | Target | Result |
+|---|---|---|
+| `[1,2,3,4,3]` | 6 | 2 |
+| `[]` | 0 | 0 |
+| `[3]` | 6 | 0 |
+| `[0,0,0]` | 0 | 3 |
+| 100,000 fives | 10 | 4,999,950,000 |
+
+The file has no imports.

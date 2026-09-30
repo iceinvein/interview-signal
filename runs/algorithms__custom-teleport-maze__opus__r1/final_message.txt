@@ -1,0 +1,16 @@
+I've implemented `shortestTeleportPath` in `solution.ts`. It's a plain breadth-first search, which finds the shortest path here because every move costs 1. Each cell has up to five neighbours: its four orthogonal neighbours, plus its twin if it's a portal. The file has no imports.
+
+**Checks I ran:**
+- `["Sa#a.E"]` gives 4 (the example)
+- `["S#E"]` gives -1
+- `["SE"]` gives 1
+- `["S","E"]` gives 1
+- `["S.a","###","a.E"]` gives 5 (the only route uses the portal)
+- An open 1000×1000 grid with `S` and `E` in opposite corners gives 1998, in about 15 ms
+
+**How it works:**
+- It reads the grid once into flat typed arrays. While doing that, it pairs each portal letter with its twin by remembering where the letter first appeared.
+- The queue is a pre-allocated `Int32Array`, which keeps memory and speed steady at the maximum size of 10⁶ cells.
+- It returns as soon as it reaches `E`. It also returns -1 if `S` or `E` is missing, as a safety check.
+
+Some Claude.ai connectors (Atlassian, Figma, Gmail, Google Drive, Miro, Trello) show as needing authorization. You can do that in your claude.ai connector settings, but this task didn't need any of them.

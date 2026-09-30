@@ -1,0 +1,6 @@
+I wrote `canFinish` in `solution.ts`, using Kahn's topological sort. I haven't run it or any tests.
+
+- **Method:** It builds the graph in a compact array layout, then repeatedly takes courses with no remaining prerequisites. It returns `true` only if all `numCourses` courses get taken. Runtime is O(numCourses + prerequisites), which fits the 100,000 and 200,000 limits.
+- **Self-prerequisites:** A pair `[a, a]` returns `false` immediately.
+- **Repeated pairs:** Duplicates need no special handling. Each copy adds one to the course's prerequisite count and is removed once, so it behaves like a single copy.
+- **Dependencies:** The file has no imports.

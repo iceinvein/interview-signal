@@ -1,0 +1,35 @@
+{
+  "format": "algorithms",
+  "task": "modified-longest-substring-at-most-twice",
+  "agent": "haiku",
+  "rep": 1,
+  "results": [
+    {
+      "id": "basic",
+      "passed": true
+    },
+    {
+      "id": "edge-cases",
+      "passed": true
+    },
+    {
+      "id": "performance",
+      "passed": true
+    },
+    {
+      "id": "all-cases",
+      "passed": true
+    }
+  ],
+  "metrics": {
+    "cases_total": 17,
+    "cases_passed": 17,
+    "timed_out": 0
+  },
+  "auto_criteria": [
+    {
+      "id": "all-cases",
+      "passed": true
+    }
+  ]
+}

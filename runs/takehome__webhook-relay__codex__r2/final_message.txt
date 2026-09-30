@@ -1,0 +1,5 @@
+Implemented the webhook relay in [src](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.R3mQ7q6Jpw/src/relay.ts), with tests in [relay.test.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.R3mQ7q6Jpw/test/relay.test.ts) and run instructions and design decisions in [README.md](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.R3mQ7q6Jpw/README.md).
+
+`npm test` passes all 7 tests. I also started the service with `npm start` and confirmed it returned `202` for an accepted webhook.
+
+The README calls out the main production risks: events and queues live only in memory, and the required full-body logs expose secrets even when encoded as base64.

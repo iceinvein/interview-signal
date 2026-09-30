@@ -1,0 +1,15 @@
+Done! I've implemented the `mergeIntervals` function. Here's how it works:
+
+**Algorithm:**
+1. Handle empty input by returning an empty array
+2. Sort intervals by start position (with end position as a tiebreaker)
+3. Initialize result with the first interval
+4. For each remaining interval:
+   - If it overlaps with the last interval in result (`currentStart <= lastEnd`), merge them by extending the last interval's end
+   - Otherwise, add it as a new separate interval
+5. Return the sorted, merged intervals
+
+**Key points:**
+- Handles touching endpoints: `[1, 2]` and `[2, 3]` merge because `2 <= 2`
+- Time complexity: O(n log n) due to sorting
+- Works with all constraint ranges (0 to 10^9, up to 100,000 intervals)

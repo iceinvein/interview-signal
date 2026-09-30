@@ -1,0 +1,16 @@
+I've implemented `shortestTeleportPath` in `solution.ts` and ran it against a few small cases and one full-size grid; all gave the expected answers.
+
+**How it works:** it's a breadth-first search over the grid cells. Stepping and jumping both cost 1, so BFS finds the shortest path. Each cell has up to five moves: the four neighbours, plus the twin cell if it's standing on a portal. The twin pairs are found in one pass over the grid before the search starts.
+
+**Speed:** the grid is stored as flat typed arrays and the queue is a fixed-size array rather than a JS array of objects. The search stops as soon as it reaches `E`, so each cell is visited at most once. A fully open 1000×1000 grid took about 15 ms.
+
+**Tests run:**
+- `["Sa#a.E"]` → 4 (the example)
+- `["S#E"]` → -1 (wall blocks the only route)
+- `["SE"]` → 1
+- a three-row maze where the only route is a portal jump → 5
+- open 1000×1000 grid, corner to corner → 1998
+
+The file has no imports.
+
+Separately, several claude.ai connectors (Atlassian Rovo, Figma, Gmail, Google Drive, Miro, Trello) need to be authorised in your claude.ai connector settings before they can be used. None of them were needed for this.

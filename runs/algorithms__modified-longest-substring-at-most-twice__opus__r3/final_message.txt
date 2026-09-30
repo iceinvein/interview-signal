@@ -1,0 +1,16 @@
+I've implemented `longestSubstringAtMostTwice` in `solution.ts`. It's self-contained, with no imports.
+
+It uses a sliding window that keeps a count for each character code. It moves the right edge forward one character at a time. If that character now appears three times in the window, it moves the left edge forward until the count is back to two. It tracks the longest valid window as it goes. The run time is O(n) and it uses a fixed amount of memory, which is fine for strings of 100,000 characters.
+
+I ran a few quick checks and all gave the expected answers:
+
+| Input | Result |
+|---|---|
+| `""` | 0 |
+| `"aaa"` | 2 |
+| `"aabbaa"` | 4 |
+| `"abcabcabc"` | 6 |
+| `"Aa Aa  "` | 6 (upper and lower case count separately; the third space is excluded) |
+| `"bcbbbcba"` | 4 |
+
+`solution.ts` already existed (105 bytes), and I overwrote it without reading it first, so I can't tell you what it contained. It was probably just the function stub, but if it held anything else, that content is gone.

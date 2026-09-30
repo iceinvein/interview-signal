@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`abs % 100` is printed without padding. 105 cents prints as `$1.5` instead of `$1.05`, and 100 prints as `$1.0`. Every amount with fewer than 10 cents is displayed wrong on rendered invoices."
+        },
+        {
+          "label": "met",
+          "quote": "`abs % 100` is printed without padding. 105 cents prints as `$1.5` instead of `$1.05`, and 100 prints as `$1.0`. Every amount with fewer than 10 cents is displayed wrong on rendered invoices."
+        },
+        {
+          "label": "met",
+          "quote": "`abs % 100` is printed without padding. 105 cents prints as `$1.5` instead of `$1.05`, and 100 prints as `$1.0`. Every amount with fewer than 10 cents is displayed wrong on rendered invoices."
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`usageCharge` uses `tier.upTo` as the number of units in the tier, but the width should be `tier.upTo - previousCap`. ... Every tier after the first gets too many units."
+        },
+        {
+          "label": "met",
+          "quote": "`usageCharge` uses `tier.upTo` as the number of units in the tier, but the width should be `tier.upTo - previousCap`. ... Every tier after the first gets too many units."
+        },
+        {
+          "label": "met",
+          "quote": "`usageCharge` uses `tier.upTo` as the number of units in the tier, but the width should be `tier.upTo - previousCap`. ... Every tier after the first gets too many units."
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period **already used** (0 at the start, 1 at the end; see its doc comment at line 138). `changePlan` stores that result in `unused` and uses it both to credit the old plan and to charge the new one. It should be `1 - prorationFactor(period, at)`."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period **already used** (0 at the start, 1 at the end; see its doc comment at line 138). `changePlan` stores that result in `unused` and uses it both to credit the old plan and to charge the new one. It should be `1 - prorationFactor(period, at)`."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period **already used** (0 at the start, 1 at the end; see its doc comment at line 138). `changePlan` stores that result in `unused` and uses it both to credit the old plan and to charge the new one. It should be `1 - prorationFactor(period, at)`."
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit` (line 261), which deducts the applied credit from `account.creditBalanceCents` (line 235). Then `finaliseInvoice` deducts `invoice.creditAppliedCents` a second time (line 294). ... `previewInvoice` (line 282): its doc comment says it does not change the account, but it goes through the same `buildInvoice` path, so a preview uses up the customer's credit."
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit` (line 261), which deducts the applied credit from `account.creditBalanceCents` (line 235). Then `finaliseInvoice` deducts `invoice.creditAppliedCents` a second time (line 294). ... `previewInvoice` (line 282): its doc comment says it does not change the account, but it goes through the same `buildInvoice` path, so a preview uses up the customer's credit."
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit` (line 261), which deducts the applied credit from `account.creditBalanceCents` (line 235). Then `finaliseInvoice` deducts `invoice.creditAppliedCents` a second time (line 294). ... `previewInvoice` (line 282): its doc comment says it does not change the account, but it goes through the same `buildInvoice` path, so a preview uses up the customer's credit."
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "\"Fix: make `applyCredit` pure (return `Math.min(balance, Math.max(0, due))` without writing to the account) and deduct only in `finaliseInvoice`.\" FINDINGS.md discusses credit only as being deducted twice. It never says that credit is applied after tax or that tax should be charged only on what is left after credit."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"Fix: make `applyCredit` pure (return `Math.min(balance, Math.max(0, due))` without writing to the account) and deduct only in `finaliseInvoice`.\" FINDINGS.md only covers credit being deducted twice. It never says that credit is applied after tax instead of before it."
+        },
+        {
+          "label": "not_met",
+          "quote": "No finding covers the credit-vs-tax ordering at lines 258\u2013260. The nearest one is \"## 1. Credit is consumed twice when finalising, and previewing also consumes it (lines 235, 261, 294)\", which is about double deduction, not credit being applied after tax."
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "\"## 3. Plan-change proration uses the used share as the unused share (line 182)\". FINDINGS.md never mentions that planChangeTiming (line 155) decides by included units instead of monthly price."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"## 3. Plan-change proration uses the used share as the unused share (line 182)\". This is the only plan-change finding. Nothing in FINDINGS.md says that planChangeTiming (lines 152\u2013156) decides by included units instead of monthly price."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"## 3. Plan-change proration uses the used share as the unused share (line 182)\". FINDINGS.md never says that planChangeTiming (line 155) decides by included units rather than monthly price."
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "\"**Line 131**: `Math.round` rounds half toward +\u221e, so a negative amount rounds differently from the matching positive one (for example -2.5 \u2192 -2 but 2.5 \u2192 3). Credit and charge lines for the same amount can then fail to cancel out.\" This misreads the code: line 188 negates after rounding (`-prorate(current.monthlyPriceCents, unused)`), so the lines always cancel."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"**Line 131**: `Math.round` rounds half toward +\u221e, so a negative amount rounds differently from the matching positive one (for example -2.5 \u2192 -2 but 2.5 \u2192 3). Credit and charge lines for the same amount can then fail to cancel out.\" (changePlan negates after rounding with -prorate(...), so the claimed mismatch does not occur.)"
+        },
+        {
+          "label": "not_met",
+          "quote": "\"Line 131: `Math.round` rounds half toward +\u221e, so a negative amount rounds differently from the matching positive one (for example -2.5 \u2192 -2 but 2.5 \u2192 3). Credit and charge lines for the same amount can then fail to cancel out.\" This is wrong: changePlan rounds the positive amount and then negates it (`-prorate(...)`), so the lines always cancel."
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

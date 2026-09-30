@@ -1,0 +1,16 @@
+Done! The implementation uses an efficient **O(n log n)** algorithm with binary search:
+
+**Algorithm:**
+- Maintain a `tails` array where `tails[i]` represents the smallest tail element of all non-decreasing subsequences of length `i + 1`
+- For each number, binary search for the first position where an element is strictly greater
+- Either extend the longest subsequence (if the number is larger than all tails) or replace an element to keep the array optimal
+
+**Example trace** for `[3, 10, 2, 1, 20]`:
+- `3` → `tails = [3]`
+- `10` → `tails = [3, 10]` (extended)
+- `2` → `tails = [2, 10]` (replaced 3 with 2)
+- `1` → `tails = [1, 10]` (replaced 2 with 1)
+- `20` → `tails = [1, 10, 20]` (extended)
+- Result: **3** (e.g., `[1, 10, 20]`)
+
+Handles duplicates correctly: `[2, 2, 2]` → length **3**.

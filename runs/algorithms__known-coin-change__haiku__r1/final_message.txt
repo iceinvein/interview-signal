@@ -1,0 +1,12 @@
+Done! I've implemented the coin change function using dynamic programming.
+
+**Algorithm:**
+- `dp[i]` tracks the minimum coins needed for amount `i`
+- Start with `dp[0] = 0` and all others as Infinity
+- For each amount 1 to target, try using each coin and update with the minimum
+- Return the result or -1 if impossible
+
+**Time complexity:** O(amount × coins.length) = O(2000 × 12)  
+**Space complexity:** O(amount) = O(2000)
+
+The solution handles all cases: amount 0 returns 0, impossible combinations return -1, and it finds the optimal coin count for any valid amount.

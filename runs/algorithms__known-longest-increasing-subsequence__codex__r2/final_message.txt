@@ -1,0 +1,1 @@
+Implemented `lengthOfLIS` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.zjztDi9abG/solution.ts). It handles equal values correctly and runs in O(n log n) time. Sample, boundary, and 100,000-element checks passed.

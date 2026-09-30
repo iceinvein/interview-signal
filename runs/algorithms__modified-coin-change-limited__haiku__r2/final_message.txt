@@ -1,0 +1,15 @@
+Done! I've implemented `coinChangeLimited` using dynamic programming.
+
+**Algorithm:**
+- Use a DP array where `dp[i]` = minimum coins needed for amount `i`
+- Process each coin denomination separately to respect its limited count
+- For each coin type, create a temporary DP array and try using 1, 2, ..., count of that coin
+- This approach prevents using more coins than available while allowing combinations across denominations
+
+**Key insights:**
+- `dp[0] = 0` (base case: 0 coins needed for 0 amount)
+- When processing each coin, we iterate through current achievable amounts and try adding 1-to-count coins of that type
+- By using a separate DP array per coin type, we ensure we only count combinations of coins we actually have
+- Returns `-1` if the amount is unreachable (dp[amount] stays Infinity)
+
+Time complexity: O(n × amount × max_count) where n ≤ 12, amount ≤ 10000, max_count ≤ 10000, which is acceptable.

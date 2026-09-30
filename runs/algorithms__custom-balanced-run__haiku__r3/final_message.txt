@@ -1,0 +1,16 @@
+Done! The implementation uses a **balance-tracking algorithm** with O(n) time complexity:
+
+**How it works:**
+1. Track a running balance where 'x' increments (+1) and 'y' decrements (-1); other characters don't affect balance
+2. Store the first index where each balance value appears in a map
+3. When we encounter a balance value we've seen before, the substring between those positions must be balanced (equal x's and y's)
+4. Return the maximum length found
+
+**Example trace** for `"xxayx"`:
+- i=0 'x': balance=1, first seen at 0
+- i=1 'x': balance=2, first seen at 1
+- i=2 'a': balance=2 (seen before at 1), substring length = 2-1=1
+- i=3 'y': balance=1 (seen before at 0), substring length = 3-0=**3** ← "xay" is balanced
+- i=4 'x': balance=2 (seen before at 1), substring length = 4-1=3
+
+Returns 3 ✓

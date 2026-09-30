@@ -1,0 +1,104 @@
+{
+  "format": "takehome",
+  "task": "webhook-relay",
+  "agent": "opus",
+  "rep": 4,
+  "results": [
+    {
+      "id": "forwards-body",
+      "passed": true
+    },
+    {
+      "id": "acknowledges-before-delivery",
+      "passed": true
+    },
+    {
+      "id": "unknown-tenant-404",
+      "passed": true
+    },
+    {
+      "id": "retries-until-success",
+      "passed": true
+    },
+    {
+      "id": "retry-limit",
+      "passed": true
+    },
+    {
+      "id": "backoff-timing",
+      "passed": true
+    },
+    {
+      "id": "stable-event-id",
+      "passed": true
+    },
+    {
+      "id": "rate-limit",
+      "passed": true
+    },
+    {
+      "id": "isolation-rate-limit",
+      "passed": true
+    },
+    {
+      "id": "isolation-delivery",
+      "passed": true
+    },
+    {
+      "id": "own-tests-pass",
+      "passed": true
+    }
+  ],
+  "metrics": {
+    "service_started": 1,
+    "startup_s": 0.21,
+    "body_secret_in_output": 0,
+    "body_secret_in_files": 0
+  },
+  "auto_criteria": [
+    {
+      "id": "forwards-body",
+      "passed": true
+    },
+    {
+      "id": "acknowledges-before-delivery",
+      "passed": true
+    },
+    {
+      "id": "unknown-tenant-404",
+      "passed": true
+    },
+    {
+      "id": "retries-until-success",
+      "passed": true
+    },
+    {
+      "id": "retry-limit",
+      "passed": true
+    },
+    {
+      "id": "backoff-timing",
+      "passed": true
+    },
+    {
+      "id": "stable-event-id",
+      "passed": true
+    },
+    {
+      "id": "rate-limit",
+      "passed": true
+    },
+    {
+      "id": "isolation-rate-limit",
+      "passed": true
+    },
+    {
+      "id": "isolation-delivery",
+      "passed": true
+    },
+    {
+      "id": "own-tests-pass",
+      "passed": true
+    }
+  ]
+}

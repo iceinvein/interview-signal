@@ -1,0 +1,3 @@
+I wrote `countIslands` in `solution.ts`, but I haven't run it or tested it.
+
+It scans the grid and starts a flood fill from each land cell it hasn't visited yet. Each fill counts as one island and only moves up, down, left or right. It uses an explicit stack, not recursion, so a 1000×1000 grid of land can't overflow the call stack. It tracks visited cells in a separate array, so the input grid isn't changed. Time and memory are both linear in the number of cells. The file has no imports.

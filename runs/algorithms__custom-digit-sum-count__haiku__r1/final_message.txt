@@ -1,0 +1,15 @@
+Done! I've implemented `countDigitSum` using digit DP (dynamic programming).
+
+**How it works:**
+
+The solution processes the limit digit-by-digit from left to right, tracking:
+- **pos**: current digit position
+- **digitSum**: sum of digits placed so far  
+- **isTight**: whether we're still bounded by the limit (can only use 0-9 or 0-limit[pos])
+
+For each position, we try all valid digits and recursively count solutions. Memoization avoids recomputing the same states.
+
+**Time complexity:** O(18 × 200 × 2) — very efficient even for 10^18.
+
+**Verification with the example:**
+- `countDigitSum("20", 2)` counts: 2 (sum=2), 11 (sum=1+1=2), 20 (sum=2+0=2) → returns `3n` ✓

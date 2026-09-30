@@ -1,0 +1,5 @@
+I implemented `longestSubstringAtMostTwice` in `solution.ts`, but I haven't run or tested it.
+
+It uses a sliding window with a count per character. Each time a character reaches a third occurrence, the left edge moves right until that count is back to 2. The answer is the widest window seen. That takes O(n) time and constant extra space, and an empty string returns 0.
+
+The exported name and signature are as specified, and the file has no imports.

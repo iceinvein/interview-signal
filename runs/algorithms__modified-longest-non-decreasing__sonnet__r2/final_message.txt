@@ -1,0 +1,5 @@
+I implemented `longestNonDecreasing` in `solution.ts`. I haven't run it or tested it.
+
+It uses the standard patience-style approach. It keeps an array where entry `i` is the smallest possible last value of a non-decreasing subsequence of length `i+1`. For each number, a binary search finds the first entry strictly greater than it, and the number replaces that entry (or is appended if none is greater). Searching for strictly greater, not greater-or-equal, is what lets equal values extend a subsequence. That gives `[2, 2, 2]` a length of 3.
+
+It runs in O(n log n) time and O(n) space, which is fine for 100,000 elements. It has no imports, and the exported name and signature match what you gave.

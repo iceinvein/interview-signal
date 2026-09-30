@@ -1,0 +1,14 @@
+I've implemented `countDigitSum` in `solution.ts`, and it matches a brute-force count on every case I tried.
+
+**How it works:**
+- It precomputes a table of how many digit strings of each length have each digit sum, using bigint so large counts stay exact.
+- It then reads `limit` from left to right. At each position, for every digit smaller than the one in `limit`, it adds the number of ways the remaining positions can make up the rest of `target`. Once the digits so far add up to more than `target`, it stops.
+- At the end, it adds 1 if `limit` itself has digit sum `target`. Leading zeros are treated like any other digit, so `0` is counted too.
+- If `target` is larger than 9 times the number of digits in `limit`, it returns `0n` straight away. With the 19-digit maximum that's anything above 171, which covers `target = 200`.
+
+**Testing:** I checked it against a brute-force count for 12 limits between 0 and 10000, with every target from 0 to 40. All results matched. `countDigitSum("20", 2)` gives `3n`. For `limit = "1000000000000000000"`:
+- target 1 gives `19n` (the powers of ten, 10^0 through 10^18).
+- target 81 gives `32458256583753952n`, which is above `Number.MAX_SAFE_INTEGER`.
+- target 200 gives `0n`.
+
+The file has no imports.

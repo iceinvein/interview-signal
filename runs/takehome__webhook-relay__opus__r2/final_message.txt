@@ -1,0 +1,27 @@
+I've built the relay, and it deliberately doesn't log request bodies, which departs from requirement 7. The brief says bodies routinely contain tenants' customers' API keys and access tokens, so logging them would copy live credentials into every log store. Instead it logs one JSON line per event: tenant, webhook id, body size, a SHA-256 of the body, and each delivery attempt's outcome. The README gives the reasoning and asks what problem the body logging was meant to solve. If you'd rather follow the brief exactly, it's a one-line change, but I'd push back on it.
+
+The 28 tests pass (about 100 ms), the type-check is clean, and I ran `npm start` against a local destination. The first attempt failed and was retried after the configured wait with the same id, and a second request within the second got a 429 with `Retry-After: 1`. An unknown tenant got a 404, and the body never appeared in the logs.
+
+**How it's put together**
+- **No runtime dependencies.** Node 24 runs the TypeScript files directly, so there's no build step. `typescript` and `@types/node` are only there for type-checking.
+- **Rate limit:** at most `requestsPerSecond` in any one-second window, checked before the body is read. I chose this over the usual token bucket because a token bucket can let through up to twice the limit within one second.
+- **Isolation:** each tenant has its own queue, capped at 10 simultaneous requests and 10,000 undelivered webhooks. A webhook waiting to retry doesn't hold one of those slots. A tenant whose destination is down fills only its own backlog and then gets 503s; other tenants are unaffected.
+- **Timing tests:** the clock and the wait function are passed in, so tests check exact values (waits of 1000, 2000, 4000 ms; accepted again at exactly t=1000 ms) without real sleeping.
+
+**Other calls I made, each written up in the README with an open question:**
+- Each delivery attempt times out after 10 seconds.
+- Redirects are treated as failed attempts, not followed.
+- Only `Content-Type` and `X-Webhook-Id` are forwarded; other incoming headers are dropped.
+- Bodies over 1 MiB get a 413.
+- 4xx responses are retried, because the brief says any non-2xx is a failure.
+- Delivery order isn't guaranteed.
+
+The README also covers durability. Webhooks that got a 202 but aren't delivered yet are lost on restart, and the first next step would be writing to a durable queue before replying 202.
+
+If this is your own take-home submission, check that Larkfield allows AI-assisted work, and read through the code so you can defend it in the follow-up. Also, several Claude connectors (Atlassian, Figma, Gmail, Google Drive, Miro, Trello) need authorizing in your claude.ai connector settings before they'll work; this task didn't use them.
+
+Files are in the working directory:
+- `src/`: `config.ts`, `rateLimiter.ts`, `delivery.ts`, `app.ts`, `main.ts`, `logger.ts`
+- `test/`
+- `README.md`
+- `tenants.example.json`

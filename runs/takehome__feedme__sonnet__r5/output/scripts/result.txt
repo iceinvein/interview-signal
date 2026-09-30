@@ -1,0 +1,35 @@
+[00:56:29] McDonald's Order Management System - Simulation Results
+[00:56:29] System initialized with 0 bots
+[00:56:29] > normal
+[00:56:29] Created Normal Order #1 - Status: PENDING
+[00:56:30] > vip
+[00:56:30] Created VIP Order #2 - Status: PENDING
+[00:56:31] > normal
+[00:56:31] Created Normal Order #3 - Status: PENDING
+[00:56:32] > vip
+[00:56:32] Created VIP Order #4 - Status: PENDING
+[00:56:33] > status
+[00:56:33] Status - PENDING: [VIP#2, VIP#4, Normal#1, Normal#3] | COMPLETE: [-] | Bots: [-]
+[00:56:34] > +bot
+[00:56:34] Bot #1 created - Status: ACTIVE
+[00:56:34] Bot #1 picked up VIP Order #2 - Status: PROCESSING
+[00:56:35] > +bot
+[00:56:35] Bot #2 created - Status: ACTIVE
+[00:56:35] Bot #2 picked up VIP Order #4 - Status: PROCESSING
+[00:56:38] > status
+[00:56:38] Status - PENDING: [Normal#1, Normal#3] | COMPLETE: [-] | Bots: [#1(PROCESSING order #2), #2(PROCESSING order #4)]
+[00:56:39] > -bot
+[00:56:39] Bot #2 destroyed while processing VIP Order #4 - returned to PENDING
+[00:56:40] > status
+[00:56:40] Status - PENDING: [VIP#4, Normal#1, Normal#3] | COMPLETE: [-] | Bots: [#1(PROCESSING order #2)]
+[00:56:44] Bot #1 completed VIP Order #2 - Status: COMPLETE (Processing time: 10s)
+[00:56:44] Bot #1 picked up VIP Order #4 - Status: PROCESSING
+[00:56:51] > status
+[00:56:51] Status - PENDING: [Normal#1, Normal#3] | COMPLETE: [VIP#2] | Bots: [#1(PROCESSING order #4)]
+[00:56:52] > vip
+[00:56:52] Created VIP Order #5 - Status: PENDING
+[00:56:54] Bot #1 completed VIP Order #4 - Status: COMPLETE (Processing time: 10s)
+[00:56:54] Bot #1 picked up VIP Order #5 - Status: PROCESSING
+[00:57:04] > status
+[00:57:04] Status - PENDING: [Normal#1, Normal#3] | COMPLETE: [VIP#2, VIP#4] | Bots: [#1(PROCESSING order #5)]
+[00:57:04] Simulation finished

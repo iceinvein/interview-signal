@@ -1,0 +1,1 @@
+Reviewed `billing.ts` and wrote 13 line-referenced bugs, with explanations, to [FINDINGS.md](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.yy3lZ6FygO/FINDINGS.md). I reproduced the proration, usage-tier, credit, and formatting failures with Node.

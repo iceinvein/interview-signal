@@ -1,0 +1,7 @@
+I've implemented `lengthOfLongestSubstring` in `solution.ts`. It checks the string once from left to right, so it's fast enough for 100,000 characters.
+
+It works with a sliding window. An array holds the last position where each character code appeared. When a character shows up again inside the current window, the window's start moves to just past that earlier position. The answer is the widest the window ever gets.
+
+I ran it on a few quick cases and all gave the expected results: `""` → 0, `"abcabcbb"` → 3, `"bbbbb"` → 1, `"pwwkew"` → 3, `" "` → 1, `"aA"` → 2, `"abba"` → 2, `"dvdf"` → 3.
+
+`solution.ts` already existed (102 bytes, probably the starter stub), and I replaced it without opening it first. The file has no imports, and the exported name and signature match what you gave.

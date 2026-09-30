@@ -1,0 +1,14 @@
+Done! I've implemented the `twoSum` function using a hash map approach:
+
+**Algorithm:**
+1. Iterate through the array, and for each number, calculate its complement (`target - nums[i]`)
+2. Check if the complement exists in a Map of previously seen numbers
+3. If found, return the pair of indices `[previous_index, current_index]` (automatically satisfies `i < j`)
+4. If not found, store the current number and its index in the Map
+5. Continue until the pair is found
+
+**Complexity:**
+- **Time:** O(n) — single pass through the array with constant-time Map lookups
+- **Space:** O(n) — Map stores up to n elements
+
+This is much more efficient than a brute force O(n²) approach, especially important given the constraint of up to 100,000 elements.

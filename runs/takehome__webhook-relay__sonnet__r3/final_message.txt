@@ -1,0 +1,14 @@
+The webhook relay is built. All 29 tests pass, `npm run typecheck` is clean, and I ran it once for real. In that run, `POST /webhooks/a` gave 202, then 429 over the limit, and 404 for an unknown tenant. The retry and give-up log lines also appeared.
+
+It has no runtime dependencies. Node 24 runs the TypeScript directly, and `typescript` and `@types/node` are dev-only.
+
+- **Request logging:** I did not log request bodies, which departs from requirement 7. The brief says payloads carry customers' API keys and tokens, and logging them would put live credentials into logs. The logs record tenant, webhook id, byte count, content type and outcome instead. The README explains this and proposes an opt-in debug flag if on-call really needs bodies.
+- **Rate limit:** It is a sliding window, so there are never more than `requestsPerSecond` accepted in any 1-second span. A token bucket could let about twice that through at a boundary.
+- **Isolation:** Each tenant has its own limiter and backlog counter, and each webhook retries on its own timer. A hung destination can't delay other webhooks, even the same tenant's later ones. The catch is that delivery order isn't preserved.
+- **Memory caps:** Each tenant is capped at 1000 undelivered webhooks, after which only that tenant gets a 503. Bodies over 1 MiB get a 413. Both limits are guesses, and the README asks what real sizes are.
+- **Retries:** The wait before retry *k* is `initialBackoffMs × 2^(k-1)`, with no jitter. Redirects count as failed attempts, and each attempt times out after 10 seconds.
+- **Tests:** They use an injected fake clock and assert exact attempt times (0, 1000, 3000, 7000 ms) and exact window edges. Server tests use real HTTP against local destination servers.
+
+Two things are unfinished. Network errors in the logs show only a coarse class such as `TypeError`, because `fetch` nests the real error code. Anyone who knows a tenant id can post to it, since there is no inbound authentication. Both are in the README's "What I'd do next" list, along with durability, per-destination concurrency limits and metrics.
+
+Everything is in the working directory. Start with `README.md`, and `src/delivery.ts` holds the retry logic.

@@ -1,0 +1,5 @@
+I wrote `lengthOfLIS` in `solution.ts`. I haven't run it or tested it.
+
+It keeps a `tails` array, where `tails[i]` is the smallest value that can end an increasing subsequence of length `i + 1`. For each number it binary-searches for the first entry that is `>=` that number and overwrites it, or appends if there isn't one. Equal values replace an existing entry instead of extending the subsequence, so only strictly increasing runs count. The answer is `tails.length`.
+
+This runs in O(n log n) time and O(n) space, which is fine for 100,000 elements. The file has no imports, and the exported name and signature are unchanged.

@@ -1,0 +1,9 @@
+r1_normal_order_flow: line 22: order 3 completed without a pickup
+r1_normal_order_flow: line 24: order 4 completed without a pickup
+r1_normal_order_flow: line 26: order 1 completed without a pickup
+r1_normal_order_flow: line 28: order 2 completed without a pickup
+r4_bot_processing: line 11: order 3 was picked but was not pending
+r4_bot_processing: line 13: order 4 was picked but was not pending
+r4_bot_processing: line 15: order 1 was picked but was not pending
+r4_bot_processing: line 23: order 1 was picked but was not pending
+r4_bot_processing: line 25: order 2 was picked but was not pending

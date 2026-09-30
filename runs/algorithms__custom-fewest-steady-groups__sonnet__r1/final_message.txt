@@ -1,0 +1,5 @@
+I implemented `fewestSteadyGroups` in `solution.ts`. I haven't run it or tested it.
+
+It takes a greedy pass, tracking the current group's min and max. It adds a score to the group unless that would push the spread above `maxSpread`, and then it starts a new group at that score. Greedy is optimal because any subset of a steady group is also steady, so ending a group earlier can never help.
+
+It runs in O(n) time with O(1) extra space, and returns `0` for an empty sequence. The spread is at most 2·10⁹, which a JS number holds exactly, so there's no overflow risk.

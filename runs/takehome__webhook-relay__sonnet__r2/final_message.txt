@@ -1,0 +1,23 @@
+The webhook relay is built, and all 21 tests and the type check pass. I also ran it against a local destination. Retries, the 429 and the 404 behaved as expected. I haven't added an automated test for the real `fetch` sender (`httpSend`), so its timeout and redirect handling only got that manual check.
+
+**I did not log request bodies, which departs from requirement 7.** The brief asks for the full body in the logs. It also says payloads routinely contain customers' API keys and tokens, and those two statements conflict. Each request instead logs the tenant, webhook id, content type, byte size and every delivery attempt's outcome. A test asserts that a secret in a payload never reaches the logs. The README explains the reasoning and says what I'd ask the team.
+
+How it works:
+- **Runtime:** there are no runtime dependencies. Node 24 runs the TypeScript directly, and `typescript` and `@types/node` are dev-only.
+- **Isolation:** each accepted event runs its own retry loop with its own timers, and rate limits are per tenant. One tenant's dead destination or rate limit can't hold up another tenant. The cost is that delivery order isn't guaranteed.
+- **Rate limit:** a sliding window enforces "at most N per second" exactly, whereas a token bucket can let through up to 2N across a refill boundary. It is checked before the body is read.
+- **Delivery:**
+  - Every attempt is timed out after 10 seconds.
+  - Redirects count as failures, because `fetch` turns a redirected POST into a GET and drops the payload.
+  - The same `X-Webhook-Id` is sent on every retry.
+- **Tests:** time and the network are injected, so the backoff tests assert exact attempt times (0, 1000, 3000 and 7000 ms) without sleeping.
+
+The README lists what I'd do next: durable storage before the 202, a cap on pending work per tenant, sender authentication, and shared rate-limit state across instances.
+
+I made a few more calls the brief left open:
+- Unknown tenants get 404.
+- Non-POST requests get 405.
+- Bodies over 1 MiB get 413.
+- Bad tenant config stops the service at startup.
+
+Everything is in `/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.mlRQQkr9uW`.

@@ -1,0 +1,19 @@
+{
+  "name": "feedme-order-controller",
+  "version": "1.0.0",
+  "description": "McDonald's cooking bot order controller (FeedMe take-home)",
+  "type": "module",
+  "main": "src/index.js",
+  "bin": {
+    "order-controller": "src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "simulate": "node src/index.js --simulate",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "Apache-2.0"
+}

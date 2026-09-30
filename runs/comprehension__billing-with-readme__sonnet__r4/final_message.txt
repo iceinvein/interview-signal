@@ -1,0 +1,14 @@
+I wrote six bugs to `FINDINGS.md`, each with its line number and the README rule it breaks. I didn't run the code, so these come from reading it against the rules.
+
+1. **Line 155, plan change timing:** it compares included units, but rule 5 is about monthly price. A cheaper plan with more units applies immediately, and a pricier plan with fewer units is deferred.
+2. **Lines 182–193, proration:** `prorationFactor` returns the share of the period already used, but `changePlan` treats it as the unused share. A change on day 1 is prorated at about 0%.
+3. **Lines 217–221, usage tiers:** the tier width is `upTo`, which is a running total, not `upTo - previousCap`. `previousCap` is updated but never read, so tiers after the first are overcharged once usage passes their cap.
+4. **Lines 259–261, tax and credit order:** tax is computed before credit, and credit is then applied to the tax-inclusive amount. Rules 7 and 8 say credit comes off after the discount and before tax, and tax is charged on what remains.
+5. **Lines 235, 261, 294, credit consumption:** `buildInvoice` debits the credit, so previewing changes the account. `finaliseInvoice` then debits it again, which can push the balance negative.
+6. **Line 304, money formatting:** cents aren't zero-padded, so 505 cents shows as `$5.5`.
+
+The file also lists a few lower-confidence issues:
+- A negative subtotal can produce a negative discount.
+- A prorated amount of 0 can produce `-0`.
+- Fractional tax rates can round wrongly in floating point.
+- Some inputs aren't validated: `unitsUsed`, the period, integer `upTo` values, and NaN tax rates.

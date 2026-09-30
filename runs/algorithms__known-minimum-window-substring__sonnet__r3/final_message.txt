@@ -1,0 +1,3 @@
+I've written `minWindow` to `solution.ts`. I haven't run it or any tests.
+
+It uses a sliding window with a count of the characters still needed from `t`. Once the window covers all of `t`, it trims the left edge as far as it can and records the window if it's strictly shorter than the best so far. Because only strictly shorter windows replace the best, ties go to the one that starts earliest. It runs in O(|s| + |t|) time, which is fine for inputs up to 100000. It has no imports.

@@ -1,0 +1,16 @@
+I found 11 problems in `billing.ts` and wrote them to `FINDINGS.md`, each with its line, the rule it breaks and a suggested fix. I found these by reading the code; I didn't run it or write tests.
+
+**Breaks a billing rule:**
+1. **Line 155:** whether a plan change happens now or next period is decided by included units, not monthly price. Rule 5 says it depends on price.
+2. **Line 182:** plan-change proration uses the share of the period already used instead of the share left (the variable is even named `unused`).
+3. **Line 217:** each tier's `upTo` is treated as the tier's size, but it's a running total. It should be `upTo - previousCap`; `previousCap` is tracked but never used.
+4. **Line 259:** tax is worked out before account credit is taken off. Rule 8 says tax comes after the credit.
+5. **Lines 260–261:** credit is applied to the amount after tax. Rule 7 says it comes off before tax.
+6. **Lines 235/261:** previewing an invoice uses up the account's credit, because `buildInvoice` changes the balance.
+7. **Line 294:** finalising an invoice takes the credit off a second time, so the balance can go negative. The next validation then throws.
+
+**Other problems:**
+8. **Line 304:** `formatMoney` doesn't pad cents with a zero, so 105 cents shows as `$1.5`.
+9. **Lines 131/146:** with fractional tax or discount rates (which validation allows), floating-point rounding can round a half-cent down. Rule 1 requires halves to round up.
+10. **Line 246:** plans are never validated when billing or changing plan.
+11. **Lines 115/119:** a tax rate or percent discount of `NaN` passes validation and turns every invoice total into `NaN`.

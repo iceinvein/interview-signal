@@ -1,0 +1,31 @@
+{
+  "format": "takehome",
+  "task": "webhook-relay",
+  "agent": "codex",
+  "rep": 1,
+  "cli": "codex-cli 0.158.0",
+  "model": "gpt-6-sol",
+  "effort": "high",
+  "is_error": false,
+  "cost_usd": null,
+  "turns": 1,
+  "codex_steps": 15,
+  "usage": {
+    "input_tokens": 244874,
+    "cached_input_tokens": 222592,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 11644,
+    "reasoning_output_tokens": 4400
+  },
+  "contamination": [],
+  "external_fetches": [
+    "https://example.test/relay",
+    "https://slow.test",
+    "https://fast.test",
+    "https://hooks.acme.example/relay"
+  ],
+  "timed_out": false,
+  "interrupted": null,
+  "exit_code": 0,
+  "wall_s": 277.197
+}

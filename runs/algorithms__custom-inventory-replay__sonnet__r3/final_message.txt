@@ -1,0 +1,5 @@
+I've written `replayInventory` in `solution.ts`, but I haven't run it or tested it, including on your example.
+
+It keeps two lists of recorded actions: one for what can be undone and one for what can be redone. A rejected remove is skipped without touching either list, and any newly recorded add or remove clears the redo list. The final result drops items at zero and sorts by item name with `<`.
+
+Each event is handled in constant time, so a 200,000-event log is fine. The only cost above that is the final sort.

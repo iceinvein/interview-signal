@@ -1,0 +1,5 @@
+I implemented `coinChange` in `solution.ts` with a bottom-up DP over amounts 0 to `amount`. I haven't run or tested it.
+
+`dp[a]` holds the fewest coins that make `a`, with `dp[0] = 0`. Any denomination larger than `a` is skipped, so the huge values up to 2^31−1 are safe. If `dp[amount]` is still `Infinity`, it returns `-1`. This also gives `0` for an amount of `0`.
+
+It runs in O(amount × coins.length), which is at most about 24,000 steps.

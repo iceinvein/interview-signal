@@ -1,0 +1,16 @@
+normal
+vip
+normal
++bot
++bot
+wait 3
+vip
+wait 2
+-bot
+status
+wait 6
++bot
+wait 20
+-bot
+status
+quit

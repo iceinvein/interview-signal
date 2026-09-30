@@ -1,0 +1,16 @@
+I've implemented `commonFreeSlots` in `solution.ts`, and it gives the right answers on the cases I tried.
+
+**How it works:**
+1. It collects every busy interval from all people and trims each one to the day. Intervals with nothing left inside the day are dropped.
+2. It sorts the intervals by start time.
+3. It walks through them in order, tracking the earliest time that isn't yet known to be busy. Whenever the next interval starts after that point, the gap between them is free, and it's kept if it's at least `minLength`. Touching intervals like `[1,3]` and `[3,5]` leave no gap, and overlaps or repeats are absorbed.
+4. Any free time left after the last busy interval, up to `dayEnd`, is checked the same way.
+
+The running time is O(N log N) for N busy intervals. It uses no imports.
+
+**What I tested:**
+- The example from the spec returns `[[5,8]]`.
+- No people returns the whole day, `[[0,10]]`.
+- Touching intervals leave no gap: `[[1,3],[3,5]]` gives `[[0,1],[5,10]]`.
+- One busy interval that covers the whole day returns `[]`.
+- A 200,000-interval input ran in about 25 ms.

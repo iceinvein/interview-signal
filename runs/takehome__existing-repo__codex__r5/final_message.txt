@@ -1,0 +1,3 @@
+I implemented the waitlist endpoints, queue ordering and removal, and automatic promotion when a booking is cancelled. The existing and new tests pass: **67 tests**, with a clean typecheck.
+
+**One requested field remains blocked:** `GET /sessions/:sessionId/waitlist` returns position, member ID, and name, but not email. [CONTRIBUTING.md](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.T7Fv3qVlPT/CONTRIBUTING.md) requires data protection lead sign-off before a session endpoint returns member contact details. Please confirm that sign-off has been granted so I can add the email field and its test.

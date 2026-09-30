@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "## 6. `formatMoney` does not zero-pad the cents (line 304)\n`abs % 100` is printed unpadded. 505 cents renders as `$5.5`, and 5 cents renders as `$0.5`."
+        },
+        {
+          "label": "met",
+          "quote": "## 6. `formatMoney` does not zero-pad the cents (line 304)\n`abs % 100` is printed unpadded. 505 cents renders as `$5.5`, and 5 cents renders as `$0.5`. The cents need `String(abs % 100).padStart(2, \"0\")`."
+        },
+        {
+          "label": "met",
+          "quote": "`abs % 100` is printed unpadded. 505 cents renders as `$5.5`, and 5 cents renders as `$0.5`. The cents need `String(abs % 100).padStart(2, \"0\")`."
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`usageCharge` takes `Math.min(billable, tier.upTo)` as the units in the tier. It should use the width, `tier.upTo - previousCap`. ... Tier 2 is overcharged whenever usage passes its cap. The overcharge is larger for later tiers."
+        },
+        {
+          "label": "met",
+          "quote": "`usageCharge` takes `Math.min(billable, tier.upTo)` as the units in the tier. It should use the width, `tier.upTo - previousCap`. ... Tier 2 is overcharged whenever usage passes its cap. The overcharge is larger for later tiers."
+        },
+        {
+          "label": "met",
+          "quote": "`usageCharge` takes `Math.min(billable, tier.upTo)` as the units in the tier. It should use the width, `tier.upTo - previousCap`. ... Tier 2 is overcharged whenever usage passes its cap. The overcharge is larger for later tiers."
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period already used. Its doc comment says so. `changePlan` stores that value in a variable named `unused` and uses it for both lines.\n- The old plan is credited for the elapsed share instead of the remaining share.\n- The new plan is charged for the elapsed share instead of the remaining share."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period already used. Its doc comment says so. `changePlan` stores that value in a variable named `unused` and uses it for both lines.\n- The old plan is credited for the elapsed share instead of the remaining share.\n- The new plan is charged for the elapsed share instead of the remaining share."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period already used. Its doc comment says so. `changePlan` stores that value in a variable named `unused` and uses it for both lines.\n- The old plan is credited for the elapsed share instead of the remaining share.\n- The new plan is charged for the elapsed share instead of the remaining share."
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`applyCredit` subtracts from `account.creditBalanceCents` (line 235). `buildInvoice` calls it, so `previewInvoice` changes the account. `finaliseInvoice` then subtracts `creditAppliedCents` again (line 294)."
+        },
+        {
+          "label": "met",
+          "quote": "`applyCredit` subtracts from `account.creditBalanceCents` (line 235). `buildInvoice` calls it, so `previewInvoice` changes the account. `finaliseInvoice` then subtracts `creditAppliedCents` again (line 294)."
+        },
+        {
+          "label": "met",
+          "quote": "`applyCredit` subtracts from `account.creditBalanceCents` (line 235). `buildInvoice` calls it, so `previewInvoice` changes the account. `finaliseInvoice` then subtracts `creditAppliedCents` again (line 294)."
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "## 4. Credit is applied after tax, and tax is charged on the wrong base (lines 259-261)\n**Rules 7 and 8.** Credit must come off the post-discount amount before tax, and tax is charged on what remains. ... Credit therefore reduces the tax-inclusive amount, and tax is charged on an amount that credit has not reduced."
+        },
+        {
+          "label": "met",
+          "quote": "## 4. Credit is applied after tax, and tax is charged on the wrong base (lines 259-261)\n**Rules 7 and 8.** Credit must come off the post-discount amount before tax, and tax is charged on what remains. ... Credit therefore reduces the tax-inclusive amount, and tax is charged on an amount that credit has not reduced."
+        },
+        {
+          "label": "met",
+          "quote": "## 4. Credit is applied after tax, and tax is charged on the wrong base (lines 259-261)\n**Rules 7 and 8.** Credit must come off the post-discount amount before tax, and tax is charged on what remains. ... Credit therefore reduces the tax-inclusive amount, and tax is charged on an amount that credit has not reduced."
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`planChangeTiming` returns `\"immediate\"` when `next.includedUnits > current.includedUnits`. The rule is about monthly price. ... A cheaper plan with more included units is applied immediately and prorated. It should be scheduled with no credit. A more expensive plan with the same or fewer included units is deferred."
+        },
+        {
+          "label": "met",
+          "quote": "`planChangeTiming` returns `\"immediate\"` when `next.includedUnits > current.includedUnits`. The rule is about monthly price. ... A cheaper plan with more included units is applied immediately and prorated. It should be scheduled with no credit. A more expensive plan with the same or fewer included units is deferred."
+        },
+        {
+          "label": "met",
+          "quote": "`planChangeTiming` returns `\"immediate\"` when `next.includedUnits > current.includedUnits`. The rule is about monthly price. ... A cheaper plan with more included units is applied immediately and prorated. It should be scheduled with no credit."
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "met",
+      "unanimous": false,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "**Negative subtotal (line 230).** If negative adjustments make the subtotal negative, a percent discount is negative. `Math.min(raw, 0)` returns that negative value, so the discount adds to the bill."
+        },
+        {
+          "label": "met",
+          "quote": "**Negative subtotal (line 230).** If negative adjustments make the subtotal negative, a percent discount is negative. `Math.min(raw, 0)` returns that negative value, so the discount adds to the bill."
+        },
+        {
+          "label": "not_met",
+          "quote": "**Negative zero (line 188).** `-prorate(...)` yields `-0` when the prorated amount is 0. It can show up as a `-0` line amount. Use `0 - x` or normalise it."
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

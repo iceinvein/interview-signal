@@ -1,0 +1,1 @@
+Implemented [longestBalancedRun](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.X99YCC5D8r/solution.ts:1) with O(n) time and O(n) space. Exhaustive checks through length 7 and two 1,000,000-character cases passed.

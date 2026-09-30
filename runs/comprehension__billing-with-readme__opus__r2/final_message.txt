@@ -1,0 +1,12 @@
+I found 10 bugs and wrote them to `FINDINGS.md`, each with its line, the rule it breaks and an example. I checked the rounding one (#8) by running it in Node; I did not run the others.
+
+1. **Preview spends credit (lines 233–237, 261, 282):** `buildInvoice` takes credit off the account, and `previewInvoice` calls it, so just previewing an invoice uses up credit. This breaks rule 7.
+2. **Finalising deducts credit twice (line 294):** `finaliseInvoice` subtracts the credit again after `buildInvoice` already did. Credit is lost and the balance can go negative. This breaks rule 7.
+3. **Tax ignores credit (line 259):** tax is calculated on the amount before credit is taken off. This breaks rule 8.
+4. **Credit is applied after tax (lines 260–261):** credit ends up paying off tax too, when it should come off before tax. This breaks rule 7.
+5. **Proration uses the wrong share (lines 182, 188, 192):** `prorationFactor` returns the share of the month already used, but `changePlan` treats it as the unused share. An upgrade on day 1 gets almost no proration; one on the last day credits and charges almost the whole month. This breaks rule 5.
+6. **Upgrades are judged by included units instead of price (line 155):** a cheaper plan with more included units switches immediately with proration, and a pricier plan with fewer units gets delayed. This breaks rule 5.
+7. **Usage tiers are sized wrongly (line 217):** each tier's `upTo` is treated as its size rather than a running total. For 250 billable units the example tiers charge 1,750¢ instead of 1,550¢. The variable meant for this (`previousCap`) is updated but never used. This breaks rule 4.
+8. **Percentages round wrongly (line 131):** with fractional rates, floating-point error makes exact halves round down. For example, `percentOf(750, 8.2)` returns 61 instead of 62. Negative halves also round the wrong way. This breaks rule 1.
+9. **Cents aren't zero-padded (line 304):** `formatMoney(105)` shows `$1.5` instead of `$1.05`.
+10. **Plans are never validated (line 246):** `validatePlan` is never called, so a bad catalogue can leave usage unbilled. This depends on bad data, so it is lower severity.

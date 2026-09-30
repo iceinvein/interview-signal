@@ -1,0 +1,15 @@
+I found seven definite bugs and three lower-confidence issues in `billing.ts` and wrote them all to `FINDINGS.md`, with line numbers and reasons. I only read the code and didn't run it.
+
+**Definite bugs**
+1. **Line 155, plan change timing:** it compares included units. Rule 5 says to compare monthly price.
+2. **Lines 182–193, proration:** the code uses the share of the period already used, but the rule needs the unused share (`1 - used`).
+3. **Line 217, usage tiers:** each tier's width is its cap, not its cap minus the previous cap, so units get charged at the wrong rate.
+4. **Lines 259–261, credit and tax:** credit comes off after tax instead of before it, so tax is overstated whenever the account has credit.
+5. **Lines 233–237, preview:** `previewInvoice` deducts credit from the account, which the README forbids.
+6. **Lines 261 and 294, finalising:** `finaliseInvoice` deducts credit a second time, so the balance drops by double what was used.
+7. **Line 304, money formatting:** cents aren't zero-padded, so 1005 cents prints as `$10.5`.
+
+**Lower-confidence issues**
+- **Line 230:** a percent discount on a negative subtotal comes out negative, so it adds to the invoice.
+- **Lines 131 and 146:** float rounding could break "halves round up".
+- **Lines 211 and 246:** nothing validates the plan, the period or the unit count.

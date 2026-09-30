@@ -1,0 +1,3 @@
+Implemented `mergeIntervals` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.pUUshL2NHp/solution.ts). It sorts a copy of the input and merges overlapping or endpoint-touching intervals in O(n log n) time.
+
+Verified with four cases covering empty input, overlaps, touching endpoints, duplicates, and unsorted input.

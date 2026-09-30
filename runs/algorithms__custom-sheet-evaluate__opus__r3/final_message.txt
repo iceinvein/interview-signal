@@ -1,0 +1,11 @@
+I've implemented `evaluateSheet` in `solution.ts`. It returns the right answer for your example and for a second case of my own. It also handled a chain of 100,000 cells, each referring to the next, in about 70 ms.
+
+**How it works:**
+- **Parsing:** each cell's content is read once. A literal is stored as its number. For a formula, the numbers in it are added up straight away, and each reference to a filled cell is recorded as a dependency. References to empty cells are skipped, since they add 0.
+- **Evaluation:** a cell gets its value once every filled cell it refers to has one. It starts with the cells that refer to nothing and works outward from there. This uses a queue rather than recursion, so long chains can't overflow the stack.
+- **Cycles:** any cell that never gets a value is either on a cycle or depends on one, so it gets `"#CYCLE"`. That covers both cases in the spec without having to find the cycles themselves.
+- **Repeated references:** a formula like `=A1+A1` counts `A1` twice, which is correct.
+
+Everything runs in time proportional to the total input size. Every result stays within ±10^15, which JavaScript numbers hold exactly. The file has no imports.
+
+Separately, some connected services (Atlassian, Figma, Gmail, Google Drive, Miro, Trello) need to be authorized in your claude.ai connector settings before they can be used. None of them were needed for this task.

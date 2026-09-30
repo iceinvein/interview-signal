@@ -1,0 +1,3 @@
+I wrote `countIslands` in `solution.ts`, but I haven't run or tested it.
+
+It counts islands with an iterative flood fill. Each unvisited land cell starts a new island, and a stack visits every land cell connected to it up, down, left or right. The stack is iterative so a 1000×1000 grid of land can't overflow the call stack. It also runs in time proportional to the number of cells. It has no imports.

@@ -1,0 +1,1 @@
+Implemented `mergeHalfOpen` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.tkoeuLQlv6/solution.ts). It removes empty intervals, merges overlaps, and keeps touching intervals separate. Five cases passed. Time complexity is O(n log n).

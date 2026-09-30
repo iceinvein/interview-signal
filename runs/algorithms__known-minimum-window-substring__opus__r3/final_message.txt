@@ -1,0 +1,13 @@
+`minWindow` is now implemented in `solution.ts`, and it passed every test I ran.
+
+**How it works:** it slides a window across `s` with two pointers, so it runs in O(|s| + |t|) time.
+- A 128-slot array records how many more copies of each character the window still needs. A counter tracks how many characters of `t` are still missing, counting repeats.
+- Once nothing is missing, the left edge moves right past characters the window has spare copies of. The window is then as short as it can be, and it's recorded if it beats the best so far.
+- A new window replaces the saved one only if it's strictly shorter. Both edges only ever move right, so among windows of equal length the one that starts first is kept.
+
+**Testing:**
+- **Fixed cases:** these cover the classic example (`"ADOBECODEBANC"`, `"ABC"` gives `"BANC"`), repeated characters in `t`, no possible match, ties, and case sensitivity.
+- **Random cases:** 20,000 small random inputs all matched a brute-force version.
+- **Maximum size:** with `s` and `t` both 100,000 characters long, it finished in about 5 ms.
+
+The file has no imports.

@@ -1,0 +1,7 @@
+I wrote `firstOverCapacity` in `solution.ts`, but I haven't run it or tested it, including on your two examples.
+
+It turns each booking into two events: `+people` at `start` and `-people` at `end`. It sorts all the events by time and adds up the changes for one time before checking the total. That way people whose booking ends at time `t` have already left when a booking starting at `t` is counted. It returns the first time the total is greater than `capacity`, or `-1` if that never happens.
+
+To make the sort fast for up to 200,000 bookings, each event is packed into one number as `time * 2048 + (change + 1024)`. The largest packed value is about 2×10¹², well within exact integer range for a JavaScript number. The cost is O(n log n) for the sort.
+
+The file has no imports.

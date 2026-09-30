@@ -1,0 +1,13 @@
+The kernel now runs in **1031 cycles**, down from the 147,734-cycle baseline (about 143× faster). `python tests/submission_tests.py` passes all 8 correctness runs on random trees and inputs, and I didn't touch `tests/`. It is under every speed threshold in that file, including the 1363 one.
+
+Only `perf_takehome.py` changed. The kernel reads the tree from memory at run time, so it works for any tree values.
+
+- **Schedule:** the kernel is built as a dependency graph of operations, and a scheduler packs them into the machine's cycle-by-cycle slots. It tracks scratch addresses so reads and writes stay in the right order.
+- **Vectorized:** the 256 inputs are handled as 32 vectors of 8, with the hash done on vectors. Three adjacent hash stages are merged into fused multiply-adds, which brings the hash to 11 operations per vector per round.
+- **Tree lookups:**
+  - In the shallow rounds (tree depth 0 to 4) the node values are held in registers and picked by arithmetic and vector selects, which avoids memory gathers.
+  - Deeper rounds gather from memory with scalar loads.
+  - The index wrap-around is skipped, because it only ever happens after the leaf level.
+- **Balancing:** a search over the settings spread the work across the vector, scalar, load and select units so all of them run near capacity. Each vector's arithmetic depth and the order the vectors are staggered were tuned this way.
+
+The start-up and the last ~15 cycles still leave some units idle; the rest of the run is near the limit of this design. I didn't try to remove that.

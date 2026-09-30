@@ -1,0 +1,11 @@
+I've written `mergeIntervals` in `solution.ts`, and it passed a short test run.
+
+**How it works:** it copies the intervals and sorts them by `start`. Then it goes through them in order. If the next interval starts at or before the current merged interval's `end`, it joins that interval. Using "at or before" means intervals that only touch at an end, like `[1, 2]` and `[2, 3]`, also merge. Otherwise it starts a new interval. This takes O(n log n) time. Your input array and the pairs inside it are left unchanged.
+
+**Test results:**
+- `[]` → `[]`
+- `[[2,3],[1,2]]` → `[[1,3]]` (touching ends, input out of order)
+- `[[5,6],[1,4],[2,3],[5,6],[7,7]]` → `[[1,4],[5,6],[7,7]]` (a duplicate, an interval inside another, a single point)
+- `[[1,10],[2,3],[4,12]]` → `[[1,12]]` (a chain of overlaps)
+
+I didn't run it on a full 100,000-interval input.

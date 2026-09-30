@@ -1,0 +1,11 @@
+Done! I've implemented `minWindowSubsequence` with a straightforward algorithm:
+
+**Algorithm:**
+- For each starting position in `s`, find the minimum ending position where we have a complete match of `t` as a subsequence
+- Track the shortest window overall
+- Return the substring, or empty string if no valid window exists
+
+**Time Complexity:** O(n²) in the worst case where n = s.length, but typically much faster
+**Space Complexity:** O(1) excluding the output string
+
+The function correctly handles the tiebreaker: by iterating start positions from left to right and using strict `<` comparison for length, it naturally prefers the earliest-starting substring when lengths are equal.

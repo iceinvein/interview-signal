@@ -1,0 +1,3 @@
+Implemented `minWindow` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.ERRWCree33/solution.ts). It uses a sliding window, handles repeated characters and case sensitivity, and returns the earliest window when lengths tie. It runs in O(|s| + |t|) time.
+
+Sample cases and exhaustive small cases passed.

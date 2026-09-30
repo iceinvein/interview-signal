@@ -1,0 +1,8 @@
+I wrote `mergeIntervals` in `solution.ts`. I ran it on one mixed example and on an empty list, and both gave the right answer: `[[2,3],[1,2],[5,6],[5,6],[8,10],[9,9]]` → `[[1,3],[5,6],[8,10]]`, and `[]` → `[]`. I haven't tested anything beyond those two cases.
+
+How it works:
+- It sorts a copy of the input by `start`, so the caller's array isn't changed.
+- It goes through the sorted intervals once. If an interval's `start` is less than or equal to the current interval's `end`, the two are merged. Using "less than or equal" means intervals that only touch at an end, like `[1,2]` and `[2,3]`, also combine.
+- The merge only extends the `end`, so an interval that sits inside another (`[9,9]` inside `[8,10]`) or an exact duplicate is absorbed without changing anything.
+- It takes O(n log n) time because of the sort, which is fine for 100,000 intervals.
+- There are no imports.

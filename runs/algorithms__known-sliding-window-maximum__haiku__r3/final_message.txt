@@ -1,0 +1,9 @@
+Done! I've implemented `maxSlidingWindow` using a deque-based approach.
+
+**Algorithm:**
+- Maintain a deque of indices in decreasing order of their values
+- For each position, remove old indices outside the window and smaller elements from the back
+- The front of the deque always contains the index of the maximum in the current window
+- Time complexity: O(n), Space complexity: O(k)
+
+The solution efficiently handles the constraints by processing each element exactly once.

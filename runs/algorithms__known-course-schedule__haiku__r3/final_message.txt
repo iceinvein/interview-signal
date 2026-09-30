@@ -1,0 +1,18 @@
+Done! I've implemented `canFinish` using **Kahn's algorithm** for topological sorting with cycle detection.
+
+**How it works:**
+
+1. **Build the dependency graph**: For each prerequisite pair `[a, b]`, we create an edge b→a (b must come before a) and track the in-degree (number of prerequisites) for each course.
+
+2. **Find starting courses**: Courses with in-degree 0 have no prerequisites, so we can take them immediately.
+
+3. **Process courses**: We remove courses with in-degree 0 from the queue, and for each dependent course, we decrement its in-degree. When a dependent's in-degree reaches 0, it becomes ready to take.
+
+4. **Check for cycles**: If we successfully process all courses, there's no cycle and we return `true`. If some courses remain (unprocessed because they never reach in-degree 0), there's a cycle and we return `false`.
+
+**Edge cases handled:**
+- Self-prerequisite `[a, a]`: Course a stays at in-degree 1, never gets processed → `false`
+- Circular dependencies like `[[1,0], [0,1]]`: Neither starts at in-degree 0 → `false`
+- Duplicate pairs: In-degree accumulates correctly
+
+**Complexity:** O(V + E) time, O(V + E) space, where V = numCourses and E = prerequisites.length

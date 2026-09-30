@@ -1,0 +1,11 @@
+Done! I've implemented `longestSubstringAtMostTwice` using a sliding window approach:
+
+**How it works:**
+1. Maintain a character frequency map for the current window
+2. Expand the window by moving the right pointer and incrementing character counts
+3. When any character exceeds count 2, shrink from the left until it's back to ≤2
+4. Track the maximum window length seen
+
+**Example:** `"aaab"` → returns 3 (the substring "aab" where 'a' appears twice)
+
+**Complexity:** O(n) time, O(k) space where k ≤ 95 (unique printable ASCII characters)

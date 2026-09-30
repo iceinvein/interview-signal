@@ -1,0 +1,28 @@
+{
+  "format": "takehome",
+  "task": "feedme",
+  "agent": "codex",
+  "rep": 4,
+  "cli": "codex-cli 0.158.0",
+  "model": "gpt-6-sol",
+  "effort": "high",
+  "is_error": false,
+  "cost_usd": null,
+  "turns": 1,
+  "codex_steps": 45,
+  "usage": {
+    "input_tokens": 994888,
+    "cached_input_tokens": 936832,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 14241,
+    "reasoning_output_tokens": 3955
+  },
+  "contamination": [],
+  "external_fetches": [
+    "https://github.com/iceinvein/se-take-home-assignment.git"
+  ],
+  "timed_out": false,
+  "interrupted": null,
+  "exit_code": 0,
+  "wall_s": 424.269
+}

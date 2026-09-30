@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 304 \u2014 Monetary output omits the second cent digit. `formatMoney(1)` returns `$0.1`, which reads as ten cents, instead of `$0.01`. Every amount whose cent part is 0\u20139 is rendered incorrectly in `renderInvoice`."
+        },
+        {
+          "label": "met",
+          "quote": "Line 304 \u2014 Monetary output omits the second cent digit.** `formatMoney(1)` returns `$0.1`, which reads as ten cents, instead of `$0.01`. Every amount whose cent part is 0\u20139 is rendered incorrectly"
+        },
+        {
+          "label": "met",
+          "quote": "Line 304 \u2014 Monetary output omits the second cent digit. `formatMoney(1)` returns `$0.1`, which reads as ten cents, instead of `$0.01`. Every amount whose cent part is 0\u20139 is rendered incorrectly in `renderInvoice`."
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 217 \u2014 Graduated tiers reuse each tier's cumulative cap as its width. A finite tier should cover `tier.upTo - previousCap` units. With caps of 100 and 200 and 350 billable units, the code charges 100 units in tier 1 and 200 in tier 2; the correct split is 100, 100, and 150."
+        },
+        {
+          "label": "met",
+          "quote": "Line 217 \u2014 Graduated tiers reuse each tier's cumulative cap as its width. A finite tier should cover `tier.upTo - previousCap` units. With caps of 100 and 200 and 350 billable units, the code charges 100 units in tier 1 and 200 in tier 2; the correct split is 100, 100, and 150."
+        },
+        {
+          "label": "met",
+          "quote": "Line 217 \u2014 Graduated tiers reuse each tier's cumulative cap as its width. A finite tier should cover `tier.upTo - previousCap` units. With caps of 100 and 200 and 350 billable units, the code charges 100 units in tier 1 and 200 in tier 2; the correct split is 100, 100, and 150."
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 182 \u2014 Proration uses elapsed time as the unused share. `prorationFactor` returns 0 at the start and 1 at the end of the period. The credit and charge at lines 188 and 192 therefore do the reverse of rule 5 ... The unused share is `1 - prorationFactor(period, at)`."
+        },
+        {
+          "label": "met",
+          "quote": "Line 182 \u2014 Proration uses elapsed time as the unused share. `prorationFactor` returns 0 at the start and 1 at the end of the period. The credit and charge at lines 188 and 192 therefore do the reverse of rule 5 ... The unused share is `1 - prorationFactor(period, at)`."
+        },
+        {
+          "label": "met",
+          "quote": "Line 182 \u2014 Proration uses elapsed time as the unused share. `prorationFactor` returns 0 at the start and 1 at the end of the period. The credit and charge at lines 188 and 192 therefore do the reverse of rule 5 ... The unused share is `1 - prorationFactor(period, at)`."
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`previewInvoice` calls `buildInvoice`, which calls `applyCredit` and subtracts from `account.creditBalanceCents`. Rule 7 says a preview must leave the account unchanged. ... `buildInvoice` already subtracts the applied credit at line 235; `finaliseInvoice` subtracts it again."
+        },
+        {
+          "label": "met",
+          "quote": "Findings 10 and 11 cover it. \"Line 282 (via lines 233\u2013235) \u2014 Previewing consumes account credit. `previewInvoice` calls `buildInvoice`, which calls `applyCredit` and subtracts from `account.creditBalanceCents`.\" and \"Line 293\u2013294 \u2014 Finalising consumes the same credit twice.\""
+        },
+        {
+          "label": "met",
+          "quote": "`previewInvoice` calls `buildInvoice`, which calls `applyCredit` and subtracts from `account.creditBalanceCents`. Rule 7 says a preview must leave the account unchanged. ... `buildInvoice` already subtracts the applied credit at line 235; `finaliseInvoice` subtracts it again."
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 259 \u2014 Tax is computed before account credit is deducted. For a 1,000-cent subtotal, no discount, 500 cents of credit, and 10% tax, the code charges 100 cents of tax; rule 8 requires tax on the remaining 500 cents, or 50 cents."
+        },
+        {
+          "label": "met",
+          "quote": "8. **Line 259 \u2014 Tax is computed before account credit is deducted.** For a 1,000-cent subtotal, no discount, 500 cents of credit, and 10% tax, the code charges 100 cents of tax; rule 8 requires tax on the remaining 500 cents, or 50 cents. 9. **Line 260\u2013261 \u2014 Credit can be spent on tax.** `due` includes tax before `applyCredit` caps the applied credit."
+        },
+        {
+          "label": "met",
+          "quote": "8. **Line 259 \u2014 Tax is computed before account credit is deducted.** For a 1,000-cent subtotal, no discount, 500 cents of credit, and 10% tax, the code charges 100 cents of tax; rule 8 requires tax on the remaining 500 cents, or 50 cents. 9. **Line 260\u2013261 \u2014 Credit can be spent on tax.** `due` includes tax before `applyCredit` caps the applied credit."
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 152\u2013155 \u2014 Plan-change timing uses included units instead of monthly price. A more expensive plan with the same or fewer included units is incorrectly deferred, while a cheaper plan with more included units is applied immediately. Rule 5 bases timing solely on whether the new monthly price is higher."
+        },
+        {
+          "label": "met",
+          "quote": "Line 152\u2013155 \u2014 Plan-change timing uses included units instead of monthly price. A more expensive plan with the same or fewer included units is incorrectly deferred, while a cheaper plan with more included units is applied immediately. Rule 5 bases timing solely on whether the new monthly price is higher."
+        },
+        {
+          "label": "met",
+          "quote": "Line 152\u2013155 \u2014 Plan-change timing uses included units instead of monthly price. A more expensive plan with the same or fewer included units is incorrectly deferred, while a cheaper plan with more included units is applied immediately. Rule 5 bases timing solely on whether the new monthly price is higher."
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "A `NaN` cap passes and makes `usageCharge` return `NaN`; a fractional cap can produce fractional cents."
+        },
+        {
+          "label": "met",
+          "quote": "\"A `NaN` cap passes and makes `usageCharge` return `NaN`; a fractional cap can produce fractional cents.\" / \"`usageCharge(plan, 0.5)` returns `0.5` cents, violating rule 1.\""
+        },
+        {
+          "label": "met",
+          "quote": "`validatePlan` accepts a fractional cap or `NaN` because its only cap check is `tier.upTo <= previousCap`. A `NaN` cap passes and makes `usageCharge` return `NaN`; a fractional cap can produce fractional cents."
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

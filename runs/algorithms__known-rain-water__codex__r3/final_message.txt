@@ -1,0 +1,3 @@
+Implemented `rainWater` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.9dVAKzSenw/solution.ts) using a two-pointer scan. It runs in O(n) time and O(1) extra space.
+
+Verified with edge cases, maximum-size input, and 2,500 randomized comparisons against a reference calculation.

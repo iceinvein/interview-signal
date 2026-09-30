@@ -1,0 +1,1 @@
+Reviewed `billing.ts` against `README.md` and wrote 13 findings, each with a line reference and explanation, to [FINDINGS.md](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.vdmbfAwvom/FINDINGS.md).

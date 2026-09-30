@@ -1,0 +1,9 @@
+I've written `minWindowSubsequence` in `solution.ts`. It returns the right answers on the example cases and matched a brute-force checker on 20,000 random small inputs.
+
+**How it works:**
+- **Lookup table:** it first builds a table that gives, for every position in `s` and every letter, the index of that letter's next occurrence.
+- **Matching:** from each position in `s` that holds `t[0]`, it follows the table to match the rest of `t` in order. That costs O(n·m) at most, about 2 million steps at the size limits.
+- **Ties:** start positions are tried from left to right, and a window replaces the current best only if it is strictly shorter. So among equal-length windows, the one that starts first wins.
+- **Early stops:** a match attempt stops once it can't beat the best window found so far. The whole scan ends once some character of `t` has no later occurrence in `s`, because no later start could succeed either.
+
+On worst-case-sized inputs (`s` 20,000 characters long, `t` 100 characters long) it ran in about 3 ms. The file has no imports.

@@ -1,0 +1,22 @@
+Done! I've implemented the spreadsheet evaluation function. Here's how it works:
+
+**Algorithm:**
+1. **Parse** each cell as either a literal (integer) or formula
+2. **Evaluate** with memoization and cycle detection:
+   - Track cells currently being computed in a `computing` Set
+   - If we encounter a cell already being computed, we've found a cycle → return `"#CYCLE"`
+   - If a formula depends on any cell that evaluates to `"#CYCLE"`, propagate that
+   - Otherwise, compute the sum of all terms
+
+**Key details:**
+- Formulas are parsed by splitting on `+`, which correctly handles negative numbers like `"=A1+-3"` → terms `["A1", "-3"]`
+- `parseInt()` distinguishes integers from cell names (NaN check)
+- Empty cells (not in input) return 0
+- Cycles are detected during recursive evaluation, not as a separate pass
+
+**Example trace** for the given example:
+- `A1: "=B1+C1"` depends on B1 and C1
+- `B1: "=A1"` depends on A1 → cycle detected with A1
+- Both A1 and B1 get `"#CYCLE"`
+- `C1: "4"` evaluates to 4
+- `D1: "=C1+E1+-1"` → 4 + 0 + (-1) = 3

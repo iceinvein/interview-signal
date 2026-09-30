@@ -1,0 +1,16 @@
+I've written `commonFreeSlots` in `solution.ts`. It returns `[[5, 8]]` for your example, and three quick edge-case checks gave the expected results.
+
+**How it works:**
+1. It collects every person's busy intervals into one list. Each interval is first trimmed to the day, and any that fall entirely outside the day are dropped.
+2. It sorts the list by start time.
+3. It walks through the list with a cursor marking the earliest time not yet known to be busy. When an interval starts after the cursor, the gap between them is a free interval, and it's kept if it's at least `minLength` long. The cursor then moves to the interval's end, but never backwards.
+4. After the last interval, the time from the cursor to `dayEnd` is checked the same way.
+
+Overlapping, repeated and out-of-order intervals are handled by the sort and the cursor. Touching intervals like `[1, 3]` and `[3, 5]` leave no gap. The sort dominates the running time, so it's O(n log n) for up to 200,000 intervals.
+
+**Edge cases checked:**
+- No people: `[[0, 10]]`, the whole day.
+- Touching intervals `[1, 3]` and `[3, 5]` in a day from 0 to 5: `[[0, 1]]`.
+- A busy interval covering more than the whole day: `[]`.
+
+The file has no imports.

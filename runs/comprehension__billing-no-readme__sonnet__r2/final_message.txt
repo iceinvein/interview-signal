@@ -1,0 +1,18 @@
+I found nine bugs in `billing.ts` and one questionable design choice, and wrote them all to `FINDINGS.md`. I only read the code and didn't run it. The file gives each finding's line and reason, ordered by severity.
+
+**Definite bugs**
+1. **Usage tiers (lines 217-218):** `tier.upTo` is a cumulative cap but is used as the tier width. Tiers after the first are billed over too many units, and `previousCap` is tracked but never used.
+2. **`previewInvoice` (lines 233-237):** it consumes account credit through `applyCredit`, even though its comment says it doesn't change the account.
+3. **`finaliseInvoice` (line 294):** it deducts credit a second time, after `buildInvoice` has already deducted it.
+4. **`changePlan` proration (lines 182, 188, 192):** `prorationFactor` returns the share of the period used, but it is treated as the share unused. Refunds and charges are inverted.
+5. **`formatMoney` (line 304):** cents aren't zero-padded, so 105 cents renders as `$1.5`.
+
+**Edge cases**
+- **Negative subtotal:** a percent discount on a negative subtotal comes out negative.
+- **Rounding:** `Math.round` treats negative halves differently from positive ones.
+- **Empty period:** `prorationFactor` returns NaN when the period has zero length.
+- **NaN input:** NaN tax or discount values pass validation. `validatePlan` is also never called on the billing path.
+
+**Questionable:** `planChangeTiming` compares only included units, not price. Please confirm that's intended.
+
+I didn't change `billing.ts`.

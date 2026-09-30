@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`abs % 100` is printed without padding, so 105 cents renders as `$1.5` (means $1.50) and 1 cent renders as `$0.1`. Use `String(abs % 100).padStart(2, \"0\")`."
+        },
+        {
+          "label": "met",
+          "quote": "`abs % 100` is printed without padding, so 105 cents renders as `$1.5` (means $1.50) and 1 cent renders as `$0.1`. Use `String(abs % 100).padStart(2, \"0\")`."
+        },
+        {
+          "label": "met",
+          "quote": "## 5. `formatMoney` doesn't zero-pad cents \u2014 line 304\n\n`abs % 100` is printed without padding, so 105 cents renders as `$1.5` (means $1.50)\nand 1 cent renders as `$0.1`. Use `String(abs % 100).padStart(2, \"0\")`."
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "so a tier's width is `tier.upTo - previousCap`. The code uses `tier.upTo` as the width. ... because the second tier absorbs 150 units rather than 100"
+        },
+        {
+          "label": "met",
+          "quote": "so a tier's width is `tier.upTo - previousCap`. The code uses `tier.upTo` as the width. ... because the second tier absorbs 150 units rather than 100"
+        },
+        {
+          "label": "met",
+          "quote": "so a tier's width is `tier.upTo - previousCap`. The code uses `tier.upTo` as the width. ... because the second tier absorbs 150 units rather than 100"
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period **already used** (0 at start, 1 at end), but its result is stored as `unused` and used both to refund the old plan and to charge the new plan for the \"remaining\" time (lines 188, 192). It should be `1 - prorationFactor(period, at)`."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period **already used** (0 at start, 1 at end), but its result is stored as `unused` and used both to refund the old plan and to charge the new plan for the \"remaining\" time (lines 188, 192). It should be `1 - prorationFactor(period, at)`."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period **already used** (0 at start, 1 at end), but its result is stored as `unused` and used both to refund the old plan and to charge the new plan for the \"remaining\" time (lines 188, 192). It should be `1 - prorationFactor(period, at)`."
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit` (line 261), which already subtracts the applied amount from `account.creditBalanceCents` (line 235). `finaliseInvoice` then subtracts `invoice.creditAppliedCents` a second time (line 294)."
+        },
+        {
+          "label": "met",
+          "quote": "\"`buildInvoice` calls `applyCredit` (line 261), which already subtracts the applied amount from `account.creditBalanceCents` (line 235). `finaliseInvoice` then subtracts `invoice.creditAppliedCents` a second time (line 294).\" FINDINGS.md also says: \"The doc comment says preview works \"without changing the account\", but it calls `buildInvoice`, and that call consumes credit through `applyCredit`.\""
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit` (line 261), which already subtracts the applied amount from `account.creditBalanceCents` (line 235). `finaliseInvoice` then subtracts `invoice.creditAppliedCents` a second time (line 294)."
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "The findings cover the double credit deduction (line 294), the preview mutation, proration, tiers, formatMoney, and the negative discount. None of them says that credit is applied after tax (lines 258\u2013260) when it should come off the discounted subtotal before tax."
+        },
+        {
+          "label": "not_met",
+          "quote": "FINDINGS.md lists six findings (double credit deduction, preview mutation, proration, tiers, formatMoney, negative discount). None of them says credit is applied after tax at lines 258\u2013260, or that it should come off the discounted subtotal before tax."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"## 1. Credit is deducted twice when an invoice is finalised \u2014 line 294 (with line 261)\": the only credit findings cover double deduction and preview changing the account. None says credit is applied after tax (lines 258\u2013260)."
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "\"When proration credits make the subtotal negative (e.g. an immediate change to a plan with more included units but a lower price)\" \u2014 FINDINGS.md treats this as a valid scenario and never says planChangeTiming should decide by monthly price."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"When proration credits make the subtotal negative (e.g. an immediate change to a plan with more included units but a lower price)\". Finding 6 treats this scenario as expected behaviour and only flags the discount clamp. No finding says planChangeTiming should decide by monthly price instead of included units."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"When proration credits make the subtotal negative (e.g. an immediate change to a plan with more included units but a lower price)\": this uses the scenario only to set up the discount bug; no finding reports that planChangeTiming should decide by monthly price."
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`percentOf` returns a negative `raw`, and `Math.min(raw, Math.max(0, subtotal))` = `Math.min(negative, 0)` keeps it negative. A negative discount **increases** the amount due (line 260)"
+        },
+        {
+          "label": "met",
+          "quote": "`Math.min(raw, Math.max(0, subtotal))` = `Math.min(negative, 0)` keeps it negative. A negative discount **increases** the amount due (line 260) and renders as a positive \"Discount\" row."
+        },
+        {
+          "label": "met",
+          "quote": "When proration credits make the subtotal negative (e.g. an immediate change to a plan with more included units but a lower price), `percentOf` returns a negative `raw`, and `Math.min(raw, Math.max(0, subtotal))` = `Math.min(negative, 0)` keeps it negative."
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

@@ -1,0 +1,13 @@
+I wrote `coinChange` in `solution.ts`. It works out the fewest coins needed for every amount from 0 up to `amount`, building each answer from the smaller ones. It runs in O(amount × coins.length) time and O(amount) space. The file has no imports and keeps the exact exported signature.
+
+I ran it on a few sample cases and all gave the expected results:
+
+| Coins | Amount | Result |
+|---|---|---|
+| `[1,2,5]` | 11 | 3 |
+| `[2]` | 3 | -1 |
+| `[1]` | 0 | 0 |
+| `[2147483647]` | 2 | -1 |
+| `[186,419,83,408]` | 2000 | 16 |
+
+Very large coin values like `2^31 - 1` are handled safely: they are larger than any possible amount, so they're simply skipped.

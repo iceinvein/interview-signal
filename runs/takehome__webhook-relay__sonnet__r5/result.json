@@ -1,0 +1,58 @@
+{
+  "format": "takehome",
+  "task": "webhook-relay",
+  "agent": "sonnet",
+  "rep": 5,
+  "cli": "2.1.285 (Claude Code)",
+  "model": "claude-sonnet-5-5",
+  "effort": null,
+  "is_error": false,
+  "cost_usd": 0.3693022,
+  "turns": 7,
+  "codex_steps": null,
+  "usage": {
+    "input_tokens": 14,
+    "cache_creation_input_tokens": 30685,
+    "cache_read_input_tokens": 183221,
+    "output_tokens": 20989,
+    "output_tokens_details": {
+      "thinking_tokens": 3860
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 30685,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "not_available",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 748,
+        "cache_read_input_tokens": 38551,
+        "cache_creation_input_tokens": 2480,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 2480
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "contamination": [],
+  "external_fetches": [
+    "http://dest.invalid/hook",
+    "https://a.example/x",
+    "http://acme.invalid/",
+    "http://other.invalid/"
+  ],
+  "timed_out": false,
+  "interrupted": null,
+  "exit_code": 0,
+  "wall_s": 141.357
+}

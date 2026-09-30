@@ -1,0 +1,1 @@
+Implemented `longestNonDecreasing` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.UXPsaJ0YJm/solution.ts). It handles equal values and runs in O(n log n) time. Sample cases, 2,000 random comparisons, and a 100,000-element input passed.

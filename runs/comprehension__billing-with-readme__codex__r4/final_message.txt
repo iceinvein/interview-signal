@@ -1,0 +1,1 @@
+I wrote 12 findings to [FINDINGS.md](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.8bMPbDiKTn/FINDINGS.md). Each includes the relevant line and why it conflicts with the README rules.

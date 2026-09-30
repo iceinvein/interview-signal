@@ -1,0 +1,13 @@
+I've written `minWindow` in `solution.ts` and tried it on a few examples. It gave the right answer each time:
+
+| `s` | `t` | Result |
+|---|---|---|
+| `"ADOBECODEBANC"` | `"ABC"` | `"BANC"` |
+| `"a"` | `"a"` | `"a"` |
+| `"a"` | `"aa"` | `""` |
+| `"baab"` | `"aab"` | `"baa"` (ties with `"aab"`; the earlier start wins) |
+| `"abcab"` | `"ab"` | `"ab"` |
+
+It scans `s` once with a window. It keeps a count of how many of each character from `t` are still missing, and extends the right edge until nothing is missing. It then moves the left edge in past any characters the window doesn't need, and records the window if it's the shortest so far. A later window only replaces the saved one if it's strictly shorter, so when two have the same length the earlier one is kept.
+
+It runs in O(|s| + |t|) time and uses a fixed 128-entry count table. Upper and lower case are counted separately, and the file has no imports.

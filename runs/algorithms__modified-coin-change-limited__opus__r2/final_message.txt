@@ -1,0 +1,8 @@
+I've implemented `coinChangeLimited` in `solution.ts`. I ran it on a handful of small cases and got the expected answers (for example, `[1,2,5]` with counts `[5,2,1]` makes 11 with 5 coins, and an impossible amount returns `-1`). On the largest allowed input (12 coins with 10,000 of each, amount 10,000) it finished in about 2 ms.
+
+**How it works:** it's a dynamic-programming table of the fewest coins needed for each total from 0 up to `amount`.
+- **Count limits:** each denomination's count is capped at `amount / coin`, since you could never use more than that. The capped count is then split into groups of 1, 2, 4, … coins (plus a remainder). Every number from 0 up to the count can be made from these groups, so the limit is respected exactly.
+- **Updating the table:** each group is either used once or not at all. Totals are updated from high to low so no group is counted twice.
+- **Cost:** about 12 × 14 × 10,000 operations in the worst case.
+
+The file has no imports, and the exported name and signature are unchanged.

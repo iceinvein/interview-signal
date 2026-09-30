@@ -1,0 +1,12 @@
+I've written `minWindowSubsequence` in `solution.ts`, and it gives the right answer on every test I ran.
+
+**How it works:**
+- **Lookup table:** it first builds a table of where each letter next appears in `s`, starting from each position. This takes about 26 × n steps.
+- **Scanning:** for each position in `s` that holds `t[0]`, it jumps straight to each next character of `t` using the table. When it reaches the last character, that gives the shortest window starting at that position. This takes at most n × m steps (about 2 million at the maximum sizes).
+- **Ties:** start positions are checked from left to right, and the best answer is only replaced when a strictly shorter window turns up. So among equally short windows, the leftmost one wins.
+- **Stopping early:** if the rest of `t` can't be matched from some start position, it can't be matched from any later one either, so the loop stops there.
+
+**Tests:**
+- `("abcdebdde", "bde")` → `"bcde"`; a character that doesn't appear in `s` → `""`; `("cba", "abc")` → `""`.
+- 3,000 random small cases all matched a brute-force version.
+- The worst case (`s` of 20,000 letters, `t` of 100) runs in about 6 ms.

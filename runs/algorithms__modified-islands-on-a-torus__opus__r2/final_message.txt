@@ -1,0 +1,13 @@
+I've implemented `countIslandsTorus` in `solution.ts`. It uses union-find with path compression, stores the parent array in an `Int32Array`, and uses no recursion or imports.
+
+**How it works:** it goes through the grid once and adds one to the island count for each land cell. For each of the cell's four neighbours, it works out the wrapped position. It skips the neighbour if that position is the cell itself, which covers single-row and single-column grids. Otherwise, if the neighbour is land it has already seen, it merges the two groups, and each merge of two separate groups takes one off the count.
+
+**Testing:** I ran it with Node against hand-made cases and every result matched the expected answer:
+- wrapping across a row (`[[1,0,1]]` gives 1) and down a column
+- corners joining around both edges
+- diagonal-only cells staying separate
+- single-cell and single-row grids
+
+At the maximum size of 1000×1000, a checkerboard (500,000 islands) took about 5 ms and a grid of all land took about 11 ms.
+
+Separately, several claude.ai connectors (Atlassian Rovo, Figma, Gmail, Google Drive, Miro, Trello) need authorizing in your claude.ai connector settings before they can be used. This task didn't need any of them.

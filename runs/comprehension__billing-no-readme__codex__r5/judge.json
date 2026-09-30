@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 304 \u2014 Money formatting omits a leading zero in the cents portion.** The remainder is interpolated without padding, so 1 cent renders as `$0.1` and zero as `$0.0`; both should have exactly two decimal digits."
+        },
+        {
+          "label": "met",
+          "quote": "Line 304 \u2014 Money formatting omits a leading zero in the cents portion. The remainder is interpolated without padding, so 1 cent renders as `$0.1` and zero as `$0.0`; both should have exactly two decimal digits."
+        },
+        {
+          "label": "met",
+          "quote": "Line 304 \u2014 Money formatting omits a leading zero in the cents portion. The remainder is interpolated without padding, so 1 cent renders as `$0.1` and zero as `$0.0`; both should have exactly two decimal digits."
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 217 \u2014 Usage tier widths are calculated from the wrong cap. `upTo` is a cumulative billable-unit limit, so a bounded tier's width is `tier.upTo - previousCap`. The code uses the full cap each time."
+        },
+        {
+          "label": "met",
+          "quote": "Line 217 \u2014 Usage tier widths are calculated from the wrong cap.** `upTo` is a cumulative billable-unit limit, so a bounded tier's width is `tier.upTo - previousCap`. The code uses the full cap each time."
+        },
+        {
+          "label": "met",
+          "quote": "Line 217 \u2014 Usage tier widths are calculated from the wrong cap. `upTo` is a cumulative billable-unit limit, so a bounded tier's width is `tier.upTo - previousCap`. The code uses the full cap each time."
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 182 \u2014 The proration share is backwards.** `prorationFactor` returns the fraction of the period already used, but `changePlan` calls it `unused` and charges and credits that share. ... The lines need the remaining share (`1 - prorationFactor(...)`)."
+        },
+        {
+          "label": "met",
+          "quote": "Line 182 \u2014 The proration share is backwards. `prorationFactor` returns the fraction of the period already used, but `changePlan` calls it `unused` and charges and credits that share. ... The lines need the remaining share (`1 - prorationFactor(...)`)."
+        },
+        {
+          "label": "met",
+          "quote": "Line 182 \u2014 The proration share is backwards. `prorationFactor` returns the fraction of the period already used, but `changePlan` calls it `unused` and charges and credits that share. ... The lines need the remaining share (`1 - prorationFactor(...)`)."
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, which subtracts from `account.creditBalanceCents`; `previewInvoice` calls that same function despite promising not to change the account."
+        },
+        {
+          "label": "met",
+          "quote": "\"`buildInvoice` calls `applyCredit`, which subtracts from `account.creditBalanceCents`; `previewInvoice` calls that same function despite promising not to change the account.\" and \"`applyCredit` already debits the account inside `buildInvoice`, then `finaliseInvoice` debits `invoice.creditAppliedCents` again.\""
+        },
+        {
+          "label": "met",
+          "quote": "Lines 261 and 282 \u2014 Previewing an invoice consumes account credit. `buildInvoice` calls `applyCredit`, which subtracts from `account.creditBalanceCents`; `previewInvoice` calls that same function despite promising not to change the account."
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "Finding 3 says \"Previewing an invoice consumes account credit\" and Finding 4 says \"Finalising an invoice subtracts the credit twice\". Neither these nor any other finding says that credit is applied after tax instead of being taken off the subtotal before tax."
+        },
+        {
+          "label": "not_met",
+          "quote": "None of the 13 findings says that credit is applied after tax. Findings 3 and 4 cover credit, but they are about preview consuming credit and finalisation subtracting it twice: \"Lines 261 and 294 \u2014 Finalising an invoice subtracts the credit twice.\" Nothing says credit should come off the discounted subtotal before tax is charged."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"Lines 261 and 294 \u2014 Finalising an invoice subtracts the credit twice.\" FINDINGS.md covers credit only for preview side effects and double-debiting. None of the 13 findings says credit is applied after tax instead of before it."
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "\"1. **Line 182 \u2014 The proration share is backwards.**\" \u2014 this is the only plan-change finding. None of the 13 findings says that planChangeTiming (lines 152\u2013156) decides by included units when it should decide by monthly price."
+        },
+        {
+          "label": "not_met",
+          "quote": "Nothing in FINDINGS.md covers planChangeTiming (lines 152\u2013156). The only plan-change finding is \"Line 182 \u2014 The proration share is backwards,\" which is about the proration direction, not about the timing being decided by included units instead of price."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"1. **Line 182 \u2014 The proration share is backwards.**\" None of the 13 findings says that planChangeTiming (lines 152\u2013156) uses included units when it should compare monthly price."
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "not_met",
+      "unanimous": false,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "13. **Lines 285\u2013295 \u2014 Finalisation has no one-invoice-per-period guard.** Calling `finaliseInvoice` twice with the same account and period creates two invoices and charges the same subscription twice. Nothing records or checks that the period has already been issued, despite the module's one-invoice-per-period contract."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"Lines 285\u2013295 \u2014 Finalisation has no one-invoice-per-period guard. Calling `finaliseInvoice` twice with the same account and period creates two invoices and charges the same subscription twice.\" This flags a design choice (no stored state or idempotency, which the code never promised) as a bug."
+        },
+        {
+          "label": "met",
+          "quote": "11. **Lines 226\u2013230 \u2014 A percentage discount becomes negative on a negative subtotal.** For a -100-cent subtotal and a 10% discount, `discountAmount` returns -10 cents."
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

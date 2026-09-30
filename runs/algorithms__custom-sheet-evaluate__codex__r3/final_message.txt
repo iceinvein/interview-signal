@@ -1,0 +1,3 @@
+Implemented `evaluateSheet` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.QVy9XWZyOp/solution.ts). It evaluates dependencies iteratively and marks cells in or downstream of cycles as `"#CYCLE"`.
+
+Checks passed for the provided example, missing cells, repeated references, cycles, and a 100,000-cell chain.

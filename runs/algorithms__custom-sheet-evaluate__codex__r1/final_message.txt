@@ -1,0 +1,3 @@
+Implemented `evaluateSheet` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.L0XYqmPNlQ/solution.ts). It handles missing cells, repeated references, and cycles without recursion.
+
+Verified the example and edge cases, plus a 100,000-cell chain and cycle.

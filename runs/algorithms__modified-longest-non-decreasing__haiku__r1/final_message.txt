@@ -1,0 +1,12 @@
+Done! I've implemented the longest non-decreasing subsequence function using an O(n log n) dynamic programming approach with binary search.
+
+**Algorithm:**
+- Maintains a `tails` array where `tails[i]` represents the smallest tail element of all non-decreasing subsequences of length `i+1`
+- For each number, binary searches for the correct position in the tails array
+- If the number is larger than all existing tails, extends the longest subsequence
+- Otherwise, updates the appropriate tail to keep smaller alternatives for future extension
+
+**Time complexity:** O(n log n)  
+**Space complexity:** O(n)
+
+This handles all cases including equal elements (e.g., `[2, 2, 2]` returns 3) and works efficiently within the constraints.

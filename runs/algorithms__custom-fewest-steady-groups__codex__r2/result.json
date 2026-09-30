@@ -1,0 +1,26 @@
+{
+  "format": "algorithms",
+  "task": "custom-fewest-steady-groups",
+  "agent": "codex",
+  "rep": 2,
+  "cli": "codex-cli 0.158.0",
+  "model": "gpt-6-sol",
+  "effort": "high",
+  "is_error": false,
+  "cost_usd": null,
+  "turns": 1,
+  "codex_steps": 9,
+  "usage": {
+    "input_tokens": 96370,
+    "cached_input_tokens": 85376,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 1697,
+    "reasoning_output_tokens": 228
+  },
+  "contamination": [],
+  "external_fetches": [],
+  "timed_out": false,
+  "interrupted": null,
+  "exit_code": 0,
+  "wall_s": 47.785
+}

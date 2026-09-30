@@ -1,0 +1,53 @@
+{
+  "format": "algorithms",
+  "task": "known-sliding-window-maximum",
+  "agent": "opus",
+  "rep": 2,
+  "cli": "2.1.285 (Claude Code)",
+  "model": "claude-opus-5-5",
+  "effort": null,
+  "is_error": false,
+  "cost_usd": 0.1024092,
+  "turns": 2,
+  "codex_steps": null,
+  "usage": {
+    "input_tokens": 4,
+    "cache_creation_input_tokens": 9169,
+    "cache_read_input_tokens": 26006,
+    "output_tokens": 1192,
+    "output_tokens_details": {
+      "thinking_tokens": 54
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 9169,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "not_available",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 440,
+        "cache_read_input_tokens": 15785,
+        "cache_creation_input_tokens": 3605,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 3605
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "contamination": [],
+  "external_fetches": [],
+  "timed_out": false,
+  "interrupted": null,
+  "exit_code": 0,
+  "wall_s": 16.63
+}

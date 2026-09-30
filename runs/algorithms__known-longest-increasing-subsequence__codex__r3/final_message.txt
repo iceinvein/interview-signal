@@ -1,0 +1,1 @@
+Implemented `lengthOfLIS` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.HZOfOt2gvB/solution.ts). It uses binary search to find the longest strictly increasing subsequence in O(n log n) time. All six verification cases passed, including equal values and a 100,000-element array.

@@ -1,0 +1,10 @@
+{
+  "tenants": {
+    "acme": {
+      "destination": "http://127.0.0.1:9000/relay",
+      "maxAttempts": 5,
+      "initialBackoffMs": 1000,
+      "requestsPerSecond": 20
+    }
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`formatMoney(105)` renders `\"$1.5\"` instead of `\"$1.05\"`, and `formatMoney(1000)` renders `\"$10.0\"`. Every amount with fewer than 10 cents is shown wrong on rendered invoices"
+        },
+        {
+          "label": "met",
+          "quote": "Failure: `formatMoney(105)` renders `\"$1.5\"` instead of `\"$1.05\"`, and `formatMoney(1000)` renders `\"$10.0\"`. Every amount with fewer than 10 cents is shown wrong on rendered invoices"
+        },
+        {
+          "label": "met",
+          "quote": "**`billing.ts:304`** \u2014 `${abs % 100}` isn't padded to two digits. Failure: `formatMoney(105)` renders `\"$1.5\"` instead of `\"$1.05\"`"
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`tierWidth` is set to `tier.upTo`, but `upTo` is a running total of billable units (Rule 4 and the comment at line 12). The tier's width is `tier.upTo - previousCap`. ... Every tier after the first gets too many units."
+        },
+        {
+          "label": "met",
+          "quote": "`tierWidth` is set to `tier.upTo`, but `upTo` is a running total of billable units (Rule 4 and the comment at line 12). The tier's width is `tier.upTo - previousCap`. ... Every tier after the first gets too many units."
+        },
+        {
+          "label": "met",
+          "quote": "`tierWidth` is set to `tier.upTo`, but `upTo` is a running total of billable units (Rule 4 and the comment at line 12). The tier's width is `tier.upTo - previousCap`. ... Every tier after the first gets too many units."
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period **already used** (0 at the start, 1 at the end; see its doc comment at line 138). `changePlan` stores this in a variable named `unused` and uses it for both the credit and the charge. ... if the account upgrades on day 3 of 30, it gets credited and charged for 10% of the period instead of 90%."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period **already used** (0 at the start, 1 at the end; see its doc comment at line 138). `changePlan` stores this in a variable named `unused` and uses it for both the credit and the charge. ... if the account upgrades on day 3 of 30, it gets credited and charged for 10% of the period instead of 90%."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period **already used** (0 at the start, 1 at the end; see its doc comment at line 138). `changePlan` stores this in a variable named `unused` and uses it for both the credit and the charge."
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`applyCredit` changes `account.creditBalanceCents`. `buildInvoice` is shared by preview and finalise, so `previewInvoice` spends credit. This breaks Rule 7 (\"Previewing an invoice must not change the account\")... `finaliseInvoice` subtracts `invoice.creditAppliedCents` from the balance, but `buildInvoice` already did that through `applyCredit` (line 235)."
+        },
+        {
+          "label": "met",
+          "quote": "`applyCredit` changes `account.creditBalanceCents`. `buildInvoice` is shared by preview and finalise, so `previewInvoice` spends credit. ... `finaliseInvoice` subtracts `invoice.creditAppliedCents` from the balance, but `buildInvoice` already did that through `applyCredit` (line 235)."
+        },
+        {
+          "label": "met",
+          "quote": "`applyCredit` changes `account.creditBalanceCents`. `buildInvoice` is shared by preview and finalise, so `previewInvoice` spends credit. ... `finaliseInvoice` subtracts `invoice.creditAppliedCents` from the balance, but `buildInvoice` already did that through `applyCredit` (line 235)."
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "\"`due` already includes tax, and credit is then taken off `due`. Rule 7 says credit applies to the subtotal after the discount and **before tax**\" plus finding 5: \"an account with credit pays tax on the part of the invoice its credit already covered.\""
+        },
+        {
+          "label": "met",
+          "quote": "\"`due` already includes tax, and credit is then taken off `due`. Rule 7 says credit applies to the subtotal after the discount and **before tax**\" ... \"Rule 8 says tax is charged on the amount left after **both** the discount and the credit.\""
+        },
+        {
+          "label": "met",
+          "quote": "\"`due` already includes tax, and credit is then taken off `due`. Rule 7 says credit applies to the subtotal after the discount and **before tax**\" and \"Rule 8 says tax is charged on the amount left after **both** the discount and the credit... an account with credit pays tax on the part of the invoice its credit already covered.\""
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "\"Failure: moving to a cheaper plan that includes more units is applied at once, with proration (the account gets a credit it isn't owed). Moving to a pricier plan with the same or fewer included units gets scheduled for next period with no proration\""
+        },
+        {
+          "label": "met",
+          "quote": "Failure: moving to a cheaper plan that includes more units is applied at once,\nwith proration (the account gets a credit it isn't owed). Moving to a pricier\nplan with the same or fewer included units gets scheduled for next period with\nno proration"
+        },
+        {
+          "label": "met",
+          "quote": "Failure: moving to a cheaper plan that includes more units is applied at once, with proration (the account gets a credit it isn't owed). Moving to a pricier plan with the same or fewer included units gets scheduled for next period with no proration"
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "\"Failure: an account with 5,000\u00a2 of credit and a 3,000\u00a2 invoice ends up with \u22121,000\u00a2 instead of 2,000\u00a2.\" All 8 findings map onto the six planted bugs (4/5 are credit-before-tax, 6/7 are preview-credit); none flags correct behaviour."
+        },
+        {
+          "label": "met",
+          "quote": "Failure: an account with 5,000\u00a2 of credit and a 3,000\u00a2 invoice ends up with \u22121,000\u00a2 instead of 2,000\u00a2."
+        },
+        {
+          "label": "met",
+          "quote": "Failure: an account with 5,000\u00a2 of credit and a 3,000\u00a2 invoice ends up with\n\u22121,000\u00a2 instead of 2,000\u00a2."
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

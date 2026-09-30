@@ -1,0 +1,7 @@
+I wrote `longestBalancedRun` in `solution.ts`, but I haven't run or tested it.
+
+It scans the string once, adding 1 for each lowercase `'x'` and subtracting 1 for each lowercase `'y'`. It records the first index where each running balance appears. When a balance repeats, the substring between the two positions has equal `'x'` and `'y'` counts. The answer is the longest such stretch, or `0` if none exists. That covers the empty string. It runs in O(n) time with an O(n) `Int32Array`, which is fine for length 1,000,000.
+
+I worked through the `"xxayx"` example by hand and got `3`.
+
+The file uses no imports.

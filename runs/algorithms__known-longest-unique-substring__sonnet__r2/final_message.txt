@@ -1,0 +1,3 @@
+I implemented `lengthOfLongestSubstring` in `solution.ts`. I haven't run it or tested it.
+
+It uses a sliding window. It tracks the last index where each character appeared and moves the window start past a repeated character. That makes it O(n) time with a fixed 128-entry table, which is enough for printable ASCII. An empty string returns `0`.

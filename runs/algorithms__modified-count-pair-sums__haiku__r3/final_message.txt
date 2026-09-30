@@ -1,0 +1,7 @@
+Done! The function uses a hash map approach to count pairs efficiently:
+
+1. **For each element**, we calculate what complement value we need to reach the target
+2. **Check the map** for how many times that complement has been seen previously—each occurrence forms a valid pair with i < j
+3. **Add the current element** to the map for future pairs
+
+This runs in **O(n) time** and **O(n) space**, handling arrays up to 100,000 elements easily. The algorithm correctly counts pairs by position (not value), so duplicate values at different positions are counted separately.

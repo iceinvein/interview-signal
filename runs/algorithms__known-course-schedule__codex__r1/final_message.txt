@@ -1,0 +1,3 @@
+Implemented `canFinish` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.RVaFcGsEp2/solution.ts) using topological sorting. It runs in O(numCourses + prerequisites.length) time and handles self prerequisites and repeated pairs.
+
+Verification passed for those cases, cycles, and a 100,000-course chain.

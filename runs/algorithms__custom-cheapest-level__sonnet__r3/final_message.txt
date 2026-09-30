@@ -1,0 +1,5 @@
+I implemented `cheapestLevel` in `solution.ts`. I haven't run it or tested it, including on your example.
+
+The total cost is convex and piecewise linear in `L`, so the best level is always one of the existing heights. The function sorts the heights and checks each distinct height as a candidate level. Prefix sums make each check constant time, so the whole thing is O(n log n).
+
+Intermediate values stay well under 2^53 for the given limits. It uses no imports.

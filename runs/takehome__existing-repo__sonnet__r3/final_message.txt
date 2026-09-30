@@ -1,0 +1,32 @@
+Waitlists are in, with one exception: `GET /sessions/:sessionId/waitlist` does not return `email`. All 64 tests pass and typecheck is clean.
+
+## The email decision
+The spec wants `name` and `email` on each waitlist entry. CONTRIBUTING.md says member contact details may only come from `/members` routes. It calls that a commitment in the studios' privacy notice, because session endpoints feed the front-desk tablets. It also says changing it needs sign-off from the data protection lead, so raise it first.
+
+I couldn't get that sign-off, so I didn't work around the rule. The list returns `position`, `memberId`, `name` and `joinedAt`. Once the data protection lead approves, adding `email` is a small change:
+- Add `email` to `waitlistListingView` in `src/http/views.ts`.
+- Have `list()` in `src/services/waitlistService.ts` return the full member instead of `toSummary(member)`.
+- Update the HTTP test that asserts the list shape, which currently checks that no email is returned.
+
+The alternative is to leave the list as it is and have staff look up contact details through `/members/:id`.
+
+## What changed
+- **Endpoints:**
+  - `POST /sessions/:sessionId/waitlist` answers `201` with `{ sessionId, memberId, position, joinedAt }`.
+  - `DELETE /sessions/:sessionId/waitlist/:memberId` answers `204`.
+  - `GET /sessions/:sessionId/waitlist` answers `200` in queue order.
+  - The 409 codes, and the 404s for unknown sessions or members, are as specified.
+- **Structure, following CONTRIBUTING.md:**
+  - New domain type in `src/domain/waitlist.ts`.
+  - A `WaitlistRepository` interface, with an in-memory version registered in `createMemoryRepositories()`.
+  - A new `WaitlistService` in `src/services/waitlistService.ts`.
+  - Routes in `src/http/routes/waitlist.ts` and views in `src/http/views.ts`.
+  - Two new `ConflictCode`s (`session_not_full`, `already_waitlisted`) and a `waitlist_entry` entity name.
+- **Promotion on cancel:** `BookingService.cancel` now hands the freed place to the front of the waitlist. It uses the same `checkCanBook` rules and creates the booking through `BookingService` (it never inserts one directly), so capacity is still enforced in one place.
+- **Positions:** stored as queue order only. `position` is computed when read, so removing someone moves everyone behind them up automatically.
+- **Tests:** `test/services/waitlistService.test.ts` and `test/http/waitlist.test.ts`.
+
+## Behaviour to check
+- **Skipped members:** if the front member can no longer take the place, for example because they've since booked an overlapping class, they are dropped from the queue and the next member is tried. The spec didn't cover this, so I chose it.
+- **Capacity increases:** raising a session's capacity with `PATCH` does not promote anyone from the waitlist. The spec only asked for promotion on cancellation.
+- **Order of checks on join:** the checks run `session_started`, `already_booked`, `already_waitlisted`, then `session_not_full`. This mirrors the booking rule that a member who already has a place is told so first.

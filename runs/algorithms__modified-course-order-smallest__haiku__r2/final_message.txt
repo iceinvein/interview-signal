@@ -1,0 +1,16 @@
+Done! The solution implements Kahn's algorithm for topological sorting with lexicographic ordering:
+
+**Algorithm:**
+1. Build a dependency graph where `adj[b]` contains all courses that depend on `b`
+2. Track in-degrees (number of unsatisfied prerequisites) for each course
+3. Iterate through all courses, each time finding and processing the smallest course number with no remaining prerequisites (in-degree = 0)
+4. When processing a course, decrease the in-degrees of all dependent courses
+5. If at any point no course with in-degree 0 exists, a cycle is detected and we return an empty array
+
+**Key properties:**
+- **Topological order**: Prerequisites are satisfied because we only process a course after all its dependencies
+- **Lexicographically smallest**: Always picking the smallest available course ensures the smallest order
+- **Cycle detection**: If we can't find a course to process before filling all `numCourses` positions, there's a cycle
+
+Time complexity: O(numCourses² + prerequisites.length)
+Space complexity: O(numCourses + prerequisites.length)

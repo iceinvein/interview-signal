@@ -1,0 +1,3 @@
+Implemented `countIslandsTorus` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.PxfdvC632e/solution.ts). It counts islands with an iterative flood fill that follows wrapped neighbours, using O(rows × columns) time and space.
+
+Verified edge cases, including single-row and single-column grids, plus a 1000 × 1000 land grid.

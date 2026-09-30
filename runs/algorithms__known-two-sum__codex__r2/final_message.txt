@@ -1,0 +1,1 @@
+Implemented `twoSum` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.k9PYmMMsiU/solution.ts). It returns indices in increasing order using a map, with O(n) time and O(n) space. Four representative cases passed.

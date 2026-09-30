@@ -1,0 +1,120 @@
+{
+  "format": "takehome",
+  "task": "existing-repo",
+  "agent": "codex",
+  "rep": 4,
+  "results": [
+    {
+      "id": "typecheck",
+      "passed": true
+    },
+    {
+      "id": "suite_passes",
+      "passed": true
+    },
+    {
+      "id": "no_regressions",
+      "passed": true
+    },
+    {
+      "id": "join_returns_position",
+      "passed": true
+    },
+    {
+      "id": "join_rejects_not_full",
+      "passed": true
+    },
+    {
+      "id": "join_rejects_already_booked",
+      "passed": true
+    },
+    {
+      "id": "join_rejects_already_waitlisted",
+      "passed": true
+    },
+    {
+      "id": "join_rejects_started",
+      "passed": true
+    },
+    {
+      "id": "join_unknown_404",
+      "passed": true
+    },
+    {
+      "id": "list_in_queue_order",
+      "passed": true
+    },
+    {
+      "id": "leave_moves_queue_up",
+      "passed": true
+    },
+    {
+      "id": "leave_not_waitlisted_404",
+      "passed": true
+    },
+    {
+      "id": "rejoin_goes_to_back",
+      "passed": true
+    },
+    {
+      "id": "cancel_promotes_front",
+      "passed": true
+    },
+    {
+      "id": "promoted_booking_is_normal",
+      "passed": true
+    },
+    {
+      "id": "cancel_empty_waitlist_frees_place",
+      "passed": true
+    },
+    {
+      "id": "capacity_never_exceeded",
+      "passed": true
+    }
+  ],
+  "metrics": {
+    "acceptance_passed": 14,
+    "acceptance_total": 14,
+    "original_tests_passed": 48,
+    "original_tests_total": 48,
+    "original_tests_missing": 0,
+    "original_tests_failed": 0,
+    "suite_tests_total": 62,
+    "suite_tests_failed": 0,
+    "suite_tests_skipped": 0,
+    "tests_added": 14,
+    "src_lines": 1174,
+    "src_throw_count": 2
+  },
+  "auto_criteria": [
+    {
+      "id": "no_regressions",
+      "passed": true
+    },
+    {
+      "id": "typecheck_clean",
+      "passed": true
+    },
+    {
+      "id": "join_places_member",
+      "passed": true
+    },
+    {
+      "id": "join_requires_full_session",
+      "passed": true
+    },
+    {
+      "id": "leave_reorders_queue",
+      "passed": true
+    },
+    {
+      "id": "cancel_promotes_front",
+      "passed": true
+    },
+    {
+      "id": "capacity_invariant_holds",
+      "passed": true
+    }
+  ]
+}

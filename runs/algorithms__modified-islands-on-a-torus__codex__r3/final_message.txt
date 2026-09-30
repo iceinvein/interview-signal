@@ -1,0 +1,3 @@
+Implemented [countIslandsTorus](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.ERF3ms032w/solution.ts) with an iterative traversal that counts land components across wrapped edges. It handles single-row and single-column grids without counting a cell as its own connection.
+
+Verified seven edge cases and a 1000×1000 all-land grid.

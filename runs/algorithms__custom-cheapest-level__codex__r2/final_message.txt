@@ -1,0 +1,3 @@
+Implemented `cheapestLevel` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.4XHzzngAxG/solution.ts). It selects the cost-minimizing weighted median and calculates the total in `O(n log n)` time.
+
+The example and 4,000 randomized cases passed comparison against brute force.

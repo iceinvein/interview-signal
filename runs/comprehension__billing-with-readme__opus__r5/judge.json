@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "**Line 304.** `abs % 100` is inserted without padding, so 105 cents renders as `$1.5` instead of `$1.05`, and 100 renders as `$1.0` instead of `$1.00`. Every rendered invoice with a cents part below 10 shows the wrong amount."
+        },
+        {
+          "label": "met",
+          "quote": "**Line 304.** `abs % 100` is inserted without padding, so 105 cents renders as `$1.5` instead of `$1.05`, and 100 renders as `$1.0` instead of `$1.00`."
+        },
+        {
+          "label": "met",
+          "quote": "**Line 304.** `abs % 100` is inserted without padding, so 105 cents renders as `$1.5` instead of `$1.05`, and 100 renders as `$1.0` instead of `$1.00`. Every rendered invoice with a cents part below 10 shows the wrong amount."
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`tierWidth` is set to `tier.upTo`. Rule 4 and the `UsageTier` doc comment (line 12) say `upTo` is a **running total** of billable units, so a tier's width is `tier.upTo - previousCap`. ... with 300 billable units, the code bills 100 at tier 1 and 200 at tier 2. The correct split is 100 / 100 / 100."
+        },
+        {
+          "label": "met",
+          "quote": "`tierWidth` is set to `tier.upTo`. Rule 4 and the `UsageTier` doc comment (line 12) say `upTo` is a **running total** of billable units, so a tier's width is `tier.upTo - previousCap`. ... the code bills 100 at tier 1 and 200 at tier 2. The correct split is 100 / 100 / 100."
+        },
+        {
+          "label": "met",
+          "quote": "`tierWidth` is set to `tier.upTo`. Rule 4 and the `UsageTier` doc comment (line 12) say `upTo` is a **running total** of billable units, so a tier's width is `tier.upTo - previousCap`. ... the code bills 100 at tier 1 and 200 at tier 2. The correct split is 100 / 100 / 100."
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period **already used** (0 at the start, 1 at the end; see its doc comment on line 138). `changePlan` stores that value in `unused` and uses it for both the credit and the charge. Rule 5 says to credit and charge the **unused** share."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period **already used** (0 at the start, 1 at the end; see its doc comment on line 138). `changePlan` stores that value in `unused` and uses it for both the credit and the charge. Rule 5 says to credit and charge the **unused** share."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period **already used** (0 at the start, 1 at the end; see its doc comment on line 138). `changePlan` stores that value in `unused` and uses it for both the credit and the charge. Rule 5 says to credit and charge the **unused** share."
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, which subtracts from `account.creditBalanceCents`. `previewInvoice` (line 282) calls `buildInvoice` directly, so a preview changes the account. ... `finaliseInvoice` subtracts `invoice.creditAppliedCents` from the balance, but `buildInvoice` has already done that through `applyCredit` (line 235)."
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, which subtracts from `account.creditBalanceCents`. `previewInvoice` (line 282) calls `buildInvoice` directly, so a preview changes the account. ... `finaliseInvoice` subtracts `invoice.creditAppliedCents` from the balance, but `buildInvoice` has already done that through `applyCredit` (line 235)."
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, which subtracts from `account.creditBalanceCents`. `previewInvoice` (line 282) calls `buildInvoice` directly, so a preview changes the account."
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Tax is taken on `subtotal - discount`, and then credit is applied to the post-tax `due`. The rules say credit is applied after the discount and **before tax** (rule 7), and tax is charged on the amount left after **both** the discount and the credit (rule 8)."
+        },
+        {
+          "label": "met",
+          "quote": "Tax is taken on `subtotal - discount`, and then credit is applied to the post-tax `due`. The rules say credit is applied after the discount and **before tax** (rule 7), and tax is charged on the amount left after **both** the discount and the credit (rule 8)."
+        },
+        {
+          "label": "met",
+          "quote": "Tax is taken on `subtotal - discount`, and then credit is applied to the post-tax `due`. The rules say credit is applied after the discount and **before tax** (rule 7), and tax is charged on the amount left after **both** the discount and the credit (rule 8)."
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`planChangeTiming` decides \"immediate\" vs \"period-end\" with `next.includedUnits > current.includedUnits`. ... A pricier plan with the same or fewer included units is wrongly deferred, with no proration. A cheaper plan with more included units is wrongly applied at once and prorated."
+        },
+        {
+          "label": "met",
+          "quote": "`planChangeTiming` decides \"immediate\" vs \"period-end\" with `next.includedUnits > current.includedUnits`. ... A pricier plan with the same or fewer included units is wrongly deferred, with no proration. A cheaper plan with more included units is wrongly applied at once and prorated."
+        },
+        {
+          "label": "met",
+          "quote": "Line 155. `planChangeTiming` decides \"immediate\" vs \"period-end\" with `next.includedUnits > current.includedUnits`. ... A pricier plan with the same or fewer included units is wrongly deferred, with no proration. A cheaper plan with more included units is wrongly applied at once and prorated."
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "met",
+      "unanimous": false,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "If \"halves rounding up\" means away from zero, negative amounts (for example a negative subtotal after proration credits) round the wrong way. `amountCents * percent / 100` is also floating-point and can land just below an exact `.5` when `percent` is fractional"
+        },
+        {
+          "label": "not_met",
+          "quote": "\"`Math.round` rounds halves toward +\u221e. For negative amounts, `-2.5` becomes `-2`, not `-3`. If \"halves rounding up\" means away from zero, negative amounts ... round the wrong way.\" This flags behaviour that matches rule 1 (\"halves rounding up\") as a bug."
+        },
+        {
+          "label": "met",
+          "quote": "`amountCents * percent / 100` is also floating-point and can land just below an exact `.5` when `percent` is fractional, so the half rounds down."
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

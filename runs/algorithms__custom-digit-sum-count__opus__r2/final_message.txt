@@ -1,0 +1,19 @@
+I've implemented `countDigitSum` in `solution.ts` and tested it; all the checks below pass.
+
+**How it works:** it counts digit by digit instead of trying every number.
+- First it builds a table of how many digit strings of each length (leading zeros allowed) add up to each sum from 0 to `target`. The counts are stored as `bigint`.
+- Then it walks through `limit` from the left. At each position, for every digit smaller than `limit`'s digit there, the rest of the number can be anything. So it adds the table entry for the remaining length and the sum still needed.
+- At the end it adds 1 if `limit` itself has the target digit sum.
+- If `target` is more than 9 times the number of digits in `limit`, it returns `0n` straight away.
+
+At most that's 19 × 200 × 10 table steps, so it runs almost instantly even for 10^18.
+
+**Checks run:**
+- I compared it with a brute-force count for 14 limits between 0 and 123456, with every target from 0 to 50. Every result matched.
+- `countDigitSum("20", 2)` returns `3n`.
+- With limit 10^18:
+  - target 1 gives `19n`.
+  - target 200 gives `0n`.
+  - The counts for all targets from 0 to 171 add up to exactly `1000000000000000001n`, which is every integer from 0 to 10^18.
+
+The file has no imports.

@@ -1,0 +1,5 @@
+I've implemented `countDigitSum` in `solution.ts`, but I haven't run it or tested it, including against your `("20", 2)` example.
+
+It uses a digit DP. It first builds a table of how many k-digit strings (leading zeros allowed) have each digit sum, up to `target`. It then walks `limit` from left to right. At each position it adds the count for every smaller digit, using the table for the remaining positions. Finally it adds 1 if `limit` itself has digit sum `target`.
+
+Counts are `bigint` throughout, so results above `Number.MAX_SAFE_INTEGER` stay exact. The file has no imports.

@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "### 5. `formatMoney` does not pad the cents (line 304)\n`abs % 100` is not zero-padded, so 505 cents renders as `$5.5` and 5 cents as `$0.5`. It needs `String(abs % 100).padStart(2, \"0\")`."
+        },
+        {
+          "label": "met",
+          "quote": "### 5. `formatMoney` does not pad the cents (line 304)\n`abs % 100` is not zero-padded, so 505 cents renders as `$5.5` and 5 cents as `$0.5`. It needs `String(abs % 100).padStart(2, \"0\")`."
+        },
+        {
+          "label": "met",
+          "quote": "### 5. `formatMoney` does not pad the cents (line 304)\n`abs % 100` is not zero-padded, so 505 cents renders as `$5.5` and 5 cents as `$0.5`. It needs `String(abs % 100).padStart(2, \"0\")`."
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`usageCharge` uses `tier.upTo` as the tier's *width* (line 217). It should be `tier.upTo - previousCap`. ... The code takes 100 at $1, then `min(150, 200)` = 150 at $0.50, so the third tier is never reached. Correct: 100 at $1, 100 at $0.50, 50 at $0.25."
+        },
+        {
+          "label": "met",
+          "quote": "`usageCharge` uses `tier.upTo` as the tier's *width* (line 217). It should be `tier.upTo - previousCap`. ... The code takes 100 at $1, then `min(150, 200)` = 150 at $0.50, so the third tier is never reached."
+        },
+        {
+          "label": "met",
+          "quote": "`usageCharge` uses `tier.upTo` as the tier's *width* (line 217). It should be `tier.upTo - previousCap`. ... The code takes 100 at $1, then `min(150, 200)` = 150 at $0.50, so the third tier is never reached. Correct: 100 at $1, 100 at $0.50, 50 at $0.25."
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "\"### 4. Proration uses the used share, not the unused share (lines 182, 188-193) `prorationFactor` returns the share of the period already used (line 138). `changePlan` names it `unused` and applies it to both lines. Both lines need `1 - used`.\""
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period already used (line 138). `changePlan` names it `unused` and applies it to both lines. Both lines need `1 - used`."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period already used (line 138). `changePlan` names it `unused` and applies it to both lines. Both lines need `1 - used`."
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit` (line 261), which subtracts from `account.creditBalanceCents`. `finaliseInvoice` then subtracts `creditAppliedCents` again (line 294). Finalising consumes twice the credit used, and the balance can go negative."
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit` (line 261), which subtracts from `account.creditBalanceCents`. `finaliseInvoice` then subtracts `creditAppliedCents` again (line 294). Finalising consumes twice the credit used, and the balance can go negative."
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit` (line 261), which subtracts from `account.creditBalanceCents`. `finaliseInvoice` then subtracts `creditAppliedCents` again (line 294). Finalising consumes twice the credit used, and the balance can go negative."
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "\"### 2. Credit is deducted twice on finalise (lines 261, 294)\" is the only credit-ordering finding. FINDINGS.md never says that credit is applied after tax or that tax should be charged on the amount left after credit."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"### 2. Credit is deducted twice on finalise (lines 261, 294)\". The credit findings only cover double deduction and preview mutation. Nothing in FINDINGS.md says credit is applied after tax when it should come off the discounted subtotal before tax."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"### 2. Credit is deducted twice on finalise (lines 261, 294)\". FINDINGS.md only covers credit being deducted twice and preview changing the account. It never says credit is applied after tax, or that tax should be charged on the amount left after credit."
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "The only plan-change finding is \"After an immediate change, `changePlan` sets `account.planId = next.id` (line 183)...\" None of the findings says that planChangeTiming (line 155) decides by included units instead of monthly price."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"After an immediate change, `changePlan` sets `account.planId = next.id` (line 183)...\" This is the closest FINDINGS.md gets. It never says that planChangeTiming (line 155) decides by included units instead of monthly price."
+        },
+        {
+          "label": "not_met",
+          "quote": "The only mention of plan-change timing is \"After an immediate change, `changePlan` sets `account.planId = next.id` (line 183)...\". FINDINGS.md never says that planChangeTiming (line 155) decides by included units instead of monthly price."
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "**`-0` amounts (line 188).** `-prorate(0, \u2026)` gives `-0` on the credit line. It is harmless in rendering because of the `< 0` check, but it will trip strict-equality checks."
+        },
+        {
+          "label": "not_met",
+          "quote": "**`-0` amounts (line 188).** `-prorate(0, \u2026)` gives `-0` on the credit line. It is harmless in rendering because of the `< 0` check, but it will trip strict-equality checks."
+        },
+        {
+          "label": "not_met",
+          "quote": "**`-0` amounts (line 188).** `-prorate(0, \u2026)` gives `-0` on the credit line. It is harmless in rendering because of the `< 0` check, but it will trip strict-equality checks."
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

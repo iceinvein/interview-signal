@@ -1,0 +1,3 @@
+Implemented `fewestSteadyGroups` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.Xz8w4AMZUp/solution.ts). It greedily extends each contiguous group until adding the next score would exceed `maxSpread`, using O(n) time and O(1) extra space.
+
+Verified against 97,655 exhaustive cases, the example, and boundary checks.

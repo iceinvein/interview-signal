@@ -1,0 +1,13 @@
+Done. I've implemented the function using a sliding window approach:
+
+**Algorithm:**
+- Maintain a Set of characters in the current window
+- Use two pointers (left and right) to track the window bounds
+- Expand right through the string; when a duplicate is found, shrink from left until the duplicate is removed
+- Track the maximum window size seen
+
+**Complexity:**
+- Time: O(n) — each character is visited at most twice
+- Space: O(min(n, 95)) — the Set holds unique characters (at most 95 printable ASCII)
+
+The solution handles all edge cases: empty strings, spaces, repeated characters, and the full ASCII range.

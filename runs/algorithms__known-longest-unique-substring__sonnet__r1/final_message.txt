@@ -1,0 +1,5 @@
+I implemented `lengthOfLongestSubstring` in `solution.ts` with a sliding window. I haven't run it or written any tests.
+
+It keeps the last index where each character code appeared. When a character repeats inside the current window, the window start moves to just past that earlier occurrence. The best window length is tracked as it goes. It runs in O(n) time and O(1) space, and it returns `0` for an empty string.
+
+The file has no imports, and the exported name and signature match what you gave.

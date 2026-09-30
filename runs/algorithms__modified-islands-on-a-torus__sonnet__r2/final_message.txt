@@ -1,0 +1,7 @@
+I wrote `countIslandsTorus` in `solution.ts`, but I haven't run or tested it.
+
+It uses union-find, so there's no recursion and a 1000×1000 grid can't overflow the stack. It counts every land cell first. It then unions each land cell with its right and lower neighbours, wrapping with modulo, and each union that merges two separate groups reduces the count by one.
+
+In a single-column or single-row grid, a cell's wrapped neighbour is itself. Unioning a cell with itself does nothing, so those cases work without special handling.
+
+The file has no imports.

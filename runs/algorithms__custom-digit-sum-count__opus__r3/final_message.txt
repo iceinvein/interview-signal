@@ -1,0 +1,14 @@
+I've implemented `countDigitSum` in `solution.ts`, and it matches a brute-force count on every case I tested.
+
+**How it works:**
+- It first builds a table of how many digit strings of each length (leading zeros allowed) add up to each sum from 0 to `target`. All counts are `bigint`.
+- It then reads `limit` from left to right. At each position, for every digit smaller than `limit`'s digit there, it adds the number of ways the remaining positions can make up the rest of `target`.
+- It stops early once the digits read so far already add up to more than `target`, and adds 1 at the end if `limit`'s own digit sum equals `target`.
+- If `target` is more than 9 times the number of digits in `limit`, it returns `0n` straight away, which covers targets up to 200.
+
+**Tests:**
+- It agreed with the brute-force count for every `limit` from 0 to 2000 with every `target` from 0 to 30, with no mismatches.
+- `countDigitSum("20", 2)` returns `3n`, as in your example.
+- Edge cases: `("0", 0)` gives `1n`, `("5", 200)` gives `0n`, `("1000000000000000000", 1)` gives `19n`, and `("1000000000000000000", 81)` gives `32458256583753952n`, which is above `Number.MAX_SAFE_INTEGER`.
+
+Unrelated to this task: several claude.ai connectors (Atlassian Rovo, Figma, Gmail, Google Drive, Miro, Trello) need to be authorized in your claude.ai connector settings before they can be used.

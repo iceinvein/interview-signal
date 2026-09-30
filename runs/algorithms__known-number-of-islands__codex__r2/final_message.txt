@@ -1,0 +1,3 @@
+Implemented `countIslands` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.WOXuz1np96/solution.ts). It uses an iterative flood fill, counts only horizontal and vertical connections, and leaves the grid unchanged.
+
+Checks passed for small cases, diagonal separation, and a 1000×1000 land grid.

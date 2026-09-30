@@ -1,0 +1,15 @@
+I've implemented `firstOverCapacity` in `solution.ts`. It returns the right answers on the problem's examples and on a few edge cases, and it runs in about 40 ms on 200,000 random bookings.
+
+**How it works:** it turns each booking into two events, people arriving at `start` and people leaving at `end`. It then goes through all the events in time order, keeping a running count of people present.
+- Each event is stored as a single number: `((time * 2 + kind) * 1024 + people)`, where `kind` is 0 for leaving and 1 for arriving. Sorting these numbers puts events in time order. At the same instant, leavers come before arrivals, so a booking that ends at time `t` has already left before one starting at `t` is counted.
+- The biggest stored number is about 2×10¹², which a JavaScript number holds exactly. The events are kept in a `Float64Array` so they can be sorted by value without any conversion.
+- After processing every event at a given time, it checks whether the count is over `capacity` and returns that time if it is. The count only goes up when someone arrives, so the earliest time it goes over is always an arrival time, and this check finds it.
+- Total running time is O(n log n).
+
+**Checks run:**
+- The two examples from the problem return `4` and `-1`.
+- No bookings returns `-1`.
+- A booking at the largest allowed times (`[999999999, 10^9, 1000]` with capacity 999) returns `999999999`.
+- Capacity `0` with one booking `[3, 4, 1]` returns `3`.
+
+The file has no imports.

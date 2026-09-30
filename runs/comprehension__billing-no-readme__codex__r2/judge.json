@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 304 \u2014 Money formatting omits the second cent digit.** `formatMoney(105)` returns `$1.5`, and `formatMoney(5)` returns `$0.5`; these should be `$1.05` and `$0.05`. Pad `abs % 100` to two digits."
+        },
+        {
+          "label": "met",
+          "quote": "Line 304 \u2014 Money formatting omits the second cent digit.** `formatMoney(105)` returns `$1.5`, and `formatMoney(5)` returns `$0.5`; these should be `$1.05` and `$0.05`. Pad `abs % 100` to two digits."
+        },
+        {
+          "label": "met",
+          "quote": "Line 304 \u2014 Money formatting omits the second cent digit.** `formatMoney(105)` returns `$1.5`, and `formatMoney(5)` returns `$0.5`; these should be `$1.05` and `$0.05`. Pad `abs % 100` to two digits."
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 217 \u2014 Later usage tiers use their absolute cap as their width.** Tier `upTo` values are cumulative, but the code does not subtract `previousCap`. With caps of 10 and 20, 25 billable units allocate 10 units to the first tier and 15 to the second, instead of 10, 10, and 5."
+        },
+        {
+          "label": "met",
+          "quote": "Line 217 \u2014 Later usage tiers use their absolute cap as their width.** Tier `upTo` values are cumulative, but the code does not subtract `previousCap`. With caps of 10 and 20, 25 billable units allocate 10 units to the first tier and 15 to the second, instead of 10, 10, and 5. Use `tier.upTo - previousCap` for bounded tiers."
+        },
+        {
+          "label": "met",
+          "quote": "Line 217 \u2014 Later usage tiers use their absolute cap as their width. Tier `upTo` values are cumulative, but the code does not subtract `previousCap`. With caps of 10 and 20, 25 billable units allocate 10 units to the first tier and 15 to the second, instead of 10, 10, and 5. Use `tier.upTo - previousCap` for bounded tiers."
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 182 \u2014 Proration uses elapsed time as unused time.** `prorationFactor` returns 0 at the period start and 1 at its end, but the two lines at 188\u2013192 charge and credit the *remaining* time. ... Use `1 - prorationFactor(period, at)`."
+        },
+        {
+          "label": "met",
+          "quote": "Line 182 \u2014 Proration uses elapsed time as unused time. `prorationFactor` returns 0 at the period start and 1 at its end, but the two lines at 188\u2013192 charge and credit the *remaining* time. ... Use `1 - prorationFactor(period, at)`."
+        },
+        {
+          "label": "met",
+          "quote": "Line 182 \u2014 Proration uses elapsed time as unused time. `prorationFactor` returns 0 at the period start and 1 at its end, but the two lines at 188\u2013192 charge and credit the *remaining* time. ... Use `1 - prorationFactor(period, at)`."
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`previewInvoice` calls `buildInvoice`, which calls the mutating `applyCredit`. A preview with a $5 credit reduces the stored credit by $5 despite the function's explicit promise not to change the account. ... `buildInvoice` has already deducted `creditAppliedCents` through `applyCredit`; `finaliseInvoice` deducts it again."
+        },
+        {
+          "label": "met",
+          "quote": "\"`previewInvoice` calls `buildInvoice`, which calls the mutating `applyCredit`. A preview with a $5 credit reduces the stored credit by $5 despite the function's explicit promise not to change the account.\" and \"Line 294 \u2014 Finalising consumes the same credit twice. `buildInvoice` has already deducted `creditAppliedCents` through `applyCredit`; `finaliseInvoice` deducts it again.\""
+        },
+        {
+          "label": "met",
+          "quote": "\"`previewInvoice` calls `buildInvoice`, which calls the mutating `applyCredit`. A preview with a $5 credit reduces the stored credit by $5 despite the function's explicit promise not to change the account.\" and \"`buildInvoice` has already deducted `creditAppliedCents` through `applyCredit`; `finaliseInvoice` deducts it again.\""
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "The closest findings are #3 and #4 (\"Previewing an invoice consumes account credit\", \"Finalising consumes the same credit twice\"). Both are about credit being deducted twice or by mistake. Neither says credit is applied after tax to the taxed amount (lines 258\u2013261)."
+        },
+        {
+          "label": "not_met",
+          "quote": "Finding 4 covers \"Line 294 \u2014 Finalising consumes the same credit twice\" and finding 3 covers preview consuming credit. None of the 13 findings says that credit is applied after tax (lines 258\u2013261) when it should come off the discounted subtotal before tax."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"3. **Lines 233\u2013235 and 282 \u2014 Previewing an invoice consumes account credit.**\" \u2014 none of the 13 findings says credit is applied after tax or that tax should be charged only on the amount left after credit."
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "\"1. **Line 182 \u2014 Proration uses elapsed time as unused time.**\" is the only finding near the plan-change code. None of the 13 findings says that planChangeTiming (lines 152\u2013156) decides timing by included units instead of monthly price."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"1. **Line 182 \u2014 Proration uses elapsed time as unused time.**\" None of the 13 findings mentions planChangeTiming (lines 152\u2013156) or the fact that it decides by included units instead of monthly price."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"1. **Line 182 \u2014 Proration uses elapsed time as unused time.**\" is the only finding near the plan-change code. None of the 13 findings says that planChangeTiming (lines 152\u2013156) decides by included units instead of monthly price."
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "met",
+      "unanimous": false,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "13. **Lines 285\u2013295 \u2014 The same period can be finalised repeatedly.** The module promises one invoice per billing period, but `finaliseInvoice` has no issued-period check or stored invoice."
+        },
+        {
+          "label": "met",
+          "quote": "\"For a negative subtotal, `percentOf` returns a negative value, and `Math.min(raw, 0)` preserves it. For example, a -100-cent subtotal with a 10% discount produces `discountCents: -10`, which *increases* the amount due by 10 cents.\" All of the extra findings (6\u201313) describe the code's real behaviour; findings 7 and 10 are on the criterion's list of debatable points."
+        },
+        {
+          "label": "met",
+          "quote": "\"For a negative subtotal, `percentOf` returns a negative value, and `Math.min(raw, 0)` preserves it. For example, a -100-cent subtotal with a 10% discount produces `discountCents: -10`\" \u2014 this and the other extra findings (6\u201313) describe the code accurately; the weakest ones (11, 13) are design concerns, not misreadings."
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

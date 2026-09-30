@@ -1,0 +1,14 @@
+Done! I've implemented the function using a sliding window approach:
+
+**Algorithm:**
+- Maintain a window with two pointers (left and right)
+- Track character frequencies in the current window using a Map
+- Expand the window by moving right and adding characters
+- When any character exceeds a count of 2, shrink the window from the left
+- Track the maximum window size throughout
+
+**Time Complexity:** O(n) — each character is visited at most twice (once by right pointer, once by left pointer)
+
+**Space Complexity:** O(k) — where k is the number of unique characters (at most 95 for printable ASCII)
+
+The solution handles all cases: empty strings, strings where all characters appear once or twice, and strings requiring window shrinking when a character exceeds the limit.

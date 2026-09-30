@@ -1,0 +1,5 @@
+I implemented `cheapestLevel` in `solution.ts`. I haven't run it or tested it, including on your example.
+
+The total cost is a convex piecewise-linear function of the level `L`, so the cheapest level is always one of the column heights. The function sorts the heights and sweeps through them once with a running prefix sum. That gives each candidate level's cost in constant time, so the whole thing is O(n log n).
+
+The largest possible cost is about 2×10¹⁴, well under 2⁵³, so plain numbers are exact. The file has no imports.

@@ -1,0 +1,15 @@
+Done! I've implemented the rain water trapping function with the following approach:
+
+**Algorithm:**
+1. **Build leftMax array**: For each position `i`, store the maximum height from the left (including `leftWall`)
+2. **Build rightMax array**: For each position `i`, store the maximum height from the right (including `rightWall`)
+3. **Calculate water**: For each bar, the water level is `min(leftMax[i], rightMax[i])`, and the water trapped is the difference between water level and bar height
+
+**Complexity:**
+- Time: O(n) — three linear passes
+- Space: O(n) — for the two auxiliary arrays
+
+The solution correctly handles:
+- Empty heights array (returns 0)
+- Walls of any height (including 0 for open sides)
+- The constraint that water level at each position is determined by the lower of the two sides

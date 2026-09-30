@@ -1,0 +1,9 @@
+I've implemented `longestBalancedRun` in `solution.ts` and tested it. It returns `3` for `"xxayx"`. It also passed 3,000 random strings checked against a brute-force version.
+
+**How it works:** it walks the string once and keeps a running count: +1 for each `'x'`, −1 for each `'y'`, and no change for anything else. A substring is balanced exactly when the count is the same at its start and end. For each count value, the function stores the first position where it appeared, in an `Int32Array` of size `2n+1`. At each later position, the distance back to that first position is the length of a balanced substring. The function keeps the longest one.
+
+**Cost:** it takes time proportional to the string's length and about 8 MB of memory for a 1,000,000-character input. At that size it ran in about 5 ms.
+
+**Edge cases checked:** the empty string returns `0`, `"x"` returns `0`, and `"abc"` returns `3`, since a substring with no `'x'` or `'y'` counts as balanced.
+
+Separately, several connected services (Atlassian Rovo, Figma, Gmail, Google Drive, Miro, Trello) need to be authorized in your claude.ai connector settings before they can be used. None of them were needed for this task.

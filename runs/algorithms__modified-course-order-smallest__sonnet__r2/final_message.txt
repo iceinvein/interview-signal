@@ -1,0 +1,9 @@
+I wrote `courseOrder` in `solution.ts`, but I haven't run or tested it.
+
+It uses Kahn's algorithm with a min-heap of ready courses, so it always takes the smallest available course next. That gives the lexicographically smallest valid order.
+
+- **Duplicate pairs:** repeated pairs are deduplicated before the graph is built.
+- **Self-loops:** a `[a, a]` pair returns `[]` straight away.
+- **Cycles:** if the order comes out shorter than `numCourses`, there is a cycle and it returns `[]`.
+- **Performance:** it runs in O((n + m) log n) time, which should be fine for 100,000 courses and 200,000 pairs.
+- **Imports:** the file has none, and the export name and signature are as you specified.

@@ -1,0 +1,53 @@
+{
+  "format": "algorithms",
+  "task": "known-number-of-islands",
+  "agent": "haiku",
+  "rep": 2,
+  "cli": "2.1.285 (Claude Code)",
+  "model": "claude-haiku-4-5-20251001",
+  "effort": null,
+  "is_error": false,
+  "cost_usd": 0.0361955,
+  "turns": 3,
+  "codex_steps": null,
+  "usage": {
+    "input_tokens": 26,
+    "cache_creation_input_tokens": 10373,
+    "cache_read_input_tokens": 58485,
+    "output_tokens": 1915,
+    "output_tokens_details": {
+      "thinking_tokens": 1132
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 10373,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "not_available",
+    "iterations": [
+      {
+        "input_tokens": 8,
+        "output_tokens": 436,
+        "cache_read_input_tokens": 23473,
+        "cache_creation_input_tokens": 788,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 788
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "contamination": [],
+  "external_fetches": [],
+  "timed_out": false,
+  "interrupted": null,
+  "exit_code": 0,
+  "wall_s": 17.587
+}

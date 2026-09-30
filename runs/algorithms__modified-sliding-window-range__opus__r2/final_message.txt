@@ -1,0 +1,8 @@
+I've written `slidingWindowRange` in `solution.ts`. It runs in O(n) time and passed all 2,000 random tests, where I compared its output with a simple max-minus-min check of every block. On 100,000 elements with k = 500 it took about 3 ms.
+
+**How it works:** it keeps two lists of positions, one for the largest value and one for the smallest.
+- As each new element comes in, it removes positions from the back of the list whose values the new element beats: smaller-or-equal ones in the "largest" list, larger-or-equal ones in the "smallest" list.
+- When a position falls out of the current block, it is removed from the front.
+- So the front of each list is always the current block's largest or smallest value, and each block's answer is just the front of one minus the front of the other.
+
+Each position is added and removed at most once, which is why the total work is linear. The lists are stored as fixed-size integer arrays with a front pointer, so removing from the front costs nothing extra. The file has no imports.

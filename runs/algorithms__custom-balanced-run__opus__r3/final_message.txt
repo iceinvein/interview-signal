@@ -1,0 +1,8 @@
+I've implemented `longestBalancedRun` in `solution.ts` and it passes all my tests.
+
+**How it works:** it goes through the string once, keeping a running count of `'x'` minus `'y'`. A substring is balanced exactly when that count has the same value at its start and its end. So the function stores the first position where each count value appears, and at each later position checks how long the substring back to that first position is. The first positions are kept in an `Int32Array` of size `2n + 1`. This runs in O(n) time and O(n) memory and uses no imports.
+
+**Tests run:**
+- `"xxayx"` → 3, `""` → 0, `"x"` → 0, `"abc"` → 3, all as expected.
+- 3,000 random strings of up to 15 characters from `x`, `y`, `X`, `Y` and `a` all matched a brute-force check.
+- Two 1,000,000-character inputs took about 6 ms together: all `'x'` gave 0, and `"xy"` repeated gave 1,000,000.

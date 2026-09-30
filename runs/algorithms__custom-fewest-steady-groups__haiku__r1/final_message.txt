@@ -1,0 +1,8 @@
+Done. The implementation uses a greedy approach: for each group, extend it as far as possible while keeping the spread within `maxSpread`. Once adding the next score would violate this, start a new group.
+
+**Algorithm walkthrough with the example** (`scores = [1, 5, 2, 6]`, `maxSpread = 4`):
+- Group 1: Start at 1 → extend with 5 (spread 4) → extend with 2 (spread still 4) → can't add 6 (spread would be 5)
+- Group 2: Add 6 (spread 0)
+- Result: 2 groups ✓
+
+**Complexity**: O(n) time, O(1) space — each element is visited exactly once.

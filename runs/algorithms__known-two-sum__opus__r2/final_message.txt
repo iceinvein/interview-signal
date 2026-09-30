@@ -1,0 +1,7 @@
+I implemented `twoSum` in `solution.ts`. It makes one pass over the array and uses a `Map` to remember the first position where each value appears. At each position `j`, it checks whether the value needed to reach the target (`target - nums[j]`) was seen earlier. If so, it returns `[i, j]`, and `i < j` is always true because `i` came first.
+
+- **Equal values** work, because the lookup happens before the current position is added. So `[3,3]` with target 6 gives `[0, 1]`, and a position is never paired with itself.
+- **Speed:** it takes O(n) time and O(n) memory, which is fine for 100,000 elements.
+- **Number range:** values stay far below JavaScript's safe-integer limit, so the arithmetic is exact.
+
+It has no imports and keeps the exported name and signature. I ran it on four sample inputs, including the equal-value case and the ±10⁹ extremes, and all returned the correct pairs. I didn't test it on a full-size 100,000-element input.

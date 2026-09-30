@@ -1,0 +1,14 @@
+Done! I've implemented the `mergeIntervals` function using a sorting and iteration approach:
+
+**Algorithm:**
+1. Handle empty input by returning `[]`
+2. Sort intervals by start point (with end point as tiebreaker)
+3. Iterate through sorted intervals, tracking the current merged interval
+4. When a new interval overlaps or touches the current one (`start <= currentEnd`), extend the end point
+5. When no overlap, save the current interval and start a new one
+6. Return all merged intervals in sorted order
+
+**Time complexity:** O(n log n) due to sorting  
+**Space complexity:** O(n) for the output array
+
+The solution handles all edge cases including empty input, duplicate intervals, and adjacent intervals that touch at endpoints.

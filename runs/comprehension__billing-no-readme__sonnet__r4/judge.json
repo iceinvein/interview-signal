@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "**Line 304: cents are not zero-padded.** `abs % 100` is not padded, so 5 cents renders as `$0.5`, and `$12.05` renders as `$12.5`. It needs `String(abs % 100).padStart(2, \"0\")`."
+        },
+        {
+          "label": "met",
+          "quote": "**Line 304: cents are not zero-padded.** `abs % 100` is not padded, so 5 cents renders as `$0.5`, and `$12.05` renders as `$12.5`."
+        },
+        {
+          "label": "met",
+          "quote": "**Line 304: cents are not zero-padded.** `abs % 100` is not padded, so 5 cents renders as `$0.5`, and `$12.05` renders as `$12.5`."
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`usageCharge` uses `tier.upTo` as the width, so each tier after the first is over-allocated. ... The width should be `tier.upTo - previousCap`."
+        },
+        {
+          "label": "met",
+          "quote": "Line 217: tier width is the cumulative cap, not the tier's width. ... `usageCharge` uses `tier.upTo` as the width, so each tier after the first is over-allocated. ... The width should be `tier.upTo - previousCap`."
+        },
+        {
+          "label": "met",
+          "quote": "**Line 217: tier width is the cumulative cap, not the tier's width.** ... `usageCharge` uses `tier.upTo` as the width, so each tier after the first is over-allocated. ... The width should be `tier.upTo - previousCap`."
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "\"`prorationFactor` returns the share of the period already used. The variable is named `unused` and passed to both lines. The refund for the old plan and the charge for the new plan should both use the remaining share, `1 - used`.\""
+        },
+        {
+          "label": "met",
+          "quote": "\"`prorationFactor` returns the share of the period already used. The variable is named `unused` and passed to both lines. The refund for the old plan and the charge for the new plan should both use the remaining share, `1 - used`.\""
+        },
+        {
+          "label": "met",
+          "quote": "\"`prorationFactor` returns the share of the period already used. The variable is named `unused` and passed to both lines. The refund for the old plan and the charge for the new plan should both use the remaining share, `1 - used`.\""
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, which decrements `account.creditBalanceCents` (line 235). `previewInvoice` therefore changes the account, despite its doc comment (\"without changing the account\"). `finaliseInvoice` then subtracts `creditAppliedCents` again on line 294"
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, which decrements `account.creditBalanceCents` (line 235). `previewInvoice` therefore changes the account, despite its doc comment (\"without changing the account\"). `finaliseInvoice` then subtracts `creditAppliedCents` again on line 294, so the customer loses twice the credit they used."
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, which decrements `account.creditBalanceCents` (line 235). `previewInvoice` therefore changes the account, despite its doc comment (\"without changing the account\"). `finaliseInvoice` then subtracts `creditAppliedCents` again on line 294"
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "\"7. **Line 259: tax is computed on a possibly negative base.** If `subtotal - discount` is negative, tax is negative...\" FINDINGS.md never says that credit gets applied after tax. Its only credit finding covers the double deduction and preview mutation."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"7. **Line 259: tax is computed on a possibly negative base.** If `subtotal - discount` is negative, tax is negative...\" FINDINGS.md never says that credit is applied after tax or that it should come off before tax."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"7. **Line 259: tax is computed on a possibly negative base.** If `subtotal - discount` is negative, tax is negative...\" FINDINGS.md never says that credit is applied after tax or that it should come off before tax."
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Lines 152-156: plan change timing looks only at included units. A move to a plan with more included units is applied immediately, whatever the price. A move to a more expensive plan with the same or fewer included units is deferred to renewal. A cheaper plan with more units is also applied immediately, which produces a credit. If the intent is \"upgrades are immediate\", this should compare price"
+        },
+        {
+          "label": "met",
+          "quote": "A move to a more expensive plan with the same or fewer included units is deferred to renewal. A cheaper plan with more units is also applied immediately, which produces a credit. If the intent is \"upgrades are immediate\", this should compare price"
+        },
+        {
+          "label": "met",
+          "quote": "A move to a more expensive plan with the same or fewer included units is deferred to renewal. A cheaper plan with more units is also applied immediately, which produces a credit. If the intent is \"upgrades are immediate\", this should compare price"
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "6. **Lines 226-231: `discountAmount` can return a negative discount.** `Math.min(raw, Math.max(0, subtotal))` clamps only the upper bound. If `subtotal` is negative (adjustments exceed charges), a percent discount gives a negative `raw`, and a negative discount is returned"
+        },
+        {
+          "label": "met",
+          "quote": "\"If `subtotal` is negative (adjustments exceed charges), a percent discount gives a negative `raw`, and a negative discount is returned\" \u2014 this is an accurate reading of lines 226-231. The other extra findings are also correct or are listed as debatable in the criterion: negative tax/totals, NaN checks, validatePlan never called, the zero-length period, and long labels. Fractional tier caps really are accepted. None of the extra findings misreads the code."
+        },
+        {
+          "label": "met",
+          "quote": "\"Lines 226-231: `discountAmount` can return a negative discount. `Math.min(raw, Math.max(0, subtotal))` clamps only the upper bound.\" Finding #9, \"A fractional `upTo` passes validation\", is also accurate. Every other extra finding is on the debatable list."
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

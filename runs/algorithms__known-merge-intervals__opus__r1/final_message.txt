@@ -1,0 +1,11 @@
+I've written `mergeIntervals` in `solution.ts` and ran a quick check. It sorts a copy of the intervals by `start`, then goes through them once. If an interval starts at or before the end of the last merged one (`s <= last[1]`), it gets absorbed and the end is extended if needed; otherwise it starts a new merged interval.
+
+A handful of cases gave the expected output:
+- Empty input returns `[]`.
+- Touching ends combine: `[1,2],[2,3]` gives `[1,3]`.
+- Unsorted input works: `[8,10],[1,3],[2,6],[15,18]` gives `[1,6],[8,10],[15,18]`.
+- Duplicates collapse: `[1,4],[1,4]` gives `[1,4]`.
+- Contained intervals are absorbed: `[1,10],[2,3],[4,5]` gives `[1,10]`.
+- Neighbours with a gap stay separate: `[0,0],[1,1]` stays as is, since the points 0 and 1 aren't shared.
+
+It runs in O(n log n) time. The input array and its tuples are left unchanged, and the file has no imports.

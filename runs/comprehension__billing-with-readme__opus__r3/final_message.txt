@@ -1,0 +1,17 @@
+I found 10 bugs in `billing.ts` and wrote them up in `FINDINGS.md`, each with its line, the README rule it breaks, and a fix. The first seven give wrong amounts or wrong account state in normal use:
+
+1. **Line 155:** whether a plan change happens now or at renewal depends on included units, but rule 5 says it should depend on the monthly price.
+2. **Line 182:** `prorationFactor` returns the share of the period already used, but the code treats it as the unused share. An upgrade on day 1 prorates almost nothing, and one on the last day prorates almost a full month.
+3. **Line 217:** the usage tiers use `upTo` as the size of each tier, but it's a running total. The `previousCap` variable is kept up to date but never used, so later tiers are priced wrongly.
+4. **Lines 259–261:** tax is worked out before credit is applied, and credit is then applied against the tax too. Rules 7 and 8 say to take off the discount, then the credit, then charge tax on what's left.
+5. **Lines 235 and 261:** `applyCredit` reduces the account's credit balance, so just previewing an invoice uses up credit.
+6. **Line 294:** `finaliseInvoice` takes the credit off again, so it's deducted twice. The balance can go negative, and then the next invoice fails validation.
+7. **Line 304:** `formatMoney` doesn't pad cents to two digits, so 105 cents shows as `$1.5`.
+
+The last three only show up in edge cases or with bad input:
+
+8. **Lines 131 and 146:** `Math.round` rounds negative halves toward zero, for example -2.5 becomes -2. Rule 1 doesn't say what "halves rounding up" means for negative amounts, so this may need a decision from finance.
+9. **Lines 228–230:** a percent discount on a negative subtotal comes out negative, which adds to the bill instead of reducing it.
+10. **Lines 246–247:** `validatePlan` is never called anywhere, so an invalid plan is priced without any error.
+
+I found these by reading the code; the only thing I ran was a quick Node check of how `Math.round` handles -2.5. I didn't write or run any tests.

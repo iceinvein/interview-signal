@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "**`formatMoney` doesn't zero-pad cents (line 304).** `abs % 100` is printed raw. 105 cents renders as `$1.5` instead of `$1.05`"
+        },
+        {
+          "label": "met",
+          "quote": "5. **`formatMoney` doesn't zero-pad cents (line 304).** `abs % 100` is printed raw. 105 cents renders as `$1.5` instead of `$1.05`, and 0 cents renders as `$0.0`."
+        },
+        {
+          "label": "met",
+          "quote": "`abs % 100` is printed raw. 105 cents renders as `$1.5` instead of `$1.05`, and 0 cents renders as `$0.0`. Use `String(abs % 100).padStart(2, \"0\")`."
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`usageCharge` uses `tier.upTo` as the width of the tier, so every bounded tier after the first is too wide. ... With 600 units it bills 100, 500, then 0, when it should bill 100, 400, 100. ... The width should be `tier.upTo - previousCap`."
+        },
+        {
+          "label": "met",
+          "quote": "`usageCharge` uses `tier.upTo` as the width of the tier, so every bounded tier after the first is too wide. ... With 600 units it bills 100, 500, then 0, when it should bill 100, 400, 100. `previousCap` is tracked at line 221 but never used. The width should be `tier.upTo - previousCap`."
+        },
+        {
+          "label": "met",
+          "quote": "`usageCharge` uses `tier.upTo` as the width of the tier, so every bounded tier after the first is too wide. ... With 600 units it bills 100, 500, then 0, when it should bill 100, 400, 100. `previousCap` is tracked at line 221 but never used. The width should be `tier.upTo - previousCap`."
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period already used. The variable is named `unused` and passed to `prorate` for both lines. The refund for the old plan should be `1 - used` of its price, and the charge for the new plan should also be `1 - used`."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period already used. The variable is named `unused` and passed to `prorate` for both lines. The refund for the old plan should be `1 - used` of its price, and the charge for the new plan should also be `1 - used`."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period already used. The variable is named `unused` and passed to `prorate` for both lines. The refund for the old plan should be `1 - used` of its price, and the charge for the new plan should also be `1 - used`."
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, which decrements `account.creditBalanceCents`. `previewInvoice` goes through `buildInvoice`, so a preview consumes credit. This contradicts the doc comment at line 274 (\"without changing the account\")."
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, which decrements `account.creditBalanceCents`. `previewInvoice` goes through `buildInvoice`, so a preview consumes credit. This contradicts the doc comment at line 274 (\"without changing the account\"). ... `buildInvoice` has already deducted `credit` from the balance. Line 294 subtracts `creditAppliedCents` again."
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, which decrements `account.creditBalanceCents`. `previewInvoice` goes through `buildInvoice`, so a preview consumes credit. This contradicts the doc comment at line 274 (\"without changing the account\")."
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "Finding 3 only says \"`finaliseInvoice` deducts credit twice (lines 261 and 294).\" No finding says credit is applied after tax (lines 258-260) when it should come off the discounted subtotal before tax."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"Tax on a negative base (line 259) is likewise negative, so the invoice total can be negative.\" FINDINGS.md does not say that credit is applied after tax, when the rules require it to come off before tax."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"Tax on a negative base (line 259) is likewise negative, so the invoice total can be negative.\" FINDINGS.md mentions line 259 only in this context and never says that credit is applied after tax when it should come off before tax."
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "A higher-priced plan with the same or fewer included units, such as a plan that only adds features, is treated as a period-end change. A cheaper plan with more included units is applied immediately, and `changePlan` then charges the customer for the new plan. Confirm this is intended. It may need to compare price instead."
+        },
+        {
+          "label": "met",
+          "quote": "A higher-priced plan with the same or fewer included units, such as a plan that only adds features, is treated as a period-end change. A cheaper plan with more included units is applied immediately, and `changePlan` then charges the customer for the new plan. Confirm this is intended. It may need to compare price instead."
+        },
+        {
+          "label": "met",
+          "quote": "\"`planChangeTiming` looks only at included units (line 155). A higher-priced plan with the same or fewer included units, such as a plan that only adds features, is treated as a period-end change. A cheaper plan with more included units is applied immediately, and `changePlan` then charges the customer for the new plan. ... It may need to compare price instead.\""
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "met",
+      "unanimous": false,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Percent discount on a negative subtotal is negative (lines 228-230)... `Math.min(raw, Math.max(0, subtotal))` keeps it, since a negative is below 0. The result is a negative discount that increases the invoice."
+        },
+        {
+          "label": "met",
+          "quote": "\"`percentOf` then returns a negative amount, and `Math.min(raw, Math.max(0, subtotal))` keeps it, since a negative is below 0. The result is a negative discount that increases the invoice.\" All five extra findings read the code correctly; finding 7 (rounding) is borderline but accurate."
+        },
+        {
+          "label": "not_met",
+          "quote": "7. **Asymmetric rounding of negative amounts (lines 131, 146).** `Math.round` rounds halves toward +infinity, so `Math.round(-2.5)` is `-2` but `Math.round(2.5)` is `3`. ... Round on the absolute value and reapply the sign."
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

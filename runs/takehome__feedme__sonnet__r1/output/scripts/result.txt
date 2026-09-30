@@ -1,0 +1,47 @@
+McDonald's Order Management System - Simulation Results
+
+[00:51:51] System initialized with 0 bots
+[00:51:51] > normal
+[00:51:51] Created Normal Order #1 - Status: PENDING
+[00:51:52] > vip
+[00:51:52] Created VIP Order #2 - Status: PENDING
+[00:51:52] > normal
+[00:51:52] Created Normal Order #3 - Status: PENDING
+[00:51:53] > vip
+[00:51:53] Created VIP Order #4 - Status: PENDING
+[00:51:53] > +bot
+[00:51:53] Bot #1 created - Status: ACTIVE
+[00:51:53] Bot #1 picked up VIP Order #2 - Status: PROCESSING
+[00:51:54] > +bot
+[00:51:54] Bot #2 created - Status: ACTIVE
+[00:51:54] Bot #2 picked up VIP Order #4 - Status: PROCESSING
+[00:51:55] > status
+PENDING: Normal#1, Normal#3
+COMPLETE: -
+BOTS: #1(PROCESSING order #2), #2(PROCESSING order #4)
+[00:51:57] > -bot
+[00:51:57] Bot #2 destroyed while PROCESSING - VIP Order #4 returned to PENDING
+[00:51:58] > status
+PENDING: VIP#4, Normal#1, Normal#3
+COMPLETE: -
+BOTS: #1(PROCESSING order #2)
+[00:51:58] > +bot
+[00:51:58] Bot #3 created - Status: ACTIVE
+[00:51:58] Bot #3 picked up VIP Order #4 - Status: PROCESSING
+[00:52:03] Bot #1 completed VIP Order #2 - Status: COMPLETE (Processing time: 10s)
+[00:52:03] Bot #1 picked up Normal Order #1 - Status: PROCESSING
+[00:52:08] Bot #3 completed VIP Order #4 - Status: COMPLETE (Processing time: 10s)
+[00:52:08] Bot #3 picked up Normal Order #3 - Status: PROCESSING
+[00:52:10] > status
+PENDING: -
+COMPLETE: VIP#2, VIP#4
+BOTS: #1(PROCESSING order #1), #3(PROCESSING order #3)
+[00:52:13] Bot #1 completed Normal Order #1 - Status: COMPLETE (Processing time: 10s)
+[00:52:13] Bot #1 is now IDLE - No pending orders
+[00:52:18] Bot #3 completed Normal Order #3 - Status: COMPLETE (Processing time: 10s)
+[00:52:18] Bot #3 is now IDLE - No pending orders
+
+Final Status:
+- Orders Completed: 4
+- Active Bots: 2
+- Pending Orders: 0

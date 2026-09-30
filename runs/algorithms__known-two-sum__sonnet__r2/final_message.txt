@@ -1,0 +1,7 @@
+I implemented `twoSum` in `solution.ts`, but I haven't run it or tested it.
+
+It makes one pass over `nums` and keeps a map from each value to its index. For each position `j`, it checks whether `target - nums[j]` is already in the map. If so, it returns `[i, j]`, where `i` is the earlier index, so `i < j` always holds. This runs in O(n) time.
+
+It handles equal values at different positions, such as `[3, 3]` with target 6, because each element is looked up before it's added to the map. It also handles negative numbers. The final `throw` is unreachable when the input follows the constraints.
+
+The Claude.ai connectors (Atlassian Rovo, Figma, Gmail, Google Drive, Miro, Trello) need authorizing in your claude.ai connector settings. This task didn't use them.

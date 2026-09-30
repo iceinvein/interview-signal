@@ -1,0 +1,13 @@
+Done! I've implemented the `countIslands` function using a depth-first search (DFS) approach:
+
+**Algorithm:**
+1. Track visited cells in a Set to avoid revisiting them
+2. Iterate through each cell in the grid
+3. When we find an unvisited land cell (1), increment the island count and use DFS to mark all connected land cells as visited
+4. The DFS explores the 4 adjacent cells (up, down, left, right) recursively
+
+**Complexity:**
+- Time: O(rows × cols) — each cell is visited once
+- Space: O(rows × cols) — visited set and DFS recursion stack in worst case
+
+The implementation handles edge cases like empty grids and correctly counts islands separated by water.

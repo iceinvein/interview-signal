@@ -1,0 +1,14 @@
+Done! I've implemented the function using a sliding window approach:
+
+**Algorithm:**
+- Maintain a window of characters using two pointers (`left` and `right`)
+- Track each character's most recent position in a Map
+- Expand the window by moving `right` through the string
+- When encountering a duplicate character, move `left` to be one position after its previous occurrence
+- Track and return the maximum window size seen
+
+**Complexity:**
+- Time: O(n) — each character visited once
+- Space: O(1) — at most 95 unique printable ASCII characters
+
+This correctly handles empty strings (returns 0), spaces and special characters (treated like any other character), and case sensitivity.

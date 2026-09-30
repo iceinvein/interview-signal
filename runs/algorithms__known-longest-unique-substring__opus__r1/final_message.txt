@@ -1,0 +1,13 @@
+I've written `lengthOfLongestSubstring` in `solution.ts`. It has no imports and keeps the exact signature you gave.
+
+It moves a window across the string once. It stores the last position of each character in a 128-slot array. When a character repeats inside the current window, the window's start jumps to just past that earlier position. That makes it O(n) time with a fixed amount of extra memory, so 100,000 characters is no problem.
+
+A quick run returned the expected answers:
+- `""` → 0
+- `"abcabcbb"` → 3
+- `"bbbbb"` → 1
+- `"pwwkew"` → 3
+- `" "` → 1
+- `"aA"` → 2
+- `"abba"` → 2
+- `"a b c"` → 3

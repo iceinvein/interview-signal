@@ -1,0 +1,3 @@
+Implemented `minWindow` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.0O7r8Ojmdf/solution.ts). It uses a linear-time sliding window and returns the earliest starting window when lengths tie.
+
+Verified with targeted cases and 12,000 randomized cases against a brute-force reference.

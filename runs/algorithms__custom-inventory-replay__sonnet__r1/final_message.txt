@@ -1,0 +1,11 @@
+I implemented `replayInventory` in `solution.ts`. I haven't run it or tested it, including against your example.
+
+It keeps two stacks of recorded actions: one for actions that are in effect and one for actions that have been undone.
+- **Add and remove:** an `add` is always recorded. A `remove` is recorded only if the item has enough stock. A rejected `remove` changes nothing, so it leaves the redo stack alone and `undo` can't revert it.
+- **New actions:** recording any action clears the redo stack.
+- **Undo and redo:** `undo` pops the last recorded action, reverses it, and moves it to the redo stack. `redo` does the reverse. Both do nothing when their stack is empty.
+- **Result:** items with stock above zero, sorted with `<` on the strings.
+
+Undoing and redoing in last-in-first-out order puts the stock back to a state it already had. So stock never goes negative during an undo or redo.
+
+The whole log is processed in one pass, and `solution.ts` has no imports.

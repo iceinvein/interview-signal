@@ -1,0 +1,3 @@
+Implemented `countDigitSum` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.zgSzX8o111/solution.ts). It returns a `bigint` and includes both `0` and the limit.
+
+Verified the example, the `10^18` boundary, and results against brute force for limits through 250.

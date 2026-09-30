@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`abs % 100` is not zero-padded, so 1005 cents renders as `$10.5` and 100 cents as `$1.0`. It needs `String(abs % 100).padStart(2, \"0\")`."
+        },
+        {
+          "label": "met",
+          "quote": "`abs % 100` is not zero-padded, so 1005 cents renders as `$10.5` and 100 cents as `$1.0`. It needs `String(abs % 100).padStart(2, \"0\")`."
+        },
+        {
+          "label": "met",
+          "quote": "`abs % 100` is not zero-padded, so 1005 cents renders as `$10.5` and 100 cents as `$1.0`."
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`upTo` is a running total, but `tierWidth` is `tier.upTo` and not `tier.upTo - previousCap`. For tiers `[100, 500, null]`, tier 2 is treated as 500 units wide, not 400, so units are charged at the wrong rate."
+        },
+        {
+          "label": "met",
+          "quote": "`upTo` is a running total, but `tierWidth` is `tier.upTo` and not `tier.upTo - previousCap`. For tiers `[100, 500, null]`, tier 2 is treated as 500 units wide, not 400, so units are charged at the wrong rate."
+        },
+        {
+          "label": "met",
+          "quote": "`upTo` is a running total, but `tierWidth` is `tier.upTo` and not `tier.upTo - previousCap`. For tiers `[100, 500, null]`, tier 2 is treated as 500 units wide, not 400, so units are charged at the wrong rate."
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period already used, but the variable is called `unused` and applied to both lines. The old-plan credit and new-plan charge should use `1 - used`. An upgrade near the start of a period is credited and charged almost nothing, instead of almost the whole month."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period already used, but the variable is called `unused` and applied to both lines. The old-plan credit and new-plan charge should use `1 - used`. An upgrade near the start of a period is credited and charged almost nothing, instead of almost the whole month."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period already used, but the variable is called `unused` and applied to both lines. The old-plan credit and new-plan charge should use `1 - used`. An upgrade near the start of a period is credited and charged almost nothing, instead of almost the whole month."
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`applyCredit` decrements `account.creditBalanceCents`, and `buildInvoice` calls it. `previewInvoice` therefore consumes credit, which breaks \"previewing must not change the account\". ... `buildInvoice` already deducts the credit, and `finaliseInvoice` deducts `creditAppliedCents` again."
+        },
+        {
+          "label": "met",
+          "quote": "`applyCredit` decrements `account.creditBalanceCents`, and `buildInvoice` calls it. `previewInvoice` therefore consumes credit, which breaks \"previewing must not change the account\". ... `buildInvoice` already deducts the credit, and `finaliseInvoice` deducts `creditAppliedCents` again."
+        },
+        {
+          "label": "met",
+          "quote": "`applyCredit` decrements `account.creditBalanceCents`, and `buildInvoice` calls it. `previewInvoice` therefore consumes credit, which breaks \"previewing must not change the account\". ... `buildInvoice` already deducts the credit, and `finaliseInvoice` deducts `creditAppliedCents` again."
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Credit is applied after tax, not before it (lines 259-261, rule 7 and 8). Tax is computed on `subtotal - discount`, and credit is taken off `due` (which includes tax). The rules say credit comes off the discounted subtotal first, and tax is charged on what is left."
+        },
+        {
+          "label": "met",
+          "quote": "Tax is computed on `subtotal - discount`, and credit is taken off `due` (which includes tax). The rules say credit comes off the discounted subtotal first, and tax is charged on what is left."
+        },
+        {
+          "label": "met",
+          "quote": "Credit is applied after tax, not before it (lines 259-261, rule 7 and 8). Tax is computed on `subtotal - discount`, and credit is taken off `due` (which includes tax). The rules say credit comes off the discounted subtotal first, and tax is charged on what is left."
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`planChangeTiming` compares `includedUnits`, but the rule says a move is immediate only if the new plan's `monthlyPriceCents` is higher. A cheaper plan with more included units is applied immediately, and a pricier plan with fewer or equal units is deferred."
+        },
+        {
+          "label": "met",
+          "quote": "`planChangeTiming` compares `includedUnits`, but the rule says a move is immediate only if the new plan's `monthlyPriceCents` is higher. A cheaper plan with more included units is applied immediately, and a pricier plan with fewer or equal units is deferred."
+        },
+        {
+          "label": "met",
+          "quote": "`planChangeTiming` compares `includedUnits`, but the rule says a move is immediate only if the new plan's `monthlyPriceCents` is higher. A cheaper plan with more included units is applied immediately, and a pricier plan with fewer or equal units is deferred."
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "If adjustments push the subtotal below zero, `raw` is negative and `Math.min(raw, 0)` returns the negative value. The discount then increases the invoice."
+        },
+        {
+          "label": "met",
+          "quote": "If adjustments push the subtotal below zero, `raw` is negative and `Math.min(raw, 0)` returns the negative value. The discount then increases the invoice."
+        },
+        {
+          "label": "met",
+          "quote": "If adjustments push the subtotal below zero, `raw` is negative and `Math.min(raw, 0)` returns the negative value. The discount then increases the invoice."
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

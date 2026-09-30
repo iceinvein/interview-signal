@@ -1,0 +1,3 @@
+Optimized [KernelBuilder.build_kernel](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.xzqKYa28ag/perf_takehome.py:88) with vectorized hashing, cached tree levels, and VLIW scheduling.
+
+The frozen submission suite passes **all 9 tests** at **1,297 cycles** (about **113.9×** faster than baseline). I ran `python3 tests/submission_tests.py` because `python` is unavailable in this environment. `git diff origin/main -- tests/` is empty.

@@ -1,0 +1,1 @@
+I reviewed `billing.ts` against the rules in `README.md` and wrote 13 findings, each with the relevant line and why it is wrong, to [FINDINGS.md](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.PiokDo77QW/FINDINGS.md).

@@ -1,0 +1,28 @@
+[12:00:00] Order controller demo (simulated clock; each cook takes 10 seconds)
+[12:00:00] Normal Order #1 added to PENDING
+[12:00:00] VIP Order #2 added to PENDING
+[12:00:00] Normal Order #3 added to PENDING
+[12:00:00] PENDING: #2 VIP (PENDING), #1 Normal (PENDING), #3 Normal (PENDING)
+[12:00:00] COMPLETE: (none)
+[12:00:00] BOTS: (none)
+[12:00:00] Bot #1 added
+[12:00:00] Bot #1 started VIP Order #2
+[12:00:02] Bot #2 added
+[12:00:02] Bot #2 started Normal Order #1
+[12:00:05] VIP Order #4 added to PENDING
+[12:00:05] Bot #2 stopped; Normal Order #1 returned to PENDING
+[12:00:05] Bot #2 removed
+[12:00:05] PENDING: #2 VIP (PROCESSING), #4 VIP (PENDING), #1 Normal (PENDING), #3 Normal (PENDING)
+[12:00:05] COMPLETE: (none)
+[12:00:05] BOTS: #1 PROCESSING Order #2
+[12:00:10] Bot #1 completed VIP Order #2 (10 seconds)
+[12:00:10] Bot #1 started VIP Order #4
+[12:00:20] Bot #1 completed VIP Order #4 (10 seconds)
+[12:00:20] Bot #1 started Normal Order #1
+[12:00:30] Bot #1 completed Normal Order #1 (10 seconds)
+[12:00:30] Bot #1 started Normal Order #3
+[12:00:40] Bot #1 completed Normal Order #3 (10 seconds)
+[12:00:40] Bot #1 is IDLE
+[12:00:40] PENDING: (none)
+[12:00:40] COMPLETE: #2 VIP (COMPLETE), #4 VIP (COMPLETE), #1 Normal (COMPLETE), #3 Normal (COMPLETE)
+[12:00:40] BOTS: #1 IDLE

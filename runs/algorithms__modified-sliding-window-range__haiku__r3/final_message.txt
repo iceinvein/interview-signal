@@ -1,0 +1,13 @@
+Done! I've implemented `slidingWindowRange` using a **monotonic deque** approach:
+
+**Algorithm:**
+- Maintain two deques to track indices of potential max and min values
+- For each new element, remove out-of-window indices from the front
+- Keep the deques monotonic by removing "useless" elements from the back (elements that won't be the extremum in any future window)
+- Once a full window exists, the front of each deque gives the max/min, so compute their difference
+
+**Complexity:**
+- **Time:** O(n) — each element is processed and removed at most once
+- **Space:** O(k) — deques hold at most k elements
+
+This efficiently handles the constraints (up to 100,000 elements) without needing to rescan each window.

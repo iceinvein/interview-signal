@@ -1,0 +1,17 @@
+I've written `countIslands` in `solution.ts`. It returned the right answer on every test I ran.
+
+**How it works:** it goes through the grid one cell at a time. When it finds a land cell it hasn't seen yet, it adds one to the count and marks every land cell connected to it (up, down, left or right) as seen. It keeps its own list of cells still to check instead of calling itself recursively, because recursion could run out of stack space on a 1000×1000 grid that's all land. Cells outside the grid are simply never checked, so they count as water. The time and extra memory both grow in step with the number of cells.
+
+**Tests run:**
+
+| Grid | Expected | Got | Time |
+|---|---|---|---|
+| The standard 4×5 example | 3 | 3 | – |
+| `[[1,0],[0,1]]` (diagonal only) | 2 | 2 | – |
+| `[[0]]` | 0 | 0 | – |
+| 1000×1000, all land | 1 | 1 | 8ms |
+| 1000×1000 checkerboard | 500000 | 500000 | 6ms |
+
+The file has no imports.
+
+Separately, these connected services need to be authorised before they'll work: Atlassian Rovo, Figma, Gmail, Google Drive, Miro and Trello. For claude.ai connectors you can do that in the claude.ai connector settings. Otherwise use `/mcp` in an interactive session.

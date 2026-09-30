@@ -1,0 +1,12 @@
+I've written `coinChangeLimited` in `solution.ts` and tested it: it matched a brute-force checker on 3,000 random small cases.
+
+**How it works:** it treats each group of identical coins as a few bundles of 1, 2, 4, … coins, plus one bundle for whatever is left over. Any number of coins from 0 up to the count can be made by picking some of these bundles. Then a table indexed by amount, from 0 to `amount`, stores the fewest coins that reach each value, with each bundle used at most once. Counts are also capped at `amount / coin`, since more coins than that could never be used.
+
+**Speed:** with the maximum limits, that's about 12 × 14 × 10,001 ≈ 1.7M steps, which is fast.
+
+**Examples:**
+- `[1,2,5]` with 10,000 of each and amount 10000 → `2000`
+- `[2]` with one coin and amount 3 → `-1`
+- amount 0 → `0`
+
+The file has no imports.

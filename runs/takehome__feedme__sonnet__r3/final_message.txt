@@ -1,0 +1,12 @@
+The order controller is built as a Node.js CLI. The 14 unit tests pass, and `scripts/run.sh` wrote `scripts/result.txt` with `HH:MM:SS` timestamps. I haven't opened the pull request, so the `backend-verify-result` workflow hasn't run.
+
+- **Interactive CLI:** `node src/index.js` accepts `normal`, `vip`, `+bot`, `-bot`, `status`, `help` and `quit`. I checked it by piping commands in, not by typing at the prompt.
+- **Scripts:** `scripts/test.sh` runs the tests. `scripts/build.sh` only does a syntax check, since plain Node has nothing to compile. `scripts/run.sh` runs a scripted demo that covers every requirement, waits in real time for the 10-second orders (about 55 seconds), and writes `scripts/result.txt`.
+- **Queue ordering:** pending orders are always sorted VIP first, then by order number. That one rule puts a new VIP behind existing VIPs and ahead of all Normal orders. It also returns an order to its original slot when `- Bot` removes the bot that was cooking it.
+- **Structure:** the logic lives in `src/orderController.js` with no I/O. The tests use fake timers, so they don't wait 10 seconds.
+- **Docs:** I added a usage and design section to `README.md`.
+
+- **Restarted orders:** if `- Bot` interrupts an order, the 10 seconds start over when another bot picks it up.
+- **Removing a bot with none:** `- Bot` with no bots prints "No bots to remove" and does nothing else.
+
+I haven't fork-cloned or committed anything, because this folder isn't a git repo. To submit, put these files in your fork, push a branch and open a PR to `main`. Once the workflow runs, check that it passes.

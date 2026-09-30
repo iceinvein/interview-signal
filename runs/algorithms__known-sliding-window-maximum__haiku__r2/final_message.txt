@@ -1,0 +1,9 @@
+Done! I've implemented `maxSlidingWindow` using a **deque-based approach** for optimal O(n) performance.
+
+The algorithm maintains a deque of indices in decreasing order of their values:
+- **Remove outdated indices** from the front when they fall outside the current window
+- **Remove smaller elements** from the back to keep the deque in decreasing order
+- **Add the current index** to the deque
+- **Extract the maximum** (front of deque) once we have a complete window
+
+This efficiently handles the constraints: large arrays (up to 100k elements), negative numbers, and any window size, all in linear time with O(k) extra space.

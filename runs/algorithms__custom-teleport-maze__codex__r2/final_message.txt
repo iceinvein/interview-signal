@@ -1,0 +1,3 @@
+Implemented `shortestTeleportPath` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.408XCssH92/solution.ts). It uses breadth first search, treating each step and optional portal jump as one move. Time and space are both O(rows × columns).
+
+The example, five edge cases, and a 1000×1000 open grid passed.

@@ -1,0 +1,16 @@
+I've written the function in `solution.ts`. It works in one pass from left to right. It keeps adding scores to the current group and tracks that group's smallest and largest score. When the next score would push the spread above `maxSpread`, it starts a new group with that score. This runs in O(n) time with O(1) extra memory, which handles 200,000 scores easily.
+
+Taking the longest possible group each time always gives the fewest groups. Any contiguous piece of a steady group is also steady, so ending a group early can never help later groups.
+
+I ran it with `tsx` on these cases, and all gave the expected answers:
+
+| Input | `maxSpread` | Result |
+|---|---|---|
+| `[1,5,2,6]` (your example) | 4 | 2 |
+| `[]` | 0 | 0 |
+| `[3]` | 0 | 1 |
+| `[1,1,1]` | 0 | 1 |
+| `[-1e9, 1e9]` | 2e9 | 1 |
+| `[-1e9, 1e9]` | 2e9 − 1 | 2 |
+
+The last two cases use the extreme values; the numbers stay well within the range JavaScript stores exactly, so there are no rounding errors. The file has no imports and keeps the exact signature.

@@ -1,0 +1,3 @@
+The webhook relay is implemented. It accepts opaque request bodies, queues delivery per tenant, retries failures with exponential backoff, and applies a sliding per-tenant rate limit. The [README](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.JGdRbYFs2m/README.md) covers setup and design decisions.
+
+`npm test` passes all 8 tests, including byte preservation, retry timing, rate limits, and tenant isolation. The main limitation is that accepted work is held in memory and is lost on restart. Full-body logs also contain sensitive payloads in reversible base64 form, as the brief requires.

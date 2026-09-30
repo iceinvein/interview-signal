@@ -1,0 +1,15 @@
+I reviewed `billing.ts` against the README rules and wrote 8 findings to `FINDINGS.md`. I only read the code and didn't run anything.
+
+**Six clear bugs**
+1. **Usage tiers (lines 217-221):** `upTo` is a running total, but the code uses it as the tier width. The width should be `upTo - previousCap`. `previousCap` is tracked and never read. This breaks rule 4.
+2. **Plan-change timing (line 155):** It compares `includedUnits`, but rule 5 says to compare `monthlyPriceCents`.
+3. **Proration (lines 182, 188, 192):** `prorationFactor` returns the share already used, but the variable is named `unused` and the code treats it that way. It should use `1 - factor`.
+4. **Credit and tax order (lines 259-261, 270):** Credit is applied after tax, and tax is charged before credit comes off. Rules 7 and 8 say credit comes off before tax, and tax is charged on what's left.
+5. **Preview and finalise (lines 235, 261, 294):** `previewInvoice` changes the account's credit because `buildInvoice` calls `applyCredit`. `finaliseInvoice` then subtracts the credit a second time.
+6. **`formatMoney` (line 304):** Cents aren't zero-padded, so 505 cents shows as `$5.5`.
+
+**Two lower-severity issues**
+- **Negative discount (line 230):** With a negative subtotal, a percent discount can go negative and increase the amount due.
+- **Floating-point rounding (line 131):** Percentages go through floating-point arithmetic, which could round a half-cent down with fractional rates. I didn't construct a failing case.
+
+The file also lists what I checked and found correct, such as the period boundaries in `renew`.

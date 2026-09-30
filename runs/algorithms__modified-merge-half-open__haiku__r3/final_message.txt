@@ -1,0 +1,8 @@
+Done. The implementation:
+
+1. **Filters empty intervals**: Removes intervals where `start === end` since they cover no points
+2. **Sorts by start**: Arranges intervals by start position for efficient merging
+3. **Merges overlapping intervals**: Iterates through sorted intervals, merging when `nextStart < currentEnd` (the overlap condition for half-open intervals)
+4. **Returns sorted result**: The output is automatically sorted since we process from the sorted input
+
+The key insight is that for half-open intervals `[start, end)`, two intervals overlap iff one's start is strictly less than the other's end. So `[1, 3)` and `[3, 5)` don't overlap (3 is not in the first interval), but `[1, 3)` and `[2, 5)` do (they share `[2, 3)`).

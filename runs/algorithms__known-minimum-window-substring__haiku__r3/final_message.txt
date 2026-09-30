@@ -1,0 +1,16 @@
+Done! I've implemented the minimum window substring algorithm using a sliding window approach:
+
+**Algorithm:**
+1. Build a frequency map of characters in `t`
+2. Use two pointers (left/right) to maintain a sliding window over `s`
+3. Track `formed` — the count of unique characters from `t` that have reached their required frequency in the window
+4. Expand the window by moving right; when a character reaches its required count, increment `formed`
+5. Once `formed` equals the number of unique characters in `t`, we have a valid window
+6. Shrink from the left to find the minimum valid window, tracking the smallest one found
+7. Continue until the entire string is processed
+
+**Complexity:**
+- Time: O(n + m) where n = len(s), m = len(t) — each character visited at most twice
+- Space: O(1) — at most 52 entries in the frequency maps (lowercase + uppercase ASCII)
+
+The solution handles all edge cases: empty results, duplicate characters in `t`, and returns the earliest minimum-length substring when there are ties.

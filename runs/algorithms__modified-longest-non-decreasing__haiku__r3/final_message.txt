@@ -1,0 +1,14 @@
+Done! I've implemented the longest non-decreasing subsequence function using an O(n log n) algorithm.
+
+**How it works:**
+- Maintains a `tail` array where `tail[i]` is the smallest ending value for any non-decreasing subsequence of length `i+1`
+- For each number, binary search finds where it fits among the current tails
+- Updates or extends the array accordingly
+
+**Time complexity:** O(n log n)  
+**Space complexity:** O(n)
+
+The algorithm correctly handles:
+- Equal consecutive elements: `[2, 2, 2]` → length 3
+- Mixed values: `[0, 4, 4, 2]` → length 3 (subsequence `[0, 4, 4]`)
+- Large input sizes up to 100,000 elements

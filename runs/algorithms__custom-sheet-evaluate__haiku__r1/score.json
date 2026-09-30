@@ -1,0 +1,35 @@
+{
+  "format": "algorithms",
+  "task": "custom-sheet-evaluate",
+  "agent": "haiku",
+  "rep": 1,
+  "results": [
+    {
+      "id": "basic",
+      "passed": true
+    },
+    {
+      "id": "edge-cases",
+      "passed": true
+    },
+    {
+      "id": "performance",
+      "passed": false
+    },
+    {
+      "id": "all-cases",
+      "passed": false
+    }
+  ],
+  "metrics": {
+    "cases_total": 22,
+    "cases_passed": 20,
+    "timed_out": 0
+  },
+  "auto_criteria": [
+    {
+      "id": "all-cases",
+      "passed": false
+    }
+  ]
+}

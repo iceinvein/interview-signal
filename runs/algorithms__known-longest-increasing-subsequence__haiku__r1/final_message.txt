@@ -1,0 +1,11 @@
+Done! I've implemented the **Longest Increasing Subsequence** function using an efficient O(n log n) approach with binary search.
+
+**How it works:**
+- Maintains a `tails` array where `tails[i]` represents the smallest tail element of any increasing subsequence of length i+1
+- For each number, binary search finds where it should go in `tails`
+- If it's larger than all existing elements, append it; otherwise replace the first element that's ≥ the current number
+- This keeps the `tails` array as small as possible, maximizing future growth
+
+**Example:** `[10, 9, 2, 5, 3, 7, 101, 18]`
+- Process: 10 → [10] → [9] → [2] → [2,5] → [2,3] → [2,3,7] → [2,3,7,101] → [2,3,7,18]
+- Result: length 4 ✓

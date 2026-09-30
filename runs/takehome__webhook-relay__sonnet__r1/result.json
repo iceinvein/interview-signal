@@ -1,0 +1,58 @@
+{
+  "format": "takehome",
+  "task": "webhook-relay",
+  "agent": "sonnet",
+  "rep": 1,
+  "cli": "2.1.284 (Claude Code)",
+  "model": "claude-sonnet-5-5",
+  "effort": null,
+  "is_error": false,
+  "cost_usd": 0.408951,
+  "turns": 9,
+  "codex_steps": null,
+  "usage": {
+    "input_tokens": 18,
+    "cache_creation_input_tokens": 32728,
+    "cache_read_input_tokens": 275715,
+    "output_tokens": 22286,
+    "output_tokens_details": {
+      "thinking_tokens": 4161
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 32728,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "not_available",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 696,
+        "cache_read_input_tokens": 40564,
+        "cache_creation_input_tokens": 2403,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 2403
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard"
+  },
+  "contamination": [],
+  "external_fetches": [
+    "https://a.example/hook",
+    "https://bad.example/",
+    "https://good.example/",
+    "https://hung.example/",
+    "https://x.example/h"
+  ],
+  "timed_out": false,
+  "interrupted": null,
+  "exit_code": 0,
+  "wall_s": 151.556
+}

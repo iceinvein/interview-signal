@@ -1,0 +1,5 @@
+I wrote `twoSum` in `solution.ts`. It goes through the array once, keeping a hash map from each value to the first position where it appeared. At each position `j` it checks whether `target - nums[j]` has already been seen at some position `i`. If so, it returns `[i, j]`, so `i < j` always holds. Two equal values (like `[3,3]`) work, and the same position is never used twice. It runs in O(n) time and O(n) memory, and it has no imports.
+
+I ran four quick checks and all gave the right pairs: `[2,7,11,15]→9`, `[3,3]→6`, `[3,2,4]→6`, and the extreme values `[-1e9,5,1e9]→0`.
+
+Separately, some connected claude.ai services (Atlassian Rovo, Figma, Gmail, Google Drive, Miro, Trello) need to be authorized in your claude.ai connector settings before they can be used. None of them were needed for this task.

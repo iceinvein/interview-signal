@@ -1,0 +1,42 @@
+The order controller is built and works on this machine. It isn't committed or submitted: git commit signing needs your SSH key passphrase, which I can't enter from here. I also didn't fork the repo or open a PR, since both publish to GitHub; I'd rather you do that or tell me to go ahead.
+
+**What I checked**
+- **Unit tests:** all 16 pass in about 40ms. They use fake timers, so they don't wait the real 10 seconds.
+- **Full pipeline:** `scripts/test.sh`, then `build.sh`, then `run.sh`, all succeeded. `run.sh` runs a scripted demo in real time (about 35 seconds) and writes `scripts/result.txt` with `[HH:MM:SS]` timestamps. The output showed the expected behaviour:
+  - a VIP order jumped ahead of Normal orders;
+  - a bot removed mid-order put that order (#1004) back at the front of PENDING, and another bot then finished it;
+  - bots went IDLE when nothing was left, and one was removed while idle.
+- **Interactive mode:** I drove `npm start` with piped input. Orders, adding and removing bots, status, unknown commands and quit all work, including an order finishing while the prompt is open.
+- **Not checked:** it hasn't run in GitHub Actions yet. I ran it locally on Node 24; the workflow uses Node 22.19. It relies on `node:test` fake timers, which Node 22 supports.
+
+**How it works**
+- **One rule orders PENDING:** VIP first, then by order number. Order numbers only go up, so this puts a new VIP behind existing VIPs and ahead of all Normal orders. It also puts an order from a removed bot back exactly where it was.
+- **Assigning work:** each idle bot takes the order at the front of PENDING whenever an order is added, a bot is added, or a bot finishes.
+- **Removing a bot:** "- Bot" always removes the newest one. If it was cooking, it stops and the order goes back to PENDING. The next bot starts that order again from zero (a full 10 seconds).
+- **Choices I made where the brief is open:**
+  - order numbers start at 1001, to match the sample output;
+  - bot numbers are never reused;
+  - `build.sh` only checks the code's syntax, because there are no dependencies and nothing to compile.
+
+**Files**
+- `src/orderController.js`: the core logic
+- `src/cli.js`: the interactive CLI
+- `src/simulate.js`: the scripted demo
+- `src/logger.js`: timestamps and status output
+- `test/orderController.test.js`: the tests
+- `scripts/*.sh`, `package.json`, `.gitignore`
+- `SOLUTION.md`: how to run and test it, plus the design notes. The README links to it.
+
+**To submit**
+
+This folder is a fresh local repo, not a clone of the assignment repo. After forking on GitHub (the upstream is probably `feedmepos/se-take-home-assignment`, but I didn't confirm that):
+```bash
+git remote add origin git@github.com:<you>/se-take-home-assignment.git
+git fetch origin && git checkout -b feature/order-controller origin/main
+git add -A && git commit -m "Implement order controller CLI in Node.js"
+git push -u origin feature/order-controller
+gh pr create --base main --repo <you>/se-take-home-assignment
+```
+The PR's target decides where the workflow runs: `--repo` targets your fork's `main`, and leaving it out usually opens the PR against the upstream repo. If `checkout` complains about the untracked files, move them aside first or use `git checkout -f`. Your local changes to the README and scripts will override the originals.
+
+If you'd like, I can do the commit, push and PR myself once your SSH agent has the key unlocked.

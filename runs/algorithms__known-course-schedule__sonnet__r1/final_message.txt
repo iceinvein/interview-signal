@@ -1,0 +1,8 @@
+I wrote `canFinish` to `solution.ts`. I haven't run it or tested it.
+
+It uses Kahn's topological sort, which takes courses off a queue once all their prerequisites are done. It returns `true` only if every course gets taken.
+
+- **Self-pairs and cycles:** a `[a, a]` pair gives course `a` a prerequisite on itself, so it never becomes available and the function returns `false`. The same happens for any longer cycle.
+- **Repeated pairs:** each copy is counted when the prerequisites are tallied and again when they are cleared. A repeated pair therefore has the same effect as a single copy.
+- **Size limits:** the loop is iterative, so there is no recursion depth problem at 100,000 courses. Memory and time are linear in `numCourses` plus the number of pairs.
+- **Constraints:** the file has no imports, and the exported name and signature match what you gave.

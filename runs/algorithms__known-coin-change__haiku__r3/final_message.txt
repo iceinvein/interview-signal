@@ -1,0 +1,11 @@
+Done! I've implemented the `coinChange` function using dynamic programming.
+
+**Algorithm:**
+- Create a DP array where `dp[i]` represents the minimum number of coins needed to make amount `i`
+- Initialize `dp[0] = 0` (zero amount needs zero coins)
+- For each amount from 1 to the target, try using each coin and track the minimum
+- If an amount is unreachable, it stays as `Infinity` and we return `-1`
+
+**Complexity:**
+- Time: O(amount × coins.length) = O(2000 × 12)
+- Space: O(amount) = O(2000)

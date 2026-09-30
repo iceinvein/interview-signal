@@ -1,0 +1,3 @@
+Implemented `mergeHalfOpen` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.H4SgBtdQsw/solution.ts). It excludes empty intervals, merges only intervals that share points, and returns results sorted by start.
+
+All six boundary and overlap checks passed.

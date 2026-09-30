@@ -1,0 +1,5 @@
+I implemented `coinChangeLimited` in `solution.ts`. I haven't run it or written any tests.
+
+It runs a 0/1 knapsack over `dp[amount]`, the fewest coins that make each amount. Each denomination's count is split into bundles of 1, 2, 4, … and a remainder, and each bundle is treated as a single item. Those bundles can add up to any number of coins from 0 to `counts[i]`, so the limit is never exceeded. Total work is roughly `coins.length × log(counts) × amount`, about 1.7M steps at the maximum limits.
+
+Amount `0` returns `0`, and unreachable amounts return `-1`. A denomination with count `0` adds no bundles, so it is never used.

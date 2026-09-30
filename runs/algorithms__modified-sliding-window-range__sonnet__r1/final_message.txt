@@ -1,0 +1,3 @@
+I wrote `slidingWindowRange` in `solution.ts`, but I haven't run it or tested it.
+
+It keeps two monotonic deques of indices, one for the window maximum and one for the minimum. Each index is pushed and popped at most once, so it runs in O(n) time. That is comfortably fast for 100,000 elements. There are no imports, and the exported name and signature are unchanged.

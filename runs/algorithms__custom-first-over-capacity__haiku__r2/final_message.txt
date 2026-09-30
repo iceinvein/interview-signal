@@ -1,0 +1,12 @@
+Done! The solution uses an event-based approach that's efficient for this problem:
+
+**Algorithm:**
+1. Create start/end events for each booking
+2. Sort by time, with end events before start events at the same time (respecting the half-open interval semantics)
+3. Process events in chronological order, tracking occupancy
+4. Return the first time occupancy exceeds capacity
+
+**Time complexity:** O(n log n) due to sorting  
+**Space complexity:** O(n) for the events array
+
+The key insight is that occupancy only changes at specific time points, so we don't need to check every instant—just the moments when bookings start or end.

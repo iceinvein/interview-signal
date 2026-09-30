@@ -1,0 +1,8 @@
+I wrote `countDigitSum` to `solution.ts`, but I haven't run it or tested it against any examples, including `countDigitSum("20", 2)`.
+
+It uses a standard digit-by-digit count:
+- **Table:** it first builds `ways[k][s]`, the number of `k`-digit strings (leading zeros allowed) with digit sum `s`. Values are `bigint`, so counts past `Number.MAX_SAFE_INTEGER` stay exact.
+- **Walk:** it then goes through `limit` from the left. At each position it adds the completions for every digit smaller than the limit's digit, given the prefix sum so far.
+- **End:** it stops early if the prefix sum passes `target`. Otherwise it adds 1 at the end if `limit` itself has digit sum `target`.
+
+`limit = "0"` and `target = 0` are handled by the same path, and the file has no imports.

@@ -1,0 +1,3 @@
+Implemented `cheapestLevel` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.BLTMrkFhJX/solution.ts). It selects an optimal level from the sorted heights and calculates the total cost in O(n log n) time.
+
+The example and 6,000 randomized comparisons against a brute force solution passed.

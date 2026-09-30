@@ -1,0 +1,17 @@
+Done! I've implemented `countDigitSum` using digit DP—a technique for efficiently counting numbers with specific digit properties.
+
+**How it works:**
+
+1. **Process digit by digit**: Build numbers left to right, tracking the current digit sum
+2. **State tracking**: `dp(pos, sum, tight)` counts valid numbers where:
+   - `pos` = current digit position
+   - `sum` = accumulated digit sum
+   - `tight` = whether we're still bounded by the limit
+3. **Pruning**: 
+   - If `sum > target`, we can never reach the target
+   - If `sum + 9*(remaining digits) < target`, impossible even with all 9s
+4. **Memoization**: Cache results for (pos, sum, tight) to avoid recomputation
+
+For your example `countDigitSum("20", 2)` → `3n`, it correctly counts 2, 11, and 20.
+
+The solution handles the full constraint range (limit up to 10^18) efficiently without iterating through individual numbers.

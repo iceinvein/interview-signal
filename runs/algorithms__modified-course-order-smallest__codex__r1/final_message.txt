@@ -1,0 +1,3 @@
+Implemented `courseOrder` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.EH8vmtd7w0/solution.ts). It returns the lexicographically smallest valid order, ignores repeated prerequisites, and returns `[]` for cycles or self-prerequisites.
+
+Verified with fixed edge cases, 1,000 random graphs, and a maximum-size smoke test.

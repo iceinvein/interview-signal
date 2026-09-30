@@ -1,0 +1,20 @@
+I've implemented `courseOrder` in `solution.ts`. I ran a few hand-picked cases and one large random input, and all gave the expected results.
+
+**How it works:** It repeatedly takes the smallest-numbered course whose prerequisites are all done. A min-heap holds the courses that are currently available, so the order it builds is always the lexicographically smallest valid one. It runs in O((V + E) log V) time.
+
+- **Self-pairs (`[a, a]`):** such a course can never become available, so the order comes up short and the function returns `[]`.
+- **Repeated pairs:** each copy adds one to the course's count of unfinished prerequisites and is subtracted once when the prerequisite is taken, so repeats don't change the result.
+- **No valid order:** if fewer than `numCourses` courses get placed, it returns `[]`.
+
+**Tests run:**
+
+| Input | Result |
+|---|---|
+| Diamond-shaped prerequisites (4 courses) | `[0,1,2,3]` |
+| Duplicate pairs `[[0,2],[0,2]]` | `[1,2,0]` |
+| Self-pair `[[0,0]]` | `[]` |
+| Two-course cycle | `[]` |
+| One course, no prerequisites | `[0]` |
+| 100,000 courses, ~200,000 random pairs | Full order in about 19 ms |
+
+The file uses no imports.

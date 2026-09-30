@@ -1,0 +1,1 @@
+Implemented `lengthOfLongestSubstring` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.AJpwgP8P48/solution.ts). It uses a sliding window, runs in O(n) time, and passed 8 edge and example cases.

@@ -1,0 +1,1 @@
+I reviewed `billing.ts` and wrote 11 findings, each with a line reference and explanation, to [FINDINGS.md](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.Aty4LLuHMq/FINDINGS.md). I reproduced the key billing and validation failures with Node.

@@ -1,0 +1,3 @@
+Implemented `serveCustomers` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.FCepTuvEBC/solution.ts). It assigns customers in index order using a min-heap of server free times, in `O(n log servers)` time.
+
+The example, edge cases, and 1,000 random comparisons against a simple reference implementation passed.

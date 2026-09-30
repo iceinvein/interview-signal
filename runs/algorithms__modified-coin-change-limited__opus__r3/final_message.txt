@@ -1,0 +1,19 @@
+I've implemented `coinChangeLimited` in `solution.ts`. I ran it on six small hand-picked cases and every one gave the right answer, including the unreachable ones and `amount = 0`. I haven't tested it against any larger or randomized inputs.
+
+**How it works:**
+- It builds a table where entry `s` is the fewest coins that add up to `s`. Amount 0 starts at 0 coins; every other amount starts as unreachable.
+- For each coin type, it only considers as many coins as could actually be used: the smaller of `counts[i]` and `amount / coins[i]`.
+- That count is split into bundles of 1, 2, 4, … coins, with whatever is left over as the last bundle. Any number of coins up to the limit can be made from these bundles, so the limit is respected without trying every count one at a time.
+- Each bundle is used at most once, and the table is updated from high amounts down to low so a bundle can't be counted twice.
+- At the largest inputs (12 coin types, `amount = 10000`) this is about 1.7M steps, so it runs quickly.
+
+**Cases checked:**
+
+| coins | counts | amount | result |
+|---|---|---|---|
+| [1,2,5] | [5,2,1] | 11 | 5 (5+2+2+1+1) |
+| [2] | [1] | 3 | -1 |
+| [1] | [0] | 0 | 0 |
+| [5,1] | [1,10] | 7 | 3 (5+1+1) |
+| [3,4] | [1,1] | 6 | -1 |
+| [1,3,4] | [10,2,1] | 6 | 2 (3+3) |

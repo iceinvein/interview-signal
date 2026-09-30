@@ -1,0 +1,13 @@
+Done! I've implemented the `rainWater` function using a two-pointer approach:
+
+**Algorithm:**
+- Use pointers from both ends moving inward
+- Track the maximum height seen from the left and right sides
+- Always move the pointer with the smaller height (water level is limited by the shorter boundary)
+- At each step, calculate trapped water as `max_height_at_this_side - current_height`
+
+**Complexity:**
+- Time: O(n) — single pass with two pointers
+- Space: O(1) — only using a few variables
+
+**Example:** For `[0,1,0,2,1,0,1,3,2,1,2,1]`, it correctly returns `6` units of water trapped.

@@ -1,0 +1,12 @@
+I found 8 bugs in `billing.ts` and wrote them to `FINDINGS.md`, each with the line, why it breaks the rule, an example of it failing, and a fix. I didn't run the code or change it; the examples are worked out by hand.
+
+1. **Line 155, rule 5:** whether a plan change happens now or next period is decided by included units instead of monthly price.
+2. **Line 182, rule 5:** proration uses the share of the period already *used* instead of the unused share, so upgrades are credited and charged backwards.
+3. **Line 217, rule 4:** each usage tier's size is taken as its running-total cap instead of `upTo - previousCap`, so every tier after the first gets too many units and they're overcharged.
+4. **Lines 260–261, rule 7:** credit is applied after tax instead of before it.
+5. **Line 259, rule 8:** tax is charged before credit is taken off, so customers pay tax on the amount their credit covered.
+6. **Line 235, rule 7:** previewing an invoice spends the account's credit, because preview and finalise share the code that deducts it.
+7. **Line 294, rule 7:** finalising deducts the credit a second time, which can make the balance negative. After that, `validateAccount` throws for the account.
+8. **Line 304:** `formatMoney` doesn't pad cents to two digits, so 105¢ shows as `$1.5`.
+
+Bugs 6 and 7 should be fixed together: once building an invoice stops changing the account, line 294 becomes the only credit deduction and is correct. The file also lists the parts I checked and found correct: renewal dates, cancelling a scheduled change, discount capping, rounding and the subscription line.

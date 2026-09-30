@@ -1,0 +1,16 @@
+The waitlist is in with one deliberate gap: `GET /sessions/:sessionId/waitlist` returns `name` but not `email`. All 70 tests pass and `npm run typecheck` is clean.
+
+**Why email is missing.** CONTRIBUTING.md says member contact details may only come from the `/members` routes. It calls this a privacy-notice commitment, says the session endpoints feed front-desk tablets, and says a change needs sign-off from the data protection lead. That conflicts with requirement 5, and I didn't want to decide it myself. Each entry carries `position`, `memberId`, `joinedAt` and `name`, using the existing `MemberSummary` shape.
+- **To add email once sign-off is given:** change `waitlistedMemberView` in `src/http/views.ts` and have `WaitlistService.list` return the full `Member`.
+- **A related option:** staff can call `GET /members/:id` for anyone they need to contact.
+
+**What changed**
+- **Storage:** there is a new `WaitlistRepository` interface with an in-memory implementation, wired into `createMemoryRepositories()`. Queue order is insertion order, so `position` is computed and later positions move up on their own when someone leaves.
+- **Service:** a new `WaitlistService` handles join, leave and list. `join` checks in this order: `session_started`, `already_booked`, `already_waitlisted`, `session_not_full`. That follows `book()`'s convention, so a member who already has a place is told so first. The spec listed these in a different order, so say if you want that order instead.
+- **Errors:** I added `session_not_full` and `already_waitlisted` as new conflict codes. A member missing from the waitlist answers 404, and I added a `waitlist_entry` entity name for that.
+- **HTTP:** the three routes are in `src/http/routes/waitlist.ts`. `DELETE` answers 204 through the existing `respond()`.
+- **Promotion:** `BookingService.cancel` now promotes the front of the waitlist through `book()`, so every booking rule still applies. The exception is that a waitlisted member who now has an overlapping booking is skipped and keeps their place in the queue, and the next member gets the spot.
+- **Direct booking:** `book()` also drops a member from that session's waitlist when they book directly, for example after a capacity increase. This wasn't in the spec.
+- **Docs and tests:** the README API table is updated. New tests are `test/services/waitlistService.test.ts` and `test/http/waitlist.test.ts`, written to the CONTRIBUTING conventions. They cover each error, position shifts, promotion, the overlap skip, and that no email appears in the response.
+
+I ran `npm install` in the directory, since `node_modules` wasn't there.

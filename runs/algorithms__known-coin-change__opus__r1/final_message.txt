@@ -1,0 +1,10 @@
+I implemented `coinChange` in `solution.ts`, keeping the exported name and signature as given and using no imports.
+
+It works bottom-up: for each amount from 1 up to `amount`, it records the fewest coins that reach it, based on the best results for smaller amounts. This takes about 24,000 steps at the largest input (2000 × 12 coins). Coins larger than the target are skipped, so huge values like `2^31 - 1` cause no trouble. If the target can't be reached, it returns `-1`.
+
+I ran it on five examples and each gave the correct answer:
+- `[1,2,5]`, 11 → 3
+- `[2]`, 3 → -1
+- `[1]`, 0 → 0
+- `[2147483647]`, 2 → -1
+- `[186,419,83,408]`, 6249 → 20

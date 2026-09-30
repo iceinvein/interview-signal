@@ -1,0 +1,3 @@
+Implemented `longestBalancedRun` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.hfBiuvKfCC/solution.ts). It runs in O(n) time and uses O(n) space.
+
+Verified against a brute-force version on 5,009 small cases and with a million-character input.

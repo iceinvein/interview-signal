@@ -1,0 +1,26 @@
+{
+  "format": "algorithms",
+  "task": "known-number-of-islands",
+  "agent": "codex",
+  "rep": 3,
+  "cli": "codex-cli 0.158.0",
+  "model": "gpt-6-sol",
+  "effort": "high",
+  "is_error": false,
+  "cost_usd": null,
+  "turns": 1,
+  "codex_steps": 7,
+  "usage": {
+    "input_tokens": 93323,
+    "cached_input_tokens": 82688,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 2167,
+    "reasoning_output_tokens": 567
+  },
+  "contamination": [],
+  "external_fetches": [],
+  "timed_out": false,
+  "interrupted": null,
+  "exit_code": 0,
+  "wall_s": 58.056
+}

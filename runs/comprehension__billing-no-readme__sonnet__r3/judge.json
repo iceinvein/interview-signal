@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 304: `formatMoney` doesn't zero-pad cents. `abs % 100` is printed as-is, so 5 cents renders as `$0.5`, 105 as `$1.5` and 1000 as `$10.0`."
+        },
+        {
+          "label": "met",
+          "quote": "Line 304: `formatMoney` doesn't zero-pad cents. `abs % 100` is printed as-is, so 5 cents renders as `$0.5`, 105 as `$1.5` and 1000 as `$10.0`."
+        },
+        {
+          "label": "met",
+          "quote": "Line 304: `formatMoney` doesn't zero-pad cents. `abs % 100` is printed as-is, so 5 cents renders as `$0.5`, 105 as `$1.5` and 1000 as `$10.0`."
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 217: tier width uses the cumulative cap, not the tier's width. ... tier 2 takes 150 units at its price instead of 100 ... The width should be `tier.upTo - previousCap`."
+        },
+        {
+          "label": "met",
+          "quote": "The code uses `tier.upTo` as if it were the width of the tier. With tiers `[{upTo: 100}, {upTo: 200}, {upTo: null}]` and 250 billable units, tier 2 takes 150 units at its price instead of 100 ... The width should be `tier.upTo - previousCap`."
+        },
+        {
+          "label": "met",
+          "quote": "The code uses `tier.upTo` as if it were the width of the tier. With tiers `[{upTo: 100}, {upTo: 200}, {upTo: null}]` and 250 billable units, tier 2 takes 150 units at its price instead of 100 ... The width should be `tier.upTo - previousCap`."
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period already used, but the result is stored in a variable named `unused`. It is then used to credit \"Unused time\" on the old plan and to charge \"Remaining time\" on the new plan. Both should use `1 - factor`."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period already used, but the result is stored in a variable named `unused`. It is then used to credit \"Unused time\" on the old plan and to charge \"Remaining time\" on the new plan. Both should use `1 - factor`."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period already used, but the result is stored in a variable named `unused`. It is then used to credit \"Unused time\" on the old plan and to charge \"Remaining time\" on the new plan. Both should use `1 - factor`."
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, which already subtracts the applied credit from `account.creditBalanceCents`. `finaliseInvoice` then subtracts `invoice.creditAppliedCents` again (line 294)."
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, which already subtracts the applied credit from `account.creditBalanceCents`. `finaliseInvoice` then subtracts `invoice.creditAppliedCents` again (line 294). ... Its doc comment says \"without changing the account\", but it goes through `buildInvoice` and `applyCredit`, so every preview burns the credit."
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, which already subtracts the applied credit from `account.creditBalanceCents`. `finaliseInvoice` then subtracts `invoice.creditAppliedCents` again (line 294). ... Its doc comment says \"without changing the account\", but it goes through `buildInvoice` and `applyCredit`, so every preview burns the credit."
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "\"2. **Lines 233-236, 261 and 294: credit is consumed twice in `finaliseInvoice`.**\" is the closest credit finding. FINDINGS.md never says that credit is applied after tax, or that tax should be charged only on the amount left after credit."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"buildInvoice calls applyCredit, which already subtracts the applied credit...\" Two findings cover credit (double deduction and preview mutation). No finding says that credit is applied after tax, so tax is also charged on the part the credit covers."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"2. **Lines 233-236, 261 and 294: credit is consumed twice in `finaliseInvoice`.**\" This is the closest credit finding. FINDINGS.md never says that credit is applied after tax instead of before it."
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Lines 152-156: plan change timing is decided only by included units. A plan that has more included units but is cheaper (or a more expensive plan with fewer units) gets the wrong timing. For example, a downgrade in price that adds units goes live immediately and triggers a proration refund."
+        },
+        {
+          "label": "met",
+          "quote": "Lines 152-156: plan change timing is decided only by included units. A plan that has more included units but is cheaper (or a more expensive plan with fewer units) gets the wrong timing. For example, a downgrade in price that adds units goes live immediately and triggers a proration refund."
+        },
+        {
+          "label": "met",
+          "quote": "Lines 152-156: plan change timing is decided only by included units. A plan that has more included units but is cheaper (or a more expensive plan with fewer units) gets the wrong timing. For example, a downgrade in price that adds units goes live immediately and triggers a proration refund."
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "not_met",
+      "unanimous": false,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "\"`validatePlan` does not check that `upTo` is an integer, or that `includedUnits` and `unitsUsed` are.\" This is wrong, because line 85 checks `!Number.isInteger(plan.includedUnits)`."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"For negative amounts, such as the proration credit or a negative subtotal, this is inconsistent with positive amounts (-2.5 becomes -2, 2.5 becomes 3).\" Line 188 computes the credit as `-prorate(...)`, rounding a positive amount before negating it, so this finding misreads the code."
+        },
+        {
+          "label": "met",
+          "quote": "\"10. **Lines 130-131 and 145-146: `Math.round` rounds negative half-cents toward +infinity.** For negative amounts ... this is inconsistent with positive amounts (-2.5 becomes -2, 2.5 becomes 3).\" Like #9 (non-integer `upTo` accepted), this describes the code accurately; the other extra findings are on the exempt list."
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

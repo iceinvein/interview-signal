@@ -1,0 +1,11 @@
+Done! I've implemented `slidingWindowRange` using a **monotonic deque approach** for O(n) efficiency.
+
+**How it works:**
+- Two deques track **indices** of potential maximum and minimum values in the current window
+- **maxDeque** maintains indices in decreasing order of their values (max at front)
+- **minDeque** maintains indices in increasing order of their values (min at front)
+- For each element, remove outdated indices and prune smaller/larger candidates
+- Once the window is full, the front of each deque gives the max/min of that window
+
+**Time complexity:** O(n) — each element is added/removed from deques at most once
+**Space complexity:** O(k) — deques hold at most k indices

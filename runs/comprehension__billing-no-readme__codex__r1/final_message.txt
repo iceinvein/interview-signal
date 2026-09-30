@@ -1,0 +1,1 @@
+I reviewed `billing.ts` and wrote 14 findings, each with a line reference and explanation, to [FINDINGS.md](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.eIS3KbCteZ/FINDINGS.md). I also checked the main arithmetic and credit findings with targeted runtime examples.

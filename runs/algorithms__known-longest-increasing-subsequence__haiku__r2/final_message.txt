@@ -1,0 +1,13 @@
+Done! I've implemented the Longest Increasing Subsequence function using an efficient O(n log n) algorithm.
+
+**How it works:**
+- Maintains a `tails` array where `tails[i]` is the smallest tail element of all increasing subsequences of length `i + 1`
+- For each number, uses binary search to find where it fits
+- Replaces or appends to the array accordingly
+- Returns the length of the longest subsequence
+
+**Complexity:**
+- Time: O(n log n)
+- Space: O(n)
+
+For example, with `[10,9,2,5,3,7,101,18]`, the algorithm finds an LIS of length 4 (like `[2,3,7,101]`).

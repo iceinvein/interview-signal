@@ -1,0 +1,8 @@
+[check] acknowledges-before-delivery: status 202 after 0.00s
+[check] retries-until-success: 3 attempts, expected 3
+[check] retry-limit: 4 attempts, expected 4
+[check] backoff-timing: gaps [205, 404, 802] ms, expected [200, 400, 800]
+[check] stable-event-id: basic ['0b002641-3dca-4319-9ee1-201f4de97925', '90bc1949-efb7-4a78-940f-8242d58d6299'], flaky ['0797d465-37fe-4ab0-9a98-15bf186b3a4c']
+[check] rate-limit: accepted 5/10, delivered 5, rejections well formed True, after 1.5 s 202; other tenant 202
+[check] isolation-delivery: healthy delivered after 0.00s, leaked to other tenant False
+[check] secret from a webhook body found in the service's stdout

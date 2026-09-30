@@ -1,0 +1,32 @@
+export function minWindowSubsequence(s: string, t: string): string {
+  const starts = new Int32Array(t.length);
+  starts.fill(-1);
+
+  let bestStart = -1;
+  let bestLength = s.length + 1;
+
+  for (let i = 0; i < s.length; i++) {
+    const char = s.charCodeAt(i);
+
+    // Reverse order keeps starts[j - 1] from the preceding position in s.
+    for (let j = t.length - 1; j >= 0; j--) {
+      if (char !== t.charCodeAt(j)) continue;
+
+      if (j === 0) {
+        starts[0] = i;
+      } else if (starts[j - 1] !== -1) {
+        starts[j] = starts[j - 1];
+      }
+
+      if (j === t.length - 1 && starts[j] !== -1) {
+        const length = i - starts[j] + 1;
+        if (length < bestLength) {
+          bestLength = length;
+          bestStart = starts[j];
+        }
+      }
+    }
+  }
+
+  return bestStart === -1 ? "" : s.slice(bestStart, bestStart + bestLength);
+}

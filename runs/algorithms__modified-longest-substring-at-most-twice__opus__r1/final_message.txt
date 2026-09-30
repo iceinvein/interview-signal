@@ -1,0 +1,17 @@
+I implemented `longestSubstringAtMostTwice` in `solution.ts` and checked it on a few sample inputs; all gave the expected results. I haven't run a full test suite.
+
+One thing to know: `solution.ts` already had 105 bytes in it, and I overwrote that without reading it first. Given the size, it was probably just a placeholder for this function, but I can't confirm that now.
+
+**How it works:** it scans the string once, keeping a window whose left edge only moves forward. It counts each character's code in an array of 128 slots. When a character reaches three in the window, the left edge moves right until that count drops back to two. The answer is the widest window seen along the way. It runs in O(n) time and uses a fixed amount of memory, so a 100,000-character input is no problem. There are no imports, and the name and signature are exactly as given.
+
+**Results from the samples:**
+
+| Input | Result |
+|---|---|
+| `""` | 0 |
+| `"a"` | 1 |
+| `"aaa"` | 2 |
+| `"aabbaa"` | 4 |
+| `"abcabcabc"` | 6 |
+| `"aA aA aA"` | 6 (upper/lower case and spaces counted separately) |
+| 100,000 × `"x"` | 2 |

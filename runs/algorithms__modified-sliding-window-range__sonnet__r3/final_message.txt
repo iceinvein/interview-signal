@@ -1,0 +1,5 @@
+I implemented `slidingWindowRange` in `solution.ts`. I haven't run it or tested it.
+
+It uses two monotonic deques, one tracking each window's maximum and one tracking its minimum. That makes it O(n) overall. It has no imports.
+
+The signature and export name match what you gave.

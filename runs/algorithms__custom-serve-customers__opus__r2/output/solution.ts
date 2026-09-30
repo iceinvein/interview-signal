@@ -1,0 +1,31 @@
+export function serveCustomers(arrivals: number[], durations: number[], servers: number): number[] {
+  const n = arrivals.length;
+  const result: number[] = new Array(n);
+  if (n === 0) return result;
+
+  // Min-heap of server free times. Only min(servers, n) servers can ever be used.
+  const size = Math.min(servers, n);
+  const heap = new Float64Array(size); // all free at time 0
+
+  for (let i = 0; i < n; i++) {
+    const free = heap[0];
+    const start = arrivals[i] > free ? arrivals[i] : free;
+    const end = start + durations[i];
+    result[i] = end;
+
+    // Replace root with end and sift down.
+    let pos = 0;
+    while (true) {
+      const left = 2 * pos + 1;
+      if (left >= size) break;
+      const right = left + 1;
+      let child = left;
+      if (right < size && heap[right] < heap[left]) child = right;
+      if (heap[child] >= end) break;
+      heap[pos] = heap[child];
+      pos = child;
+    }
+    heap[pos] = end;
+  }
+  return result;
+}

@@ -1,0 +1,9 @@
+I implemented `minWindow` in `solution.ts`. I haven't run it or written any tests.
+
+It uses a sliding window with a count of how many of `t`'s characters are still missing:
+
+- **Growing:** the right edge expands one character at a time, and the missing count drops each time a needed character is added.
+- **Shrinking:** once nothing is missing, the left edge moves right past any characters the window has in excess. It then checks whether this window is the shortest so far.
+- **Ties:** a new window replaces the best one only if it is strictly shorter, so the earliest-starting window wins.
+
+Repeated characters are handled by the per-character counts, and letter case is kept distinct. It runs in O(|s| + |t|) time, which fits the 100,000-character limits. It returns `""` when no window qualifies.

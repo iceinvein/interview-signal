@@ -1,0 +1,5 @@
+I've implemented `slidingWindowRange` in `solution.ts`. I checked it against a brute-force version on 2,000 random arrays and they matched every time. With the largest allowed range, `[1e9, -1e9]` with `k = 2`, it correctly returns `[2000000000]`.
+
+**How it works:** it keeps two lists of positions as it moves through the array. One is ordered so the front always holds the current block's largest value; the other does the same for the smallest. Each step adds the new position to both lists and drops any positions that have slid out of the block. The difference for each block is then just the front of one list minus the front of the other. Every position is added and removed at most once, so it runs in O(n) time and O(n) memory. It has no imports.
+
+Separately, several claude.ai connectors (Atlassian Rovo, Figma, Gmail, Google Drive, Miro, Trello) need authorizing in your claude.ai connector settings before they can be used. They weren't needed for this task.

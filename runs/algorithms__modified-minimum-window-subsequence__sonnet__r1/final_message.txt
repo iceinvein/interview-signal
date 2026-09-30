@@ -1,0 +1,7 @@
+I've written `minWindowSubsequence` in `solution.ts`. I haven't run it or tested it.
+
+It scans `s` once and keeps `dp[j]`, the latest start position from which `t[0..j]` fits as a subsequence in the part of `s` seen so far. The inner loop goes from `j = m-1` down to `0`, so each update reads the previous character's value.
+
+Whenever the full `t` is matched, it compares the window length with the best so far. It only replaces the best on a strictly shorter window. Since `i` only increases, ties keep the earliest window, which gives the smallest start. If `t` is never fully matched, it returns `""`.
+
+It runs in O(n·m) time, about 2 million steps at the maximum sizes, and uses O(m) extra space. It has no imports.

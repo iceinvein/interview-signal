@@ -1,0 +1,29 @@
+{
+  "format": "perf",
+  "task": "anthropic-original",
+  "agent": "codex",
+  "rep": 1,
+  "results": [
+    {
+      "id": "correct",
+      "passed": true
+    },
+    {
+      "id": "tests-untouched",
+      "passed": true
+    }
+  ],
+  "metrics": {
+    "cycles": 1297
+  },
+  "auto_criteria": [
+    {
+      "id": "correct",
+      "passed": true
+    },
+    {
+      "id": "tests-untouched",
+      "passed": true
+    }
+  ]
+}

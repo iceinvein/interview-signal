@@ -1,0 +1,3 @@
+The webhook relay is implemented in [src/relay.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.pqJLlUZ68k/src/relay.ts), with startup configuration in [src/main.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.pqJLlUZ68k/src/main.ts). It preserves opaque bodies and `Content-Type`, retries with a stable webhook ID, and uses separate queues and rolling rate limits for each tenant.
+
+[README.md](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.pqJLlUZ68k/README.md) covers setup, decisions, and limitations, including the credential exposure created by the requested full-body logs. All eight tests pass with `npm test`; I also smoke-tested `npm start`.

@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "**Line 304.** `abs % 100` is inserted without padding, so 105 cents renders as `$1.5` instead of `$1.05`, and 100 renders as `$1.0`. Every amount with cents below 10 shows the wrong value on the rendered invoice."
+        },
+        {
+          "label": "met",
+          "quote": "**Line 304.** `abs % 100` is inserted without padding, so 105 cents renders as `$1.5` instead of `$1.05`, and 100 renders as `$1.0`. Every amount with cents below 10 shows the wrong value on the rendered invoice."
+        },
+        {
+          "label": "met",
+          "quote": "**Line 304.** `abs % 100` is inserted without padding, so 105 cents renders as `$1.5` instead of `$1.05`, and 100 renders as `$1.0`. Every amount with cents below 10 shows the wrong value on the rendered invoice."
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`tierWidth` is set to `tier.upTo`. Rule 4 and the `UsageTier` doc say `upTo` is a **running total** of billable units, so the tier's width is `tier.upTo - previousCap`. `previousCap` is tracked on line 221 but never used. Every tier after the first is too wide."
+        },
+        {
+          "label": "met",
+          "quote": "`tierWidth` is set to `tier.upTo`. Rule 4 and the `UsageTier` doc say `upTo` is a **running total** of billable units, so the tier's width is `tier.upTo - previousCap`. ... Every tier after the first is too wide."
+        },
+        {
+          "label": "met",
+          "quote": "**Line 217.** `tierWidth` is set to `tier.upTo`. Rule 4 and the `UsageTier` doc say `upTo` is a **running total** of billable units, so the tier's width is `tier.upTo - previousCap`. `previousCap` is tracked on line 221 but never used. Every tier after the first is too wide."
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "\"`prorationFactor` returns the share of the period **already used** ... The result is stored in a variable called `unused` and used for both the credit and the charge. Rule 5 requires crediting and charging the **unused** share.\""
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period **already used** (its doc comment says \"from 0 at the start to 1 at the end\"). The result is stored in a variable called `unused` and used for both the credit and the charge. Rule 5 requires crediting and charging the **unused** share."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period **already used** (its doc comment says \"from 0 at the start to 1 at the end\"). The result is stored in a variable called `unused` and used for both the credit and the charge. Rule 5 requires crediting and charging the **unused** share."
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, and `applyCredit` subtracts from `account.creditBalanceCents`. `previewInvoice` calls `buildInvoice` directly, so a preview uses up credit. ... `finaliseInvoice` subtracts `invoice.creditAppliedCents` again. Finalising consumes twice the credit that appears on the invoice."
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, and `applyCredit` subtracts from `account.creditBalanceCents`. `previewInvoice` calls `buildInvoice` directly, so a preview uses up credit. ... `buildInvoice` has already subtracted the applied credit (line 235), and `finaliseInvoice` subtracts `invoice.creditAppliedCents` again."
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, and `applyCredit` subtracts from `account.creditBalanceCents`. `previewInvoice` calls `buildInvoice` directly, so a preview uses up credit. ... `finaliseInvoice` subtracts `invoice.creditAppliedCents` again. Finalising consumes twice the credit"
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Credit is applied to `due = subtotal - discount + tax`. Rule 7 says credit is applied to the subtotal after the discount and **before tax**. ... `tax = percentOf(afterDiscount - credit, rate)`"
+        },
+        {
+          "label": "met",
+          "quote": "Credit is applied to `due = subtotal - discount + tax`. Rule 7 says credit is applied to the subtotal after the discount and **before tax**. ... then `tax = percentOf(afterDiscount - credit, rate)`"
+        },
+        {
+          "label": "met",
+          "quote": "Credit is applied to `due = subtotal - discount + tax`. Rule 7 says credit is applied to the subtotal after the discount and **before tax**. ... `tax = percentOf(afterDiscount - credit, rate)`"
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "**Line 155.** `planChangeTiming` returns `\"immediate\"` when `next.includedUnits > current.includedUnits`. Rule 5 says the timing depends on the **monthly price** ... A cheaper plan with more included units is applied immediately and prorated. It should have been scheduled for the next period with no credit. A more expensive plan with the same or fewer included units is deferred."
+        },
+        {
+          "label": "met",
+          "quote": "A cheaper plan with more included units is applied immediately and prorated. It should have been scheduled for the next period with no credit. - A more expensive plan with the same or fewer included units is deferred."
+        },
+        {
+          "label": "met",
+          "quote": "`planChangeTiming` returns `\"immediate\"` when `next.includedUnits > current.includedUnits`. ... A cheaper plan with more included units is applied immediately and prorated. It should have been scheduled for the next period with no credit. A more expensive plan with the same or fewer included units is deferred."
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "\"It is not exact for fractional rates such as 7.3 or 8.25, which `validateAccount` allows. Those cannot be represented exactly, so a true half-cent can come out as `x.4999\u2026` and round down.\""
+        },
+        {
+          "label": "met",
+          "quote": "\"Finalising consumes twice the credit that appears on the invoice. The balance can go **negative**\" / \"Plans are never validated\" / \"Some validation checks let `NaN` through\" \u2014 each extra finding is either a genuine defect or one of the listed debatable points."
+        },
+        {
+          "label": "met",
+          "quote": "\"## 9. Percentage rounding is not guaranteed to round halves up (Rule 1) ... It is not exact for fractional rates such as 7.3 or 8.25, which `validateAccount` allows.\" Findings 10 and 11 (validatePlan never called; NaN passing validation) are listed as debatable, and none of the extra findings misreads the code."
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

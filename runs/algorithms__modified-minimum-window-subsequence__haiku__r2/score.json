@@ -1,0 +1,39 @@
+{
+  "format": "algorithms",
+  "task": "modified-minimum-window-subsequence",
+  "agent": "haiku",
+  "rep": 2,
+  "results": [
+    {
+      "id": "basic",
+      "passed": true
+    },
+    {
+      "id": "edge-cases",
+      "passed": true
+    },
+    {
+      "id": "tie-breaks",
+      "passed": true
+    },
+    {
+      "id": "performance",
+      "passed": false
+    },
+    {
+      "id": "all-cases",
+      "passed": false
+    }
+  ],
+  "metrics": {
+    "cases_total": 17,
+    "cases_passed": 15,
+    "timed_out": 0
+  },
+  "auto_criteria": [
+    {
+      "id": "all-cases",
+      "passed": false
+    }
+  ]
+}

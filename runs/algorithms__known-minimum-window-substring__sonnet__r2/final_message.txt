@@ -1,0 +1,9 @@
+I wrote `minWindow` in `solution.ts`, but I haven't run it or tested it.
+
+It uses a sliding window. `need` counts how many of each character of `t` are still required, and `missing` is the total number of required characters not yet covered, repeats included.
+
+- **Growing:** the right edge extends over `s` until `missing` reaches 0, meaning the window covers `t`.
+- **Shrinking:** the left edge then moves past any characters the window has spare, giving the tightest window at that right edge.
+- **Recording:** the window is recorded only if it is strictly shorter than the best so far, so ties keep the earliest start. Then the left edge moves one more step, which drops a required character and resumes the search.
+
+It runs in O(|s| + |t|) time and uses a fixed-size array indexed by ASCII code. It returns `""` if no window ever covers `t`.

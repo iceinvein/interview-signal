@@ -1,0 +1,15 @@
+{
+  "name": "order-controller",
+  "version": "1.0.0",
+  "description": "McDonald's cooking bot order controller (CLI prototype)",
+  "main": "src/orderController.js",
+  "bin": { "order-controller": "src/index.js" },
+  "scripts": {
+    "build": "node --check src/index.js && node --check src/cli.js && node --check src/orderController.js",
+    "test": "node --test test/*.test.js",
+    "start": "node src/index.js",
+    "demo": "node src/index.js --demo"
+  },
+  "engines": { "node": ">=18" },
+  "license": "Apache-2.0"
+}

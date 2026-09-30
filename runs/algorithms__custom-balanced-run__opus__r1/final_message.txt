@@ -1,0 +1,10 @@
+I've implemented `longestBalancedRun` in `solution.ts`. It runs in O(n) time and passes all my tests.
+
+**How it works:** it keeps a running balance, adding 1 for each `'x'` and subtracting 1 for each `'y'`; every other character leaves it unchanged. A substring is balanced exactly when the balance is the same at its start and its end. So the code records the first position where each balance value appears, stored in an `Int32Array` of size `2n+1` so negative values fit. At each later position with the same balance, the distance back to that first position is a candidate answer, and the longest one is returned. Starting the balance at position 0 means a string with no `'x'` or `'y'` counts as balanced along its whole length.
+
+**Tests run:**
+- `"xxayx"` → 3, `""` → 0, `"xxx"` → 0, `"XYa"` → 3 (uppercase letters don't count towards the balance).
+- 3,000 random strings of up to 11 characters from `x`, `y`, `a`, `X`, `Y` all matched a brute-force check.
+- A 1,000,000-character string finished in about 2 ms.
+
+The file has no imports.

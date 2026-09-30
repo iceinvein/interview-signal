@@ -1,0 +1,28 @@
+I've added the waitlist feature. All 71 tests pass (the 48 existing ones plus 23 new) and `npm run typecheck` is clean. There is one deliberate gap: the waitlist list does not include members' emails, because that needs sign-off first.
+
+## Needs a decision: email on the waitlist list (requirement 5)
+
+The brief asks for `GET /sessions/:sessionId/waitlist` to include each member's `email`. CONTRIBUTING.md says session-level endpoints may only show members as `{ id, name }`. That rule is a promise in the studios' privacy notice, and specifically keeps contact details off the front-desk tablets. Changing it needs the data protection lead to sign off *before* it's written.
+
+So each entry in the list has `position`, `memberId`, `joinedAt` and `member: { id, name }`, but no email. There's a test that pins this. If the lead approves, adding email is a small change in `src/http/views.ts`. Another option to put to them: staff could open a member's record through `/members/:id` when they actually need to contact someone.
+
+## What I changed
+- **Errors** (`src/errors.ts`): two new conflict codes, `session_not_full` and `already_waitlisted`, and a new not-found type, `waitlist_entry`, for removing someone who isn't on the waitlist.
+- **Domain and storage:**
+  - A waitlist entry is stored as session, member and join time. The position isn't stored; it's worked out from join order, so when someone leaves, everyone behind them moves up automatically.
+  - Added `WaitlistRepository` and an in-memory version, registered in `createMemoryRepositories()`. Each member can be on a session's waitlist only once, which maps directly to a Postgres primary key.
+- **`WaitlistService`** handles joining, leaving and listing. When a member joins and several errors apply, they're checked in this order: `session_started`, then `already_booked`, then `already_waitlisted`, then `session_not_full`. This matches how booking already works, where a member who has a place is told so first.
+- **Automatic promotion** happens inside `BookingService.cancel`. CONTRIBUTING.md requires every confirmed booking to be created there, with the normal booking checks applied.
+  - If the member at the front can't take the place (for example, they've since booked a class at the same time), they keep their position and the place goes to the next person.
+  - A member who books a session directly is also taken off that session's waitlist.
+- **HTTP:** the three routes are in `src/http/routes/waitlist.ts`, the response formats are in `views.ts`, and the README's API table is updated.
+- **Tests:**
+  - A new `seedWaitlistEntry` helper in `test/fixtures.ts`.
+  - `test/services/waitlistService.test.ts` covers every rule.
+  - `bookingService.test.ts` covers promotion, including skipping a member who can't take the place.
+  - `test/http/waitlist.test.ts` covers the routes end to end.
+
+## Worth knowing
+- **Raising capacity doesn't promote anyone.** The brief only mentions cancellations, so `PATCH /sessions/:id` with a higher capacity opens places that anyone can book, ahead of the queue. If that's not what you want, the capacity change should use the same promotion step.
+- **No notifications.** Promoted members aren't told they've been booked; there's no notification system in the codebase yet.
+- **Queue order in Postgres.** The in-memory store keeps entries in the order they were added. A Postgres version will need a sequence column to sort by, because two members can join at the same timestamp.

@@ -1,0 +1,1 @@
+I wrote 16 findings to [FINDINGS.md](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.EIV0rf43Jh/FINDINGS.md). Each gives the `billing.ts` line and explains the mismatch with `README.md`. I also verified the rounding, tier-pricing, and money-formatting examples with Node.

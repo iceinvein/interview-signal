@@ -1,0 +1,65 @@
+{
+  "format": "comprehension",
+  "task": "billing-with-readme",
+  "agent": "opus",
+  "rep": 1,
+  "results": [
+    {
+      "id": "visible-money-format",
+      "passed": true
+    },
+    {
+      "id": "visible-usage-tiers",
+      "passed": true
+    },
+    {
+      "id": "trace-proration-direction",
+      "passed": true
+    },
+    {
+      "id": "trace-preview-credit",
+      "passed": true
+    },
+    {
+      "id": "rule-credit-before-tax",
+      "passed": true
+    },
+    {
+      "id": "rule-downgrade-timing",
+      "passed": true
+    }
+  ],
+  "metrics": {
+    "findings_file": 1,
+    "findings": 9,
+    "unmatched_findings": 0,
+    "bugs_located": 6,
+    "dropped_wide_citations": 0
+  },
+  "auto_criteria": [
+    {
+      "id": "visible-money-format-located",
+      "passed": true
+    },
+    {
+      "id": "visible-usage-tiers-located",
+      "passed": true
+    },
+    {
+      "id": "trace-proration-direction-located",
+      "passed": true
+    },
+    {
+      "id": "trace-preview-credit-located",
+      "passed": true
+    },
+    {
+      "id": "rule-credit-before-tax-located",
+      "passed": true
+    },
+    {
+      "id": "rule-downgrade-timing-located",
+      "passed": true
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+Implemented `countIslands` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.lXska0zP0O/solution.ts). It uses an iterative traversal, counts only orthogonally connected land, and leaves the grid unchanged.
+
+Checks passed for small cases and 1000×1000 grids, including one large island and 500,000 separate islands.

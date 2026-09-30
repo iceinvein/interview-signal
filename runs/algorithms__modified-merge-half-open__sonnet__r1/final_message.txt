@@ -1,0 +1,9 @@
+I implemented `mergeHalfOpen` in `solution.ts`. I haven't run or tested it.
+
+It works in four steps:
+1. It drops every empty interval (`start === end`), so those can never join or bridge anything.
+2. It sorts the rest by `start`.
+3. It sweeps through them once. An interval merges into the previous result only if its `start` is strictly less than that result's `end`, so touching intervals like `[1, 3]` and `[3, 5]` stay separate.
+4. When it merges, it extends the previous `end` if the new interval reaches further.
+
+It takes O(n log n) time and has no imports, so it should handle 100,000 intervals comfortably. Empty input, or input where every interval is empty, returns `[]`.

@@ -1,0 +1,12 @@
+I've implemented `countIslandsTorus` in `solution.ts`, and it matches a simple reference solution on every test I ran.
+
+**How it works:** it tracks which land cells are connected using a union-find structure stored in a typed array.
+- Every land cell starts as its own island.
+- Each land cell is then joined to its right and lower neighbours, wrapping around the edges. Every connection on the wrapped grid is some cell's right or lower link, so checking just those two covers all of them.
+- Each join that merges two separate islands lowers the count by one.
+- For single-row or single-column grids, a cell whose neighbour is itself is skipped, so it joins nothing.
+- It doesn't use recursion, so large grids can't overflow the call stack.
+
+**Testing:** I compared it against a straightforward search-based solution on 20,000 random grids from 1×1 to 5×5, which covers the single-row and single-column cases. All results matched. On a random 1000×1000 grid the result also matched, and the function took about 50 ms.
+
+The file has no imports, and the exported name and signature are unchanged.

@@ -1,0 +1,16 @@
+I've implemented `minWindow` in `solution.ts`. It runs in O(|s| + |t|) time.
+
+**How it works:**
+- It counts how many of each character `t` needs, plus a running total of characters still missing.
+- It extends the window to the right one character at a time.
+- Once nothing is missing, it drops extra characters from the left and records the window if it is strictly shorter than the best so far. Because only strictly shorter windows replace the best, ties go to the one that starts earliest.
+- It then removes one required character from the left and keeps scanning for the next valid window.
+
+**Tests:** I ran five cases and all gave the expected output:
+- `("ADOBECODEBANC", "ABC")` → `"BANC"`
+- `("a", "a")` → `"a"`
+- `("a", "aa")` → `""`
+- `("baab", "aab")` → `"baa"`
+- `("abcab", "ab")` → `"ab"` (the tie goes to the earliest start)
+
+The file has no imports.

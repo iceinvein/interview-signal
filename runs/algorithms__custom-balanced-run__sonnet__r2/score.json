@@ -1,0 +1,35 @@
+{
+  "format": "algorithms",
+  "task": "custom-balanced-run",
+  "agent": "sonnet",
+  "rep": 2,
+  "results": [
+    {
+      "id": "basic",
+      "passed": true
+    },
+    {
+      "id": "edge-cases",
+      "passed": true
+    },
+    {
+      "id": "performance",
+      "passed": true
+    },
+    {
+      "id": "all-cases",
+      "passed": true
+    }
+  ],
+  "metrics": {
+    "cases_total": 20,
+    "cases_passed": 20,
+    "timed_out": 0
+  },
+  "auto_criteria": [
+    {
+      "id": "all-cases",
+      "passed": true
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+Implemented `twoSum` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.REuDi7iWnp/solution.ts). It returns the indices in ascending order using a map, in O(n) time and O(n) space. Checks passed for distinct values, equal values, and negative values.

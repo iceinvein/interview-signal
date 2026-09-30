@@ -1,0 +1,1 @@
+Reviewed `billing.ts` against `README.md` and wrote 12 line-specific bugs, each with the rule it violates, to [FINDINGS.md](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.Jlxo7PVXm8/FINDINGS.md).

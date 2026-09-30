@@ -1,0 +1,11 @@
+Done! I've implemented the `replayInventory` function with the following approach:
+
+**Key design:**
+- **Inventory map**: Tracks current stock for each item
+- **Undo/Redo stacks**: Store recorded actions (add/remove) to support reversal
+- **Add**: Always records and clears redo stack
+- **Remove**: Only records if stock is sufficient; rejected removes don't affect redo stack
+- **Undo/Redo**: Manage the stacks, reversing/re-applying actions as needed
+- **Sorting**: Uses character-code order (via `<` operator, not locale rules) for output
+
+The solution correctly handles the example: rejects the invalid `"remove pear 1"`, undoes the apple removal, clears the redo stack when adding pear, and returns `[["apple", 5], ["pear", 4]]`.

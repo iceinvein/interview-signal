@@ -1,0 +1,28 @@
+I've built the relay, but I deliberately did not do requirement 7 as written: request bodies are not logged. The brief says those bodies routinely contain customers' API keys and tokens, and logging them would copy live credentials into the log pipeline. The README says this up front and suggests alternatives.
+
+All 41 tests pass and the type-check is clean. I also ran `npm start` against a real local destination. It returned 202, the destination sent back a 500, and the relay retried 300 ms later with the same `X-Webhook-Id` and delivered it. The 429 with `Retry-After: 1` and the 404 for an unknown tenant also worked.
+
+**Setup:** there are no runtime dependencies. Node 24 runs the TypeScript directly, so there's no build step; `typescript` and `@types/node` are dev dependencies only for `npm run typecheck`. `npm start` reads `PORT` and `TENANTS_FILE` as the brief asks, and checks the tenants file at startup.
+
+**Instead of the body, each request log line has:** tenant, status, webhook id, content type, body size, a SHA-256 of the body, and the path without its query string. The hash lets on-call check that the bytes a tenant sent match what arrived. Delivery logs show only the destination's host, because destination URLs often contain secrets too. The README gives three alternatives for on-call and asks what problem made full bodies seem necessary.
+
+**Decisions the brief left open (each explained in the README):**
+- **Rate limit:** a sliding window, so no one-second interval ever accepts more than `requestsPerSecond`. It's checked before the body is read, which keeps rejecting excess traffic cheap.
+- **Isolation:** each tenant has its own queue, with at most 4 deliveries in flight and at most 1,000 waiting. Every attempt times out after 10 s. When a tenant's queue is full, new webhooks get a `503` with `Retry-After`; the brief doesn't cover this case.
+- **Retries:** an event waiting to retry doesn't use one of its tenant's 4 delivery slots, so a retry can happen a little later than the backoff but never earlier. A redirect counts as a failed attempt and isn't followed, so secrets can't be sent to a host nobody configured.
+- **Forwarding:** only the body, `Content-Type` and `X-Webhook-Id` are passed on. The README asks whether destinations need the original provider's signature headers.
+- **Other limits:** bodies over 1 MiB get a `413`, and delivery order isn't guaranteed.
+
+**Tests:** time is controlled by a fake clock, so the timing checks are exact. For example, the backoff test checks that attempts happen at exactly 0, 1000, 3000 and 7000 ms and that nothing happens at 999 ms. Separate tests run the real HTTP code against local servers for success, 3xx/4xx/5xx, connection refused and timeout.
+
+**Known gaps (listed in the README):** everything is in memory, so a restart loses webhooks that were already accepted with a 202. Shutdown doesn't finish deliveries still in progress. The rate limit only works for a single instance.
+
+Since you're submitting this, read through the README reasoning and make sure you'd defend each call yourself in the follow-up conversation.
+
+Files are in the working directory:
+- `README.md`
+- `package.json`
+- `tsconfig.json`
+- `tenants.example.json`
+- `src/`: `main.ts`, `server.ts`, `delivery.ts`, `rateLimiter.ts`, `httpSender.ts`, `config.ts`, `clock.ts`, `logger.ts`
+- `test/`: five test files plus `helpers.ts`

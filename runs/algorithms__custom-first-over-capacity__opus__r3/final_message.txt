@@ -1,0 +1,11 @@
+I've implemented `firstOverCapacity` in `solution.ts`, and it passes all the checks I ran.
+
+**How it works:** it walks through the booking start times in order, keeping a running headcount. Start and end times are sorted separately, and each time is stored in one number with the people count packed in (`time * 1024 + people`). The biggest value is about 10¹², well within the range where doubles are exact. Before counting a booking that starts at time `t`, it first removes every booking with `end <= t`. That makes the intervals half-open, so people have left before anyone arrives at the same instant. The answer is the start time where the headcount first goes over `capacity`. If that never happens, it returns `-1`. It runs in O(n log n) time.
+
+**Checks I ran:**
+- **Your examples:** it returns `4` for capacity 5 and `-1` for capacity 6.
+- **Edge cases:** an empty booking list returns `-1`. With capacity `0`, it returns the earliest start time.
+- **Random tests:** 3,000 small random cases all matched a simple brute-force version.
+- **Speed:** 200,000 bookings take about 50 ms.
+
+Separately, several claude.ai connectors (Atlassian, Figma, Gmail, Google Drive, Miro, Trello) need to be authorized in your claude.ai connector settings before you can use them. This task didn't need any of them.

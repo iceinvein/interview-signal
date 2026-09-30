@@ -1,0 +1,19 @@
+I found 12 issues in `billing.ts` and wrote them to `FINDINGS.md`. I haven't run the code or added tests. I found these by reading it.
+
+**Definite bugs**
+- **Line 217:** `usageCharge` uses each tier's cumulative cap as its width, so later tiers cover too many units. `previousCap` is tracked but never used. It should be `upTo - previousCap`.
+- **Lines 233–237 and 294:** `applyCredit` deducts credit during invoice building, so `previewInvoice` changes the account. `finaliseInvoice` then deducts the credit a second time.
+- **Lines 182–193:** Proration uses the share of the period already used, but the variable is named `unused`. Both the refund and the new charge should use the remaining share, `1 - used`.
+- **Line 304:** `formatMoney` doesn't zero-pad cents, so 5 cents renders as `$0.5`.
+
+**Likely bugs**
+- **Lines 152–156:** Plan change timing looks only at included units, not price. Whether that's intended is your call.
+- **Lines 226–231:** `discountAmount` can return a negative discount when the subtotal is negative.
+- **Line 259:** Tax can be computed on a negative base.
+
+**Validation gaps and minor issues**
+- **Lines 115 and 119:** `NaN` passes the tax-rate and percent-discount checks.
+- **Lines 100–105:** Fractional tier caps are accepted.
+- **Line 246:** `validatePlan` is never called from `buildInvoice`.
+- **Lines 139–143:** `prorationFactor` returns `NaN` for an empty period.
+- **Lines 313–316:** A long label runs into its amount in `renderInvoice`.

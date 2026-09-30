@@ -1,0 +1,20 @@
+Done! I've implemented the `replayInventory` function with full undo/redo support. Here's how it works:
+
+**Core approach:**
+- Maintains an `inventory` Map to track current quantities
+- Keeps an `operations` array of all recorded add/remove actions  
+- Uses `currentIndex` to track which operations have been applied (supports undo/redo)
+
+**Key logic:**
+1. **Add/Remove**: Records the operation and applies it immediately. When recording, truncates the operations array at `currentIndex` to discard any redoable operations (since a new action discards what could've been redone)
+2. **Rejected removes**: If an item doesn't have enough stock, the remove is ignored—it's never recorded and doesn't affect undo/redo
+3. **Undo**: Decrements `currentIndex` and recomputes the inventory by replaying all operations up to that point
+4. **Redo**: If there are pending operations, applies the next one
+5. **Result**: Returns items with quantity > 0, sorted lexicographically by name
+
+For the example `["add apple 5", "remove apple 2", "remove pear 1", "undo", "add pear 4", "redo"]`:
+- The pear remove is rejected (no stock)
+- Undo reverts the apple remove
+- Adding pear discards the pending redo  
+- Final redo does nothing
+- Result: `[["apple", 5], ["pear", 4]]` ✓

@@ -1,0 +1,1 @@
+Implemented `commonFreeSlots` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.yumdzrFXU4/solution.ts). It clips and sorts busy intervals, then returns qualifying maximal gaps. Five edge case checks passed.

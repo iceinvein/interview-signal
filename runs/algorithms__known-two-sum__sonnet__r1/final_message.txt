@@ -1,0 +1,7 @@
+I implemented `twoSum` in `solution.ts` with the exported name and signature unchanged. I haven't run it or written any tests.
+
+It makes one pass over the array and keeps a `Map` of each value to its index. At each position `j`, it checks whether `target - nums[j]` was already seen at an earlier index `i`. If so, it returns `[i, j]`, which guarantees `i < j`. Otherwise it stores `nums[j]` and moves on. It runs in O(n) time, well within the 100,000-element limit.
+
+- **Equal values:** it looks up the complement before storing the current value, so a position is never paired with itself. Two equal values at different positions, such as `[3, 3]` with target 6, still work.
+- **No solution:** it throws an `Error` if no pair exists. The constraints say that can't happen, but it keeps the return type honest.
+- **Imports:** the file has none.

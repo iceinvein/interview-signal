@@ -1,0 +1,1 @@
+Implemented `lengthOfLIS` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.dGzWj5kKMu/solution.ts). It runs in O(n log n) time and treats equal values as non-increasing. Example cases and 1,000 randomized checks passed.

@@ -1,0 +1,3 @@
+I implemented `mergeIntervals` in `solution.ts`, but I haven't run or tested it.
+
+It copies the input and sorts the copy by start, so the caller's array isn't changed. It then makes one pass, extending the last result interval whenever the next start is at or before its end. Using `<=` means intervals that only touch, like `[1, 2]` and `[2, 3]`, merge into `[1, 3]`. Duplicates and an empty input also work. Runtime is O(n log n), which is fine for 100,000 intervals.

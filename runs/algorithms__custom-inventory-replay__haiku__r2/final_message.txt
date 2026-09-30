@@ -1,0 +1,10 @@
+Done. The function manages an inventory system with add/remove operations and undo/redo support:
+
+**Key approach:**
+- Maintains an inventory map and two stacks: one for recorded actions, one for undone actions
+- **Add/Remove**: Only successful removes (when stock is sufficient) are recorded and clear the redo stack
+- **Undo**: Reverts the last action and pushes it to the redo stack
+- **Redo**: Re-applies the most recently undone action
+- Returns items sorted lexicographically with quantities > 0
+
+The logic correctly handles the example: `remove pear` is rejected (insufficient stock), so the subsequent `redo` has nothing to apply after `add pear` clears the redo stack.

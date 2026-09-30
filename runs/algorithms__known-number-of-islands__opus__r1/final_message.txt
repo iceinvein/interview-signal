@@ -1,0 +1,10 @@
+I've implemented `countIslands` in `solution.ts`, and it gives the right answers on every test I ran.
+
+It scans the grid, and whenever it finds land it hasn't seen yet, it counts a new island and marks every land cell connected to it. It does this with its own stack instead of recursion, so an island covering the whole 1000×1000 grid can't cause a stack overflow. The input grid isn't modified, and there are no imports.
+
+What I tested:
+- A standard example with three islands returned 3.
+- A pattern where land cells touch only diagonally returned 5, so diagonal steps are correctly ignored.
+- `[[0]]` returned 0 and `[[1]]` returned 1.
+- A 1000×1000 grid that is all land returned 1, in about 8 ms.
+- A 1000×1000 checkerboard returned 500,000.

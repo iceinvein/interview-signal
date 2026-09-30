@@ -1,0 +1,28 @@
+I've built the order controller as a Node.js CLI with no dependencies. All 16 unit tests pass and the scripted run produces a correct `scripts/result.txt`. Nothing is on GitHub yet: the folder isn't a git repo, so I haven't created a fork, branch or Pull Request, and the `backend-verify-result` check hasn't run. I ran the three scripts locally in the order that check runs them.
+
+**What's there**
+- **`src/OrderController.js`**: all the order logic.
+  - The PENDING list is sorted VIP first, then by order number. Order numbers only go up, so the same rule also puts an interrupted order back in its original place (requirement 6).
+  - Each bot works on one order at a time on a 10-second timer. When it finishes, it takes the next order or goes IDLE.
+  - `- Bot` removes the newest bot. If it was cooking, its timer is cancelled and the order goes back to PENDING.
+- **`src/logger.js`**: prints every line as `[HH:MM:SS] message`, to the console and optionally to a file.
+- **`src/cli.js`**: the interactive CLI (`npm start`). Commands are `n`/`normal`, `v`/`vip`, `+`, `-`, `status`, `wait <s>`, `help` and `quit`. It also accepts the same commands piped in, so `run.sh` just feeds it `scripts/demo-commands.txt`.
+- **`scripts/test.sh`, `build.sh`, `run.sh`**: implemented. `run.sh` writes to `scripts/result.txt`, which is the file the check looks for.
+- **`SOLUTION.md`**: how to run it, the design and my assumptions. I also added a link to it at the top of `README.md`.
+
+**Testing**
+- **Unit tests:** they cover the 10-second timing, VIP-before-Normal ordering, several bots working in parallel, and removing a bot mid-order. That includes checking that the order returns to its original position and never completes on the removed bot. They use Node's built-in fake timers, so they finish in milliseconds.
+- **Scripted run:** takes about 37 seconds because it uses the real 10-second cook time. I checked `result.txt` by hand: VIP #4 goes ahead of Normal #3, removing bot #2 mid-order puts #3 back in PENDING, and a new bot then picks it up.
+- **Piped input:** the CLI handles unknown commands and bad `wait` arguments.
+- **Interactive mode:** I couldn't try it in a real terminal here, since this session has none. Please run `npm start` yourself before the interview, where the interactive CLI is required. One thing to expect: event lines that arrive while you're typing print over the `> ` prompt. It still works, it just looks a little untidy.
+
+**Assumptions:** order and bot numbers start at 1 and are never reused. An interrupted order starts its 10 seconds again from zero. `- Bot` with no bots does nothing and logs a message.
+
+**To submit (GitHub Flow):** copy these files into your fork, then:
+```bash
+git checkout -b feature/order-controller
+git add . && git commit -m "Implement order controller CLI"
+git push -u origin feature/order-controller
+gh pr create --base main
+```
+Opening the PR runs `backend-verify-result`; check that it passes.

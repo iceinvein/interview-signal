@@ -1,0 +1,3 @@
+Implemented `shortestTeleportPath` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.aPKqCArMTo/solution.ts). It uses breadth first search to find the shortest route through walking steps and optional portal jumps, returning `-1` when the exit is unreachable.
+
+Six focused cases and a 1000×1000 grid check passed.

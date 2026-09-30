@@ -1,0 +1,19 @@
+I've written `rainWaterWithWalls` in `solution.ts`, and it passes the sample cases I ran.
+
+**How it works:**
+1. It goes through the bars from right to left and saves, for each bar, the tallest height from that bar to the end, starting from `rightWall`.
+2. It then goes from left to right keeping the tallest height so far, starting from `leftWall`. For each bar, the water level is the lower of those two heights, and the water held is that level minus the bar's height.
+
+This takes O(n) time and O(n) extra memory. The largest possible total is about 10¹⁰, which a JavaScript number holds exactly. There are no imports.
+
+**Results (run with `tsx`):**
+
+| Input | Output |
+|---|---|
+| `[]`, walls 5/5 | 0 |
+| `[0,1,0,2,1,0,1,3,2,1,2,1]`, both sides open | 6 (matches the known answer for this standard example) |
+| `[0,0,0]`, walls 2/3 | 6 |
+| `[1,0]`, walls 0/5 | 1 |
+| `[0]`, walls 3/0 | 0 (an open side holds no water) |
+
+The last three are cases I worked out by hand to check the walls, and the outputs agree.

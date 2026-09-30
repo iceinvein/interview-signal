@@ -1,0 +1,12 @@
+I implemented `courseOrder` in `solution.ts`. It works through the courses in order, always taking the smallest-numbered course whose prerequisites are all done, which gives the lexicographically smallest valid order. If some courses can never be taken, it returns `[]`.
+
+- **Repeated pairs:** each copy adds one to the course's prerequisite count and is also listed once in the "unlocks" list of the prerequisite course. Both sides count the same number of copies, so repeats have no effect and nothing needs to be removed.
+- **`[a, a]` pairs and cycles:** the courses involved never have all their prerequisites met. Fewer than `numCourses` courses get taken, so the function returns `[]`.
+- **Speed:** it runs in O((n + m) log n) time, where n is the number of courses and m the number of pairs. It uses typed arrays and a hand-written priority queue, with no imports.
+
+I ran some quick tests, all correct:
+- a diamond-shaped set of prerequisites gave `[0,1,2,3]`
+- a repeated pair gave `[1,2,0]`
+- a course requiring itself gave `[]`
+- two courses requiring each other gave `[]`
+- a random test at the maximum size (100,000 courses, about 200,000 pairs) took about 14 ms and returned all 100,000 courses

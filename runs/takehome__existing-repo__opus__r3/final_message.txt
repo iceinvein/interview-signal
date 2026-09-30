@@ -1,0 +1,24 @@
+The waitlist feature is built, with one deliberate change from the brief: `GET /sessions/:sessionId/waitlist` does not return member emails yet. All 68 tests pass (48 existing, 20 new) and `npm run typecheck` is clean.
+
+## Needs a decision: email on the waitlist list
+Requirement 5 asks for each member's `email` on the session waitlist. CONTRIBUTING.md forbids that: session-level endpoints may only show a member's `id` and `name`. That rule is a promise in the studios' privacy notice, and front-desk tablets are named as devices that must not hold contact details. Changing it needs sign-off from the data protection lead.
+
+So for now each entry is `{ position, memberId, joinedAt, member: { id, name } }`, the same shape as `/sessions/:id/bookings`. If sign-off is given, adding email is a small change in one service and one view. Another option is for staff to look up contact details through the existing `GET /members/:memberId`.
+
+## What I changed
+- **New code:**
+  - `src/domain/waitlist.ts`: the waitlist entry type.
+  - Storage: a `WaitlistRepository` interface in `src/repositories/types.ts` with an in-memory version, wired into `createMemoryRepositories()`.
+  - `src/services/waitlistService.ts`: joining, leaving and listing.
+  - `src/http/routes/waitlist.ts`: the three routes.
+- **Positions aren't stored.** They're worked out from queue order, so when someone leaves, everyone behind moves up automatically.
+- **Errors:** two new conflict codes, `session_not_full` and `already_waitlisted`, plus a `waitlist_entry` 404. When several apply, joining checks in this order: started, already booked, already waitlisted, not full.
+- **Filling a cancelled place** (in `src/services/bookingService.ts`): cancelling a booking gives the place to the first waitlisted member. That member goes through the same booking rules as everyone else, so the "only `BookingService` creates confirmed bookings" rule still holds.
+- **Two choices the brief didn't cover:**
+  - If the member at the front can't take the place (for example, they've since booked a class at the same time), they are skipped and keep their position; the next person gets it.
+  - A waitlisted member who books a place directly is taken off the waitlist.
+- **Tests:** a `seedWaitlist()` helper in `test/fixtures.ts`, rule tests in `test/services/waitlistService.test.ts` and `bookingService.test.ts`, and HTTP tests in `test/http/waitlist.test.ts`.
+- **Docs:** README API table and error codes updated.
+
+## Worth a follow-up
+Raising a session's capacity (`PATCH /sessions/:id`) doesn't pull people off the waitlist, because the brief only mentions cancellations. Until it does, a newcomer can book a new place ahead of people already waiting. Fixing this means the session service calling the same promotion step used for cancellations.

@@ -1,0 +1,1 @@
+Implemented `countPairsWithSum` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.aE2WZFSY0f/solution.ts). It counts pairs by position in O(n) time. Five runtime checks passed, including 100,000 equal values producing the exact count of 4,999,950,000.

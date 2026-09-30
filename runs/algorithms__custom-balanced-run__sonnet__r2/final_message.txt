@@ -1,0 +1,7 @@
+I wrote `longestBalancedRun` in `solution.ts`. I haven't run it or tested it.
+
+It scans the string once and tracks a running balance: `'x'` adds 1, `'y'` subtracts 1, and every other character leaves it unchanged. It records the first index where each balance value appears. When the same balance shows up again at a later index, the substring between the two is balanced. The answer is the longest such gap, which is 0 for an empty string.
+
+This runs in O(n) time. It uses one `Int32Array` of size 2n+1, which is fine for n up to 1,000,000. The file has no imports.
+
+On your example `"xxayx"`, the balance goes 0, 1, 2, 2, 1, 2 and the longest gap between equal values is 3, matching the expected answer.

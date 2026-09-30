@@ -1,0 +1,10 @@
+Done! I've implemented a topological sort solution using Kahn's algorithm with a min-heap.
+
+**Approach:**
+- Build a directed graph where each prerequisite [a, b] creates an edge from b → a (b comes before a)
+- Use a custom min-heap to always process the course with the smallest number among those with no remaining prerequisites
+- This ensures lexicographically smallest order while respecting all constraints
+- Detect cycles: if we don't process all courses, there's a cycle, so return empty array
+- Detect self-loops: if a == b, return empty array immediately
+
+**Complexity:** O((numCourses + prerequisites.length) × log numCourses) time, O(numCourses + prerequisites.length) space

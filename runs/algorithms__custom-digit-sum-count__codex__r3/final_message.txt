@@ -1,0 +1,3 @@
+Implemented `countDigitSum` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.CUWroEZ7VD/solution.ts). It uses digit dynamic programming with `bigint` counts and includes both endpoints.
+
+Verified against brute force for small limits, the provided example, zero, and the 10^18 boundary.

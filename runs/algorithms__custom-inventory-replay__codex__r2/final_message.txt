@@ -1,0 +1,3 @@
+Implemented `replayInventory` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.2qdfCXLUvT/solution.ts). It tracks recorded actions for undo and redo, preserves redo history after rejected removes, and returns positive stock sorted by item name.
+
+All six targeted checks passed.

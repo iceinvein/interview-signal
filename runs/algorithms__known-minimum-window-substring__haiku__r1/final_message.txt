@@ -1,0 +1,13 @@
+Done! I've implemented the minimum window substring solution using a sliding window approach:
+
+**Algorithm:**
+1. Build a frequency map for characters in `t`
+2. Use two pointers to maintain a sliding window that expands and contracts
+3. Expand by moving the right pointer—when we've satisfied all required characters, contract from the left
+4. Track the minimum valid window found
+5. Return the smallest substring that contains all characters from `t`, or empty string if impossible
+
+**Key optimizations:**
+- `formed` tracks how many unique characters from `t` now have the required frequency in the current window
+- The inner while loop contracts the window only when we have a valid solution, ensuring we explore all possibilities
+- Time complexity: O(|s| + |t|), Space complexity: O(1) (at most 52 ASCII letters)

@@ -1,0 +1,1 @@
+Implemented [countPairsWithSum](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.MXOtkjTPpk/solution.ts:1). It counts matches against earlier positions, so duplicates count separately and a position cannot pair with itself. It runs in O(n) time and uses O(n) space. The maximum count is within JavaScript’s exact integer range.

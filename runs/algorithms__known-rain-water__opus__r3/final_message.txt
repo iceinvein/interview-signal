@@ -1,0 +1,5 @@
+I've implemented `rainWater` in `solution.ts`. I ran it on five inputs and all gave the expected answers: `[0,1,0,2,1,0,1,3,2,1,2,1]` → 6, `[4,2,0,3,2,5]` → 9, and 0 for an empty row, a single bar and a flat row.
+
+It moves two pointers inward from both ends and tracks the tallest bar seen on each side. At each step it moves the side with the shorter bar. That bar's water level is set by its own side's tallest bar, because a bar at least that tall is known to exist on the other side. It adds `max − height` to the total whenever that's positive. This takes one pass (O(n) time) and constant extra memory. The largest possible total is about 10¹⁰, which fits exactly in a JavaScript number.
+
+The file keeps the exact exported signature and has no imports.

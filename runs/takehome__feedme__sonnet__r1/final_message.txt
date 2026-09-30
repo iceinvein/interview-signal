@@ -1,0 +1,19 @@
+The order controller is written and passes its own tests, but it isn't in a fork yet and no Pull Request exists. The working directory isn't a git repo, so I stopped before the GitHub Flow step.
+
+**What I ran locally:**
+- `scripts/test.sh` passes (11 tests) in about 40ms.
+- `scripts/build.sh` runs.
+- `scripts/run.sh` runs a scripted demo of about 25 seconds in real time and writes `scripts/result.txt`.
+- I piped a short command sequence into the interactive CLI and it responded correctly.
+- I haven't run the `backend-verify-result` workflow. It reads `scripts/result.txt`, so I kept that path.
+
+**What's in it:**
+- `src/orderController.js` holds the order and bot logic, with no I/O.
+- `src/cli.js` is the interactive CLI and the `--demo` mode. Interactive commands are `normal`, `vip`, `+bot`, `-bot`, `status`, `help` and `quit`. Every event line carries an `HH:MM:SS` timestamp.
+- `README.md` documents usage, design and assumptions, with the original assignment kept below it.
+- The pending list is always kept in order: VIP first, then Normal, each by order number. That gives the VIP queueing rule, and an order interrupted by `-bot` goes back into its original slot.
+- Removing a bot cancels its timer, so a destroyed bot never completes an order. If another bot is idle, it picks the order up straight away.
+
+**Assumption to check:** "original position" means the same slot by priority and order number. An interrupted order stays ahead of newer orders of its type.
+
+**To submit:** the repo is a copy of the assignment with no git history. Fork the assignment repo and copy these files in, or point me at your fork's clone URL. I'd then create a branch, commit and open the PR. Pushing and opening a PR are outward-facing, so I'll wait for your go-ahead.

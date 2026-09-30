@@ -1,0 +1,3 @@
+I've written `lengthOfLongestSubstring` in `solution.ts`. I ran it on a few inputs and every result was correct: `""`→0, `"abcabcbb"`→3, `"bbbbb"`→1, `"pwwkew"`→3, `"aA a"`→3, `" "`→1, `"abba"`→2. The `"aA a"` case confirms that upper and lower case count as different characters and that a space counts as a character.
+
+It makes one pass over the string with a moving window. A 128-slot table records where each character code was last seen. When a character repeats inside the current window, the start of the window jumps to just after its earlier position. This takes linear time and a fixed amount of memory, which is fast enough for 100,000 characters. The file has no imports.

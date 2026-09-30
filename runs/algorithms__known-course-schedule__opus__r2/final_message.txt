@@ -1,0 +1,9 @@
+I implemented `canFinish` in `solution.ts`. It builds a graph where each pair `[a, b]` is an edge from `b` to `a`, then repeatedly takes any course with no remaining prerequisites (Kahn's algorithm). It returns `true` only if every course gets taken this way.
+
+- **Self-prerequisites:** a pair `[a, a]` makes the function return `false` right away.
+- **Repeated pairs:** they don't need special handling. Each copy adds one to the course's count of unmet prerequisites and removes one when the prerequisite is taken, so the result is the same as with a single copy.
+- **Performance:** it runs in O(numCourses + prerequisites.length) time and uses no recursion, so long chains of prerequisites can't overflow the stack.
+
+I ran six quick checks and all gave the expected result: a simple chain, a two-course cycle, a self-prerequisite, a repeated pair, no prerequisites, and a 100,000-course chain with every pair doubled.
+
+The file has no imports and keeps the exported name and signature exactly as given.

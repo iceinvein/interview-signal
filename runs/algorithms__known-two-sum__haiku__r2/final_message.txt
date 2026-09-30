@@ -1,0 +1,11 @@
+Done! I've implemented `twoSum` using a hash map approach:
+
+**Algorithm:**
+1. Iterate through the array, tracking each number and its index in a Map
+2. For each number, check if its complement (`target - nums[i]`) exists in the map
+3. If found, return the indices (the stored index is always smaller, ensuring `i < j`)
+4. Otherwise, add the current number to the map and continue
+
+**Complexity:** O(n) time, O(n) space.
+
+The solution handles all constraints, including duplicate values at different positions, since the Map stores indices rather than just values.

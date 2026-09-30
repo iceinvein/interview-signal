@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Lines 301\u2013305: `formatMoney` omits the leading zero in cents.** The remainder is interpolated without two-digit padding, so `formatMoney(5)` returns `$0.5` instead of `$0.05`"
+        },
+        {
+          "label": "met",
+          "quote": "11. **Lines 301\u2013305: `formatMoney` omits the leading zero in cents.** The remainder is interpolated without two-digit padding, so `formatMoney(5)` returns `$0.5` instead of `$0.05`"
+        },
+        {
+          "label": "met",
+          "quote": "**Lines 301\u2013305: `formatMoney` omits the leading zero in cents.** The remainder is interpolated without two-digit padding, so `formatMoney(5)` returns `$0.5` instead of `$0.05`"
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Finding 5 in FINDINGS.md: \"Lines 217\u2013221: bounded usage tiers use cumulative caps as tier widths. `upTo` is a cumulative billable-unit limit, so each bounded tier's width is `upTo - previousCap`. ... it puts 15 units in the second tier.\" This matches the answer-key bug: the cumulative cap is used as the tier width, so tiers after the first overbill."
+        },
+        {
+          "label": "met",
+          "quote": "Lines 217\u2013221: bounded usage tiers use cumulative caps as tier widths. `upTo` is a cumulative billable-unit limit, so each bounded tier's width is `upTo - previousCap`. ... charges 1,750 cents instead of 1,550 cents because it puts 15 units in the second tier."
+        },
+        {
+          "label": "met",
+          "quote": "Finding 5 in FINDINGS.md: \"Lines 217\u2013221: bounded usage tiers use cumulative caps as tier widths. `upTo` is a cumulative billable-unit limit, so each bounded tier's width is `upTo - previousCap`... it puts 15 units in the second tier.\""
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Lines 182\u2013193: immediate plan changes prorate the elapsed share instead of the remaining share. `prorationFactor` explicitly returns the share already used, but `changePlan` calls it `unused` and applies it to the old-plan credit and new-plan charge."
+        },
+        {
+          "label": "met",
+          "quote": "Lines 182\u2013193: immediate plan changes prorate the elapsed share instead of the remaining share. `prorationFactor` explicitly returns the share already used, but `changePlan` calls it `unused` and applies it to the old-plan credit and new-plan charge."
+        },
+        {
+          "label": "met",
+          "quote": "Lines 182\u2013193: immediate plan changes prorate the elapsed share instead of the remaining share. `prorationFactor` explicitly returns the share already used, but `changePlan` calls it `unused` and applies it to the old-plan credit and new-plan charge."
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "\"`previewInvoice` calls `buildInvoice`, which calls the mutating `applyCredit`... contradicting the preview's promise not to change the account.\" and \"`buildInvoice` already subtracts the credit in `applyCredit`; `finaliseInvoice` subtracts `invoice.creditAppliedCents` again.\""
+        },
+        {
+          "label": "met",
+          "quote": "Finding 9: \"`previewInvoice` calls `buildInvoice`, which calls the mutating `applyCredit`... contradicting the preview's promise not to change the account.\" Finding 10: \"`buildInvoice` already subtracts the credit in `applyCredit`; `finaliseInvoice` subtracts `invoice.creditAppliedCents` again.\""
+        },
+        {
+          "label": "met",
+          "quote": "`previewInvoice` calls `buildInvoice`, which calls the mutating `applyCredit`. ... contradicting the preview's promise not to change the account.\" and \"finalising an invoice deducts applied credit twice. `buildInvoice` already subtracts the credit in `applyCredit`; `finaliseInvoice` subtracts `invoice.creditAppliedCents` again."
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "\"9. **Lines 261\u2013282: previewing an invoice consumes account credit.**\" None of the findings says credit is applied after tax instead of before it. The file's credit findings are only about preview mutating credit and the double deduction."
+        },
+        {
+          "label": "not_met",
+          "quote": "Finding 9 covers \"Lines 261\u2013282: previewing an invoice consumes account credit\" and finding 10 covers double deduction. No finding says that credit is applied after tax instead of being taken off the discounted subtotal before tax is calculated."
+        },
+        {
+          "label": "not_met",
+          "quote": "Finding 9 covers \"Lines 261\u2013282: previewing an invoice consumes account credit,\" which is about the preview changing credit, not about the order of credit and tax. None of the 11 findings says that credit is applied after tax instead of before it."
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "Finding 4 covers lines 182\u2013193 (\"immediate plan changes prorate the elapsed share instead of the remaining share\"). No finding says that planChangeTiming (lines 152\u2013156) decides timing by included units instead of monthly price."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"4. **Lines 182\u2013193: immediate plan changes prorate the elapsed share instead of the remaining share.**\" This is the only plan-change finding. No finding says planChangeTiming (lines 152\u2013156) decides by included units instead of monthly price."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"Lines 182\u2013193: immediate plan changes prorate the elapsed share instead of the remaining share.\" This is the only plan-change finding. None of the findings says that planChangeTiming (lines 152\u2013156) decides by included units instead of monthly price."
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "6. **Lines 226\u2013230: a percentage discount on a negative subtotal becomes negative.** The result is capped above by zero but never floored at zero. A 10% discount on a `-100` cent subtotal returns `-10` cents"
+        },
+        {
+          "label": "met",
+          "quote": "A 10% discount on a `-100` cent subtotal returns `-10` cents, so the supposed discount increases the amount due by 10 cents."
+        },
+        {
+          "label": "met",
+          "quote": "6. **Lines 226\u2013230: a percentage discount on a negative subtotal becomes negative.** The result is capped above by zero but never floored at zero. A 10% discount on a `-100` cent subtotal returns `-10` cents"
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

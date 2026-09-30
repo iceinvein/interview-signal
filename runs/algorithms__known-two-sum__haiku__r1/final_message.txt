@@ -1,0 +1,9 @@
+Done. The solution uses a hash map approach to find the pair in O(n) time:
+
+1. Iterate through the array once
+2. For each number, calculate the complement needed to reach the target
+3. Check if we've already seen that complement (stored in the Map)
+4. If found, return the pair of indices with the earlier index first
+5. Otherwise, store the current number and its index for future lookups
+
+Time: O(n), Space: O(n)

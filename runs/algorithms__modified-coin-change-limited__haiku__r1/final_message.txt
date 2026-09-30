@@ -1,0 +1,10 @@
+Done! I've implemented `coinChangeLimited` using dynamic programming with binary representation optimization for bounded knapsack.
+
+**Algorithm overview:**
+- `dp[i]` tracks the minimum coins needed for amount `i`
+- For each coin type with a limited count, we use **binary grouping** to convert this to a 0-1 knapsack problem: instead of iterating through each individual coin, we group them into powers of 2 (1, 2, 4, 8, ...). For count=5, we'd use groups of 1, 2, and 2—sufficient to represent any quantity 1-5.
+- For each "super coin," we update the DP array backwards to prevent reusing coins in a single iteration
+- Returns `-1` if impossible, otherwise the minimum coin count
+
+**Time:** O(coins.length × amount × log(max_count))  
+**Space:** O(amount)

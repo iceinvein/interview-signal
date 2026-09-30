@@ -1,0 +1,10 @@
+{
+  "tenants": {
+    "acme": {
+      "destination": "https://hooks.acme.example/relay",
+      "maxAttempts": 5,
+      "initialBackoffMs": 1000,
+      "requestsPerSecond": 20
+    }
+  }
+}

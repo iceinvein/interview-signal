@@ -1,0 +1,26 @@
+{
+  "format": "comprehension",
+  "task": "billing-with-readme",
+  "agent": "codex",
+  "rep": 5,
+  "cli": "codex-cli 0.158.0",
+  "model": "gpt-6-sol",
+  "effort": "high",
+  "is_error": false,
+  "cost_usd": null,
+  "turns": 1,
+  "codex_steps": 11,
+  "usage": {
+    "input_tokens": 193353,
+    "cached_input_tokens": 172288,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 7932,
+    "reasoning_output_tokens": 6132
+  },
+  "contamination": [],
+  "external_fetches": [],
+  "timed_out": false,
+  "interrupted": null,
+  "exit_code": 0,
+  "wall_s": 208.821
+}

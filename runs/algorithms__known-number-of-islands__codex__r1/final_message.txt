@@ -1,0 +1,3 @@
+Implemented [countIslands](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.IUBKQRVyuV/solution.ts) with an iterative traversal that handles large grids without recursion and leaves the input unchanged.
+
+Verified diagonal separation, edge cases, and a 1000×1000 connected grid.

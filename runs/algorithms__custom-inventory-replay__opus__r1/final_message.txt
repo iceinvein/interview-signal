@@ -1,0 +1,14 @@
+I've implemented `replayInventory` in `solution.ts`. I ran it on three inputs and each gave the result I worked out by hand:
+- **Your example:** returns `[["apple",5],["pear",4]]`, as expected.
+- **Empty log:** returns `[]`.
+- **A mixed undo/redo sequence:** returns `[]`. It checks that recording a new action clears pending redos and that an extra `redo` does nothing.
+
+These were quick one-off checks, so there's no test file in the folder.
+
+How it works:
+- **Recorded actions:** each add or accepted remove is saved as an item and a signed change (positive for add, negative for remove) on an undo stack. Recording a new one empties the redo stack.
+- **Undo and redo:** `undo` moves the latest action to a redo stack and reverses it; `redo` moves it back and applies it again. Both do nothing when their stack is empty.
+- **Rejected removes:** these are skipped entirely, so they don't touch either stack.
+- **Stock never goes negative:** undo and redo always run in reverse order, so each one returns the stock to a state it was already in.
+- **Large totals:** the biggest possible total is about 2×10¹⁴ (200,000 × 10⁹), which a plain JavaScript number holds exactly.
+- **Speed and output:** it runs in linear time plus the final sort. The sort compares names with `<`, and items with zero stock are left out.

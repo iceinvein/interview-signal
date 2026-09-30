@@ -1,0 +1,3 @@
+Implemented `rainWaterWithWalls` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.gcv5z6EJt9/solution.ts). It runs in O(n) time with O(1) extra space.
+
+Verified against the specified formula for 21,840 exhaustive small cases and a maximum-size case.

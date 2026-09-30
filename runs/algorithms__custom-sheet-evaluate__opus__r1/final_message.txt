@@ -1,0 +1,17 @@
+I've written `evaluateSheet` in `solution.ts`. I ran it with Node on your example and on some edge cases, and it gave the expected results.
+
+**How it works:**
+1. It gives each cell a number and reads each formula once. Literal terms are added up straight away. Each cell-name term that refers to a filled cell becomes a link from that cell to the formula cell. Names that aren't in `cells` are empty and count as 0, so no link is made for them.
+2. It then works through the cells in dependency order (Kahn's algorithm). It starts with the cells that depend on nothing. When a cell is finished, its value is added to every cell that uses it. A cell is ready once all the cells it uses are finished.
+3. Any cell that never becomes ready is either on a cycle or depends on one, so it gets `"#CYCLE"`. That is exactly the rule in the spec.
+
+**Details:**
+- It uses a loop rather than recursion, so long chains of 100,000 cells can't overflow the call stack.
+- A term that appears twice, like `=B1+B1`, is counted twice, so it adds that cell's value twice.
+- A cell that refers to itself, like `=A1`, is correctly treated as a cycle.
+- Plain JS numbers are enough here, because they hold whole numbers exactly up to about 9×10^15, and all values stay within ±10^15.
+
+**Test results:**
+- Your example returns `{ A1: "#CYCLE", B1: "#CYCLE", C1: 4, D1: 3 }`.
+- The edge cases covered self-reference, a repeated term, empty cells with multi-letter names like `AB12`, and a cell that depends on a cell which depends on a cycle. All came out right.
+- A 100,000-cell chain ran in about 34 ms.

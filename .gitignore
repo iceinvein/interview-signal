@@ -3,3 +3,4 @@ runs/*/transcript.jsonl
 runs/*/stderr.txt
 __pycache__/
 .sluice/
+logs/

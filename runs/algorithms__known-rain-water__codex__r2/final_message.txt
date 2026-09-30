@@ -1,0 +1,1 @@
+Implemented `rainWater` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.NHk04j0ZTa/solution.ts). It runs in O(n) time with O(1) extra space. Fixed examples and randomized checks passed.

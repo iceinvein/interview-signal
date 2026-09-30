@@ -1,0 +1,12 @@
+I implemented `lengthOfLIS` in `solution.ts`. It runs in O(n log n) time and O(n) space.
+
+**How it works:** It keeps an array `tails`, where `tails[k]` is the smallest last value of any strictly increasing subsequence of length `k+1` found so far. For each number, a binary search finds the first entry that is **≥** the number and replaces it. If there is no such entry, the list grows by one. Searching for "≥" rather than "greater than" means equal values never extend a subsequence, so only strictly increasing runs count.
+
+**Tests:** I ran a quick check and every result was correct:
+- `[10,9,2,5,3,7,101,18]` → 4
+- `[0,1,0,3,2,3]` → 4
+- `[7,7,7,7]` → 1 (repeated values don't count as increasing)
+- `[-1e9, 1e9]` → 2
+- An increasing array of 100,000 elements → 100000, in about 3 ms
+
+The file uses no imports.

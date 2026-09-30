@@ -1,0 +1,5 @@
+I wrote `rainWater` to `solution.ts` using a two-pointer scan that runs in O(n) time and O(1) space. I haven't run it or tested it.
+
+The two pointers move inward from both ends. At each step the pointer on the lower bar advances. Each bar holds water equal to that side's running maximum height minus the bar's own height, or none if the bar is itself the new maximum.
+
+An empty array, a single bar, and a row with no enclosed dips all return `0`. The file has no imports.

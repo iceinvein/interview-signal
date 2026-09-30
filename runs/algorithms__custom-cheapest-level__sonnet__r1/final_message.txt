@@ -1,0 +1,3 @@
+I wrote `cheapestLevel` in `solution.ts`, but I haven't run it or tested it, including on your example.
+
+The total cost is convex and piecewise linear in `L`, so the best level is always one of the column heights. The function sorts the heights, then checks each distinct height using a running sum of the shorter columns and the total. That gives O(n log n) time for n up to 200000. The largest possible cost is about 2×10^14, well under 2^53, so plain numbers are exact.

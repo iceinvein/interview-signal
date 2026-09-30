@@ -1,0 +1,9 @@
+I implemented `evaluateSheet` in `solution.ts`. I haven't run it or tested it, including on your example.
+
+It doesn't recurse, so deep dependency chains can't overflow the stack.
+
+- **Setup:** Only cells that are keys of `cells` count as nodes. References to empty cells are ignored, since they add `0`. For each formula, the literal terms are summed up front.
+- **Evaluation:** It starts with cells that have no unresolved references and evaluates them. Each result is added into the cells that reference it, and a cell is evaluated once all its references are resolved.
+- **Cycles:** Any cell that never gets evaluated is on a cycle or depends on one, so it gets `"#CYCLE"`. That matches your definition exactly.
+- **Repeated terms:** A repeated term like `=A1+A1` counts twice.
+- **Cost:** It runs in time linear in the total input size. Sums stay under 10^15, so plain JS numbers hold them exactly.

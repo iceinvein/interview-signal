@@ -1,0 +1,10 @@
+I've written `coinChange` in `solution.ts`, and it gave the right answer on five quick checks.
+
+**How it works:** It builds a table of the fewest coins needed for every total from 0 up to `amount`. For each coin, every total that coin can reach is updated if using it takes fewer coins. Coins bigger than `amount` are skipped, so very large denominations (up to 2³¹−1) don't cause trouble. Totals that can't be reached are marked with a placeholder value of `amount + 1`, and the function returns `-1` if the target still has that value at the end. It takes about coins × amount steps (at most 12 × 2000) and stores one table of `amount + 1` numbers.
+
+**Checks run:**
+- `[1,2,5]`, 11 → 3
+- `[2]`, 3 → -1
+- `[1]`, 0 → 0
+- `[2147483647]`, 2 → -1
+- `[186,419,83,408]`, 2000 → 16

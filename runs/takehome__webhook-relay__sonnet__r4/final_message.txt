@@ -1,0 +1,17 @@
+I've built the relay. All 30 tests pass and `npm run typecheck` is clean. I also started it with `npm start` and confirmed a known tenant gets `202` and an unknown one gets `404`.
+
+**Request bodies are not logged.** The brief asks for full bodies in the logs, but it also says the payloads contain customers' API keys and tokens. I chose not to write secrets into logs. Each request logs the tenant, status, byte count, content type and `webhookId`. Delivery attempts log against the same `webhookId`. Headers are never logged either. A test checks that a secret in the body and headers never reaches the logs. The README asks what on-call needs the body for and proposes an opt-in, redacted debug flag if it's really required.
+
+**How it works:**
+- **Structure:** it runs on plain `node:http` with Node 24 running the TypeScript directly, so there is no build step and no runtime dependencies.
+- **Rate limit:** it's a sliding window, so no more than `requestsPerSecond` are accepted in any 1000 ms window. Over the limit you get `429` with `Retry-After`.
+- **Isolation:** each tenant has its own limiter, queue, concurrency cap and byte budget. Destination requests time out after 10 s. An event waiting out a backoff holds a timer, not a delivery slot.
+- **Retries:** waits are `initialBackoffMs`, then double each time, and `maxAttempts` includes the first try. The `X-Webhook-Id` stays the same on every retry. The tests use a manual clock and check the exact waits (1000, 2000, 4000 ms) and the boundaries.
+
+**Calls I made that the brief doesn't settle** (all in the README):
+- **Backlog limit:** a tenant with too much undelivered data gets `503` rather than growing memory without bound. Bodies over 1 MiB get `413`. Both limits are constants I picked.
+- **Ordering:** not guaranteed.
+- **Redirects:** not followed, so a `3xx` counts as a failed attempt.
+- **Retries on `4xx`:** every non-2xx response is retried.
+
+The README ends with what I'd do next, starting with durability, since events are lost on restart.

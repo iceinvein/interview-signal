@@ -1,0 +1,5 @@
+I implemented `minWindowSubsequence` in `solution.ts`, but I haven't run or tested it.
+
+It scans `s` once and keeps `dp[j]`, the latest start index of any substring seen so far that contains `t[0..j]` as a subsequence. Each time the last character of `t` is matched, it compares the window length against the best so far. That takes O(|s|·|t|) time, about 2 million steps at the limits, and O(|t|) extra space.
+
+A window replaces the best one only if it is strictly shorter. Windows are checked in order of where they end, so ties go to the one that starts earliest. If no window qualifies, the function returns `""`.

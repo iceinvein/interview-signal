@@ -1,0 +1,35 @@
+{
+  "format": "algorithms",
+  "task": "custom-fewest-steady-groups",
+  "agent": "codex",
+  "rep": 3,
+  "results": [
+    {
+      "id": "basic",
+      "passed": true
+    },
+    {
+      "id": "edge-cases",
+      "passed": true
+    },
+    {
+      "id": "performance",
+      "passed": true
+    },
+    {
+      "id": "all-cases",
+      "passed": true
+    }
+  ],
+  "metrics": {
+    "cases_total": 19,
+    "cases_passed": 19,
+    "timed_out": 0
+  },
+  "auto_criteria": [
+    {
+      "id": "all-cases",
+      "passed": true
+    }
+  ]
+}

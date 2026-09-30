@@ -1,0 +1,11 @@
+Done! I've implemented the `mergeIntervals` function in `solution.ts`. 
+
+**Algorithm:**
+1. **Sort** intervals by start position
+2. **Iterate** through sorted intervals, merging overlapping ones with the last merged interval
+3. **Overlap check**: `currentStart <= lastEnd` captures all overlapping cases, including touching intervals like `[1, 2]` and `[2, 3]`
+4. **Extend** the merged interval's end to `Math.max(lastEnd, currentEnd)` when overlapping
+5. **Return** the merged intervals in sorted order
+
+**Time complexity:** O(n log n) due to sorting  
+**Space complexity:** O(n) for the result array

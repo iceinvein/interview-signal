@@ -1,0 +1,3 @@
+Implemented the TypeScript webhook relay, including per-tenant rate limits and delivery workers, retries with a stable `X-Webhook-Id`, and full-body request logging. The [source](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.Rc6OpIXSJD/src/relay.ts), [tests](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.Rc6OpIXSJD/src/relay.test.ts), and [README](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.Rc6OpIXSJD/README.md) are ready.
+
+`npm test` passes all 6 tests. I also smoke-tested `npm start` and an HTTP request. The README documents the main limits: full-body logs expose credentials, and the in-memory body and queue have no size limits.

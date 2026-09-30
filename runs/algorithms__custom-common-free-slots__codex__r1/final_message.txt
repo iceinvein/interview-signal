@@ -1,0 +1,3 @@
+Implemented `commonFreeSlots` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.Vd7qZMZMKx/solution.ts). It clips and sorts busy intervals, then returns maximal free gaps that meet `minLength`.
+
+All 7 targeted checks passed. Time complexity is O(n log n), where n is the total number of busy intervals.

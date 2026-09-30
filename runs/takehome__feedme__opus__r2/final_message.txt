@@ -1,0 +1,24 @@
+The order controller is built and committed on a local branch, `feature/order-controller`. I haven't opened the Pull Request (it has to come from your fork; steps below). All three CI scripts work on my machine: 15 of 15 unit tests pass, the build succeeds, and `result.txt` passes the workflow's timestamp check. It hasn't been run in GitHub Actions yet.
+
+**What it does**
+- **Pending queue:** VIP orders go ahead of Normal ones, and orders of the same type keep their arrival order. The same rule puts an order back in its original spot when the bot working on it is removed.
+- **Bots:** each takes one order at a time for 10 seconds, then picks up the next or goes IDLE. `- Bot` removes the newest bot and cancels any order it was cooking.
+- **CI output:** `run.sh` runs a scripted demo in real time (about 32 seconds) and writes `scripts/result.txt` with `[HH:MM:SS]` timestamps. The demo covers VIP priority, removing a bot mid-order (order #1001 goes back behind VIP #1004), adding a bot that starts work immediately, and idle bots.
+- **Interactive CLI for the interview:** `npm start`, then `n`, `v`, `+`, `-`, `s` (status), `q` (quit).
+- **Tests:** they use Node's built-in test runner with fake timers, so the 10-second rule is checked exactly without waiting.
+- No dependencies. The README has a new section on how to run it, the design, and assumptions; the original brief is unchanged.
+
+**What I tested myself:** I read through a full real-time demo run, and drove the interactive CLI with typed-in commands, including removing a bot mid-order, an unknown command, and quitting. That found two bugs, both now fixed: `quit` crashed, and the prompt printed twice after each command.
+
+**Assumptions:** order numbers start at 1001 to match the sample output. An interrupted order starts its 10 seconds over when a bot picks it up again.
+
+**Things to know:**
+- Your git setup signs commits with `~/.ssh/mr_github`, and I couldn't supply its passphrase, so I made both commits unsigned in this local repo only. Your global settings are unchanged.
+- The folder wasn't a git repo, so I created one with a baseline commit of the original files on `main`. It isn't connected to your fork, so you may prefer to copy the files into a clone of the fork instead.
+
+**To submit:**
+1. Fork the assignment repo on GitHub.
+2. Run `git remote add origin <your-fork-url>`, then `git push origin main feature/order-controller`.
+3. Open a PR from `feature/order-controller` into `main` and check that the `backend-verify-result` workflow passes.
+
+The work is in `/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.6ZJXXYS9t5`. That's a temporary folder, so copy it somewhere permanent before the interview.

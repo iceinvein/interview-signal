@@ -1,0 +1,22 @@
+# Scripted scenario fed to the CLI by run.sh (same commands as interactive mode)
+normal
+vip
+normal
++bot
+wait 1
++bot
+status
+wait 1
+vip
+wait 9
+status
+wait 5
+-bot
+status
++bot
+wait 11
+status
+wait 10
+-bot
+status
+quit

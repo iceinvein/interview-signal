@@ -1,0 +1,13 @@
+Done! I've implemented `longestBalancedRun` using a balance-tracking algorithm that runs in O(n) time:
+
+**Key insight:** Track the running balance (`count_x - count_y`). When the balance reaches the same value at two positions, the substring between them is balanced (has equal x's and y's).
+
+**Algorithm:**
+1. Store the first occurrence of each balance value in a map
+2. Initialize with `{0: -1}` to handle substrings starting from index 0
+3. For each character:
+   - Update balance (increment for 'x', decrement for 'y')
+   - If we've seen this balance before, the substring between is balanced
+   - Calculate length and track the maximum
+
+This works for all cases including the example "xxayx" → 3 (for substrings "xay" or "ayx").

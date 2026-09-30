@@ -1,0 +1,9 @@
+I implemented `mergeIntervals` in `solution.ts`, but I haven't run it or tested it.
+
+It sorts copies of the intervals by start and then merges in one pass. An interval is merged into the previous one when its start is at most the previous end, so intervals that only touch, like `[1, 2]` and `[2, 3]`, combine into `[1, 3]`.
+
+- **Complexity:** it runs in O(n log n), which is fine for 100,000 intervals.
+- **Input:** the caller's array isn't modified.
+- **Edge cases:** an empty input returns an empty array, and duplicate intervals collapse into one.
+
+The file has no imports.

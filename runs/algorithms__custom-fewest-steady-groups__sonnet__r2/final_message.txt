@@ -1,0 +1,5 @@
+I wrote `fewestSteadyGroups` in `solution.ts`, but I haven't run it or tested it, including on your example.
+
+It's greedy. Each group grows until adding the next score would push its spread above `maxSpread`, and then a new group starts at that score. Any sub-range of a steady group is also steady, so making each group as long as possible can't give more groups than any other split.
+
+To check the spread quickly, it keeps the current group's minimum and maximum in two monotonic deques. That makes the whole pass O(n), which is fine for 200,000 scores. An empty sequence returns `0`.

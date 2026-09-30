@@ -1,0 +1,5 @@
+I wrote `countIslandsTorus` in `solution.ts`, but I haven't run it or tested it.
+
+It uses union-find over the cells. It starts with the number of land cells as the island count. It then checks each land cell's right and down neighbours, with row and column indices wrapping around the edges. Each time it merges two separate islands, it subtracts one from the count.
+
+In a single-column grid a cell's right neighbour is itself, and in a single-row grid its down neighbour is itself. Merging a cell with itself changes nothing, so those cases need no special handling. Only right and down are checked because every up/left link is the same pair seen from the other cell. The file has no imports.

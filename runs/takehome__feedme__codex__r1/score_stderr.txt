@@ -1,0 +1,2 @@
+r4_bot_processing: line 21: order 3 was picked but was not pending
+r4_bot_processing: line 26: bot 4 completed order 3 it was not processing

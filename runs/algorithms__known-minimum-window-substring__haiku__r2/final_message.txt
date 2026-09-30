@@ -1,0 +1,14 @@
+Done! I've implemented the minimum window substring algorithm using a sliding window approach:
+
+**Algorithm:**
+1. Build a frequency map of characters needed from `t`
+2. Use two pointers to maintain a sliding window
+3. Expand the window by moving `right` until it contains all required characters with their frequencies
+4. Once valid, contract from `left` while keeping the window valid, tracking the minimum
+5. When a character's frequency drops below its requirement, the window becomes invalid again
+
+**Key details:**
+- `formed` tracks how many unique characters have reached their target frequency
+- When `formed === required`, we have a valid window
+- We contract the window greedily from the left to minimize its length
+- Time: O(|s| + |t|), Space: O(1) since ASCII letters are bounded

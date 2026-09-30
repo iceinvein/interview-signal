@@ -1,0 +1,5 @@
+I wrote `rainWater` in `solution.ts`. I haven't run it or tested it.
+
+It uses two pointers, one at each end, and always moves the one on the lower side inward. It tracks the tallest bar seen so far on each side and adds the gap between that tallest bar and the current bar whenever the current bar is lower. This runs in O(n) time and O(1) extra space, so it handles 100,000 bars.
+
+An empty row or a single bar returns `0`, because the loop never runs. The file has no imports.

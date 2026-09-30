@@ -1,0 +1,3 @@
+Implemented `longestSubstringAtMostTwice` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.bYbwx0kzT8/solution.ts). It uses a sliding window with O(n) time and O(1) space.
+
+Representative cases, exhaustive short-string comparisons, and a 100,000-character input passed.

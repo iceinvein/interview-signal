@@ -1,0 +1,8 @@
+I wrote `coinChange` in `solution.ts` using bottom-up dynamic programming, but I haven't run it or tested it.
+
+- **Approach:** `dp[a]` holds the fewest coins that make amount `a`. It starts at `Infinity`, with `dp[0] = 0`. For each `a` up to `amount`, it tries every coin `c <= a` and keeps the smaller of `dp[a]` and `dp[a - c] + 1`.
+- **Result:** It returns `-1` if `dp[amount]` is still `Infinity`. Otherwise it returns `dp[amount]`.
+- **Edge cases:** An `amount` of `0` returns `0`. Coins larger than the amount are skipped, so denominations up to `2^31 - 1` are fine.
+- **Cost:** It runs in O(amount × coins.length) time, at most about 24,000 steps. It uses O(amount) space.
+
+The export name and signature are as you gave them. The file has no imports.

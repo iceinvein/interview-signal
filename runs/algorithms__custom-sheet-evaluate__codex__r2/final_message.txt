@@ -1,0 +1,3 @@
+Implemented `evaluateSheet` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.ywyvNOUOm4/solution.ts). It evaluates cells in dependency order and marks cycles and cells that depend on them as `"#CYCLE"`.
+
+Verified the example, missing and repeated references, cycle propagation, and a 100,000-cell chain.

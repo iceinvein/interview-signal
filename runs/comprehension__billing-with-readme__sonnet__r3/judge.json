@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 304 (`formatMoney`): cents are not zero-padded. `abs % 100` is printed as-is, so 105 cents renders as `$1.5` and 100 cents as `$1.0`. It should use `String(abs % 100).padStart(2, \"0\")`."
+        },
+        {
+          "label": "met",
+          "quote": "**Line 304 (`formatMoney`): cents are not zero-padded.** (Rule 1 / presentation)\n   `abs % 100` is printed as-is, so 105 cents renders as `$1.5` and 100 cents as `$1.0`. It should use `String(abs % 100).padStart(2, \"0\")`."
+        },
+        {
+          "label": "met",
+          "quote": "**Line 304 (`formatMoney`): cents are not zero-padded.** ... `abs % 100` is printed as-is, so 105 cents renders as `$1.5` and 100 cents as `$1.0`. It should use `String(abs % 100).padStart(2, \"0\")`."
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`tierWidth` is `tier.upTo`, but `upTo` is a running total of billable units. The width should be `tier.upTo - previousCap`. As written, tier 2 (for example `upTo: 300` after `upTo: 100`) is allowed 300 units instead of 200, so units are charged at the wrong rate."
+        },
+        {
+          "label": "met",
+          "quote": "`tierWidth` is `tier.upTo`, but `upTo` is a running total of billable units. The width should be `tier.upTo - previousCap`. As written, tier 2 (for example `upTo: 300` after `upTo: 100`) is allowed 300 units instead of 200, so units are charged at the wrong rate."
+        },
+        {
+          "label": "met",
+          "quote": "`tierWidth` is `tier.upTo`, but `upTo` is a running total of billable units. The width should be `tier.upTo - previousCap`. As written, tier 2 (for example `upTo: 300` after `upTo: 100`) is allowed 300 units instead of 200, so units are charged at the wrong rate."
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period already elapsed (0 at the start, 1 at the end). The variable is named `unused` and used as if it were the unused share. A change on day 1 credits about 0 and charges about 0, instead of crediting and charging nearly the full month. It should use `1 - prorationFactor(...)`."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period already elapsed (0 at the start, 1 at the end). The variable is named `unused` and used as if it were the unused share. A change on day 1 credits about 0 and charges about 0, instead of crediting and charging nearly the full month. It should use `1 - prorationFactor(...)`."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns the share of the period already elapsed (0 at the start, 1 at the end). The variable is named `unused` and used as if it were the unused share. A change on day 1 credits about 0 and charges about 0, instead of crediting and charging nearly the full month. It should use `1 - prorationFactor(...)`."
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`applyCredit` decrements `account.creditBalanceCents`, and `previewInvoice` calls `buildInvoice`. Every preview consumes credit, which the rule forbids. ... `buildInvoice` already deducts the credit (bug 5), and `finaliseInvoice` then subtracts `creditAppliedCents` again. The balance can go negative"
+        },
+        {
+          "label": "met",
+          "quote": "`applyCredit` decrements `account.creditBalanceCents`, and `previewInvoice` calls `buildInvoice`. Every preview consumes credit, which the rule forbids. ... `buildInvoice` already deducts the credit (bug 5), and `finaliseInvoice` then subtracts `creditAppliedCents` again."
+        },
+        {
+          "label": "met",
+          "quote": "`applyCredit` decrements `account.creditBalanceCents`, and `previewInvoice` calls `buildInvoice`. Every preview consumes credit, which the rule forbids. ... `buildInvoice` already deducts the credit (bug 5), and `finaliseInvoice` then subtracts `creditAppliedCents` again."
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Tax is computed on `subtotal - discount` and added, and only then is credit applied to the tax-inclusive `due`. The rules say credit comes off the discounted subtotal first, and tax is charged on what is left after discount and credit."
+        },
+        {
+          "label": "met",
+          "quote": "Tax is computed on `subtotal - discount` and added, and only then is credit applied to the tax-inclusive `due`. The rules say credit comes off the discounted subtotal first, and tax is charged on what is left after discount and credit."
+        },
+        {
+          "label": "met",
+          "quote": "Tax is computed on `subtotal - discount` and added, and only then is credit applied to the tax-inclusive `due`. The rules say credit comes off the discounted subtotal first, and tax is charged on what is left after discount and credit."
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Line 155 (`planChangeTiming`): upgrade is decided by included units, not price. ... A pricier plan with the same or fewer included units is deferred and never prorated. A cheaper plan with more included units is applied immediately with proration and credit."
+        },
+        {
+          "label": "met",
+          "quote": "Line 155 (`planChangeTiming`): upgrade is decided by included units, not price. ... A pricier plan with the same or fewer included units is deferred and never prorated. A cheaper plan with more included units is applied immediately with proration and credit."
+        },
+        {
+          "label": "met",
+          "quote": "It returns `\"immediate\"` when `next.includedUnits > current.includedUnits`. The rule says a move to a plan with a *higher monthly price* is immediate... A pricier plan with the same or fewer included units is deferred and never prorated. A cheaper plan with more included units is applied immediately with proration and credit."
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "not_met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "not_met",
+          "quote": "\"`Math.round` also rounds negative halves toward +\u221e, which is asymmetric for the negative proration credit on line 188.\" Line 188 is `-prorate(current.monthlyPriceCents, unused)`, so it rounds a positive value and then negates it, which means this finding misreads the code."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"`Math.round` also rounds negative halves toward +\u221e, which is asymmetric for the negative proration credit on line 188.\" Line 188 is `-prorate(current.monthlyPriceCents, unused)`, which rounds the positive amount before negating, so this finding misreads the code."
+        },
+        {
+          "label": "not_met",
+          "quote": "\"can land just below an exact half because of float error, so `Math.round` rounds down when the rule says halves round up. This is most likely with fractional percents such as 8.25\""
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

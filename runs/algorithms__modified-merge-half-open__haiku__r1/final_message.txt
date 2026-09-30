@@ -1,0 +1,14 @@
+Done! I've implemented the `mergeHalfOpen` function with the following approach:
+
+**Algorithm:**
+1. Filter out empty intervals (where `start === end`)
+2. Sort intervals by start value
+3. Iterate through sorted intervals, merging those that share points:
+   - Two half-open intervals `[a, b)` and `[c, d)` share a point if `c < b` (since `c` is the smallest value in the second interval)
+   - Merge by extending the current end to `Math.max(currentEnd, end)`
+4. Return the merged intervals sorted by start
+
+**Key insights:**
+- Intervals that merely touch like `[1,3]` and `[3,5]` don't share any point (3 is not in `[1,3)`) so they stay separate
+- Empty intervals are skipped entirely
+- Time complexity: O(n log n) for sorting

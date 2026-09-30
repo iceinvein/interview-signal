@@ -1,0 +1,18 @@
+export function lengthOfLIS(nums: number[]): number {
+  const tails: number[] = [];
+
+  for (const num of nums) {
+    let left = 0, right = tails.length;
+    while (left < right) {
+      const mid = Math.floor((left + right) / 2);
+      if (tails[mid] < num) {
+        left = mid + 1;
+      } else {
+        right = mid;
+      }
+    }
+    tails[left] = num;
+  }
+
+  return tails.length;
+}

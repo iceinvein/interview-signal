@@ -1,0 +1,1 @@
+Implemented `coinChange` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.gzbVT6SRKR/solution.ts). It returns the minimum number of coins, or `-1` when the amount cannot be made. All five edge-case checks passed.

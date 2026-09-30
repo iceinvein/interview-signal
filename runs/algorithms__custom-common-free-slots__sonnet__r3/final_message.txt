@@ -1,0 +1,10 @@
+I wrote `commonFreeSlots` in `solution.ts`. I haven't run it or tested it, including against your example.
+
+It works in three steps:
+1. It clips every person's busy intervals to the day and drops any that end up empty.
+2. It sorts the clipped intervals by start time.
+3. It sweeps through them with a cursor that starts at `dayStart`. When the next interval begins after the cursor and the gap is at least `minLength`, it records that gap. Then it moves the cursor to the end of the interval if that end is later than the cursor. After the last interval it checks the gap up to `dayEnd` the same way.
+
+Touching intervals like `[1, 3]` and `[3, 5]` leave no gap, because the gap check needs a start strictly greater than the cursor. Overlapping, repeated and out-of-order intervals are handled by the sort and the "move the cursor only if later" rule. With no people or no busy intervals, the whole day comes back as one slot if it is at least `minLength` long.
+
+Sorting dominates the running time, so it is O(n log n) in the total number of intervals (at most 200,000).

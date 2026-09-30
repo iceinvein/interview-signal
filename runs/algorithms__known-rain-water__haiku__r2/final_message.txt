@@ -1,0 +1,9 @@
+Done. The implementation uses a two-pointer approach that efficiently solves the problem in O(n) time and O(1) space:
+
+**How it works:**
+- Start with pointers at both ends and track the max height seen from each side
+- Move the pointer with the smaller height inward
+- At each position, if the current height is less than the max from that side, water is trapped equal to `(max - height)`
+- Continue until the pointers meet
+
+The key insight is that water level at any position is determined by the minimum of the maximum heights on its left and right. By processing from the smaller side inward, we correctly account for the water trapped without needing to precompute all max values.

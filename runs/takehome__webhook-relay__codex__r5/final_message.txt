@@ -1,0 +1,5 @@
+The webhook relay is implemented in [src](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.q4dsIVDT9l/src), with [tests](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.q4dsIVDT9l/test) and a [README](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.q4dsIVDT9l/README.md) covering setup and design decisions.
+
+`npm test` passes all 7 tests. I also verified that `npm start` reads the tenant file and serves requests.
+
+The main production limits are documented in the README: queued events are lost on restart, prolonged outages can grow memory use, and the required full-body logs contain customer secrets.

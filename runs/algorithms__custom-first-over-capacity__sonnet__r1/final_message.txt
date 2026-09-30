@@ -1,0 +1,5 @@
+I wrote `firstOverCapacity` in `solution.ts`. I haven't run it or tested it, including on your two examples.
+
+It turns each booking into two events: people arrive at `start` and leave at `end`. It sorts all events by time, then applies every event at the same time before it checks the total. That way a booking ending at `t` has already left when another starts at `t`. It returns the first time the total is greater than `capacity`, or `-1` if that never happens. The sort makes it O(n log n), which should be fine for 200,000 bookings.
+
+To make sorting fast, each event is packed into one number, `time * 4096 + (2048 ± people)`. This fits exactly in a float64 for your constraints. The file has no imports.

@@ -1,0 +1,17 @@
+I implemented `canFinish` in `solution.ts`. I ran a quick check with `tsx` and every case gave the expected result.
+
+**How it works:** it uses Kahn's algorithm, a topological sort. Each pair `[a, b]` becomes an edge from `b` to `a`. The function counts how many prerequisites each course has, then repeatedly takes any course whose count has dropped to zero. It returns `true` only if every course gets taken this way.
+
+- **Self-loops (`[a, a]`):** the course counts itself as its own prerequisite, so its count never reaches zero and the function returns `false`.
+- **Duplicate pairs:** each copy adds 1 to the count and is removed once when its prerequisite is taken, so repeats have no effect on the result.
+- **Speed and memory:** it runs in O(numCourses + prerequisites.length) time. It stores the graph in flat typed arrays rather than arrays of arrays, which keeps memory low at the maximum sizes. There's no recursion, so long prerequisite chains can't overflow the stack.
+
+**Cases checked:**
+- a simple chain → `true`
+- a two-course cycle → `false`
+- a self-loop → `false`
+- a duplicated pair → `true`
+- no prerequisites → `true`
+- a 100,000-course chain with every pair duplicated (about 200,000 pairs) → `true`
+
+The file has no imports.

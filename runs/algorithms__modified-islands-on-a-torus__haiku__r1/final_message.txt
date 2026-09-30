@@ -1,0 +1,13 @@
+Done! I've implemented the toroidal island counting function. Here's the approach:
+
+**Key features:**
+1. **Wraparound navigation**: Uses modulo arithmetic to handle edges wrapping around (`%` for both row and column calculations)
+2. **Self-neighbor handling**: Skips neighbors that are the same cell (occurs in single row/column grids)
+3. **BFS traversal**: For each unvisited land cell, performs BFS to explore the entire connected component and count it as one island
+
+**How it works:**
+- Iterate through all cells; when finding an unvisited land cell (value `1`), start a new BFS
+- BFS marks all connected land cells as visited, treating the grid as a torus where last row connects to first row and last column connects to first column
+- Increment island count for each new BFS started
+
+Time: O(rows × cols), Space: O(rows × cols)

@@ -1,0 +1,35 @@
+{
+  "format": "algorithms",
+  "task": "custom-digit-sum-count",
+  "agent": "opus",
+  "rep": 1,
+  "results": [
+    {
+      "id": "basic",
+      "passed": true
+    },
+    {
+      "id": "edge-cases",
+      "passed": true
+    },
+    {
+      "id": "performance",
+      "passed": true
+    },
+    {
+      "id": "all-cases",
+      "passed": true
+    }
+  ],
+  "metrics": {
+    "cases_total": 23,
+    "cases_passed": 23,
+    "timed_out": 0
+  },
+  "auto_criteria": [
+    {
+      "id": "all-cases",
+      "passed": true
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+Done! I've implemented the `countIslands` function using depth-first search (DFS).
+
+**How it works:**
+- Iterate through each cell in the grid
+- When we find an unvisited land cell (1), increment the island counter and use DFS to mark all connected land cells as visited
+- DFS explores the 4 cardinal directions (up, down, left, right) from each cell, treating any visited cells as 0 (water)
+- Return the total island count
+
+**Complexity:**
+- Time: O(rows × cols) — each cell visited once
+- Space: O(rows × cols) — recursion stack depth in worst case

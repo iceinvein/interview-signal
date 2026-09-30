@@ -1,0 +1,7 @@
+[check] acknowledges-before-delivery: status 202 after 0.00s
+[check] retries-until-success: 3 attempts, expected 3
+[check] retry-limit: 4 attempts, expected 4
+[check] backoff-timing: gaps [202, 404, 805] ms, expected [200, 400, 800]
+[check] stable-event-id: basic ['f06906ce-4150-4565-8406-9e16bce0dbb5', '5c1b94a2-4578-474b-9d6f-da98d0bf41a3'], flaky ['1338d3ed-b348-4a82-ae6a-e0cc37262590']
+[check] rate-limit: accepted 5/10, delivered 5, rejections well formed True, after 1.5 s 202; other tenant 202
+[check] isolation-delivery: healthy delivered after 0.00s, leaked to other tenant False

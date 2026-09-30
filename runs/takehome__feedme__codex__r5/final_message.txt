@@ -1,0 +1,5 @@
+Completed the Node.js take-home and opened [PR #291](https://github.com/feedmepos/se-take-home-assignment/pull/291). The `backend-verify-result` GitHub Actions check passed.
+
+The prototype includes an interactive CLI with `normal`, `vip`, `+ bot`, `- bot`, and `status` commands. It handles VIP priority, 10-second processing, idle bots, and cancellation with requeueing. The scripts generate timestamped [result.txt](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.3I4b8KiLu4/scripts/result.txt).
+
+All 9 tests pass. To demonstrate it interactively, run `node src/cli.js`; usage and behavior are in the [README](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.3I4b8KiLu4/README.md).

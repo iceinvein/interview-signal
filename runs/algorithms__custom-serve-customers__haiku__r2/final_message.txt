@@ -1,0 +1,19 @@
+Done! I've implemented the solution using a min-heap to efficiently track server availability.
+
+**How it works:**
+1. Initialize a min-heap with all servers' free times (all 0 initially)
+2. For each customer in order:
+   - Get the server becoming free earliest (O(log servers))
+   - Calculate service start time as `max(arrival, server_free_time)`
+   - Calculate finish time as `start + duration`
+   - Return server to heap with updated free time
+   - Record the finish time
+
+**Complexity:** O(n log m) where n = number of customers, m = number of servers
+
+**Example trace:** With arrivals=[0,0,0,0], durations=[10,1,1,1], servers=2:
+- Customer 0: Server 1 free at 0 → finishes at 10
+- Customer 1: Server 2 free at 0 → finishes at 1
+- Customer 2: Server 2 free at 1 → starts at 1, finishes at 2
+- Customer 3: Server 2 free at 2 → starts at 2, finishes at 3
+- Result: [10, 1, 2, 3] ✓

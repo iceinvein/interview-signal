@@ -1,0 +1,10 @@
+I wrote `countDigitSum` in `solution.ts`, but I haven't run it or checked it against any examples, including `countDigitSum("20", 2)`.
+
+It uses a digit-DP approach:
+
+- **Setup:** it precomputes, for each length `k` and digit sum `s`, how many digit strings of length `k` sum to `s`. Those counts are `bigint`, so results past `Number.MAX_SAFE_INTEGER` stay exact.
+- **Walk:** it goes through `limit` digit by digit. For each position it counts the numbers that match the prefix so far, put a smaller digit here, and fill the remaining positions freely to reach `target`.
+- **Limit itself:** it adds 1 at the end if the digit sum of `limit` equals `target`, since `limit` is included.
+- **Range handling:** leading zeros are harmless because they add nothing to the sum. `target` values above the maximum reachable sum return `0n`.
+
+The file has no imports.

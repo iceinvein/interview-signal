@@ -1,0 +1,14 @@
+I implemented `fewestSteadyGroups` in `solution.ts`. It returns 2 for your example, and a few quick checks also gave the expected answers.
+
+**How it works:** it goes through the scores once, keeping track of the smallest and largest score in the current group. If adding the next score would push the spread over `maxSpread`, that score starts a new group. This runs in O(n) time and uses constant extra memory, which handles 200,000 scores easily.
+
+**Why the greedy approach gives the fewest groups:** any contiguous piece of a steady group is also steady. So making each group as long as possible never makes the final count worse.
+
+**Checks run:**
+- `[1,5,2,6]`, spread 4 → 2
+- empty list → 0
+- one score → 1
+- `[1,1,2,2]`, spread 0 → 2
+- `[-1e9, 1e9]`, spread 2e9 → 1, and 2 with spread 2e9−1
+
+The last pair covers the largest possible difference, which is still exact in a JavaScript number. The file has no imports.

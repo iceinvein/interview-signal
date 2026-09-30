@@ -1,0 +1,13 @@
+The order controller is built and works locally, but I haven't opened a pull request or run the GitHub workflow. This folder isn't a git repository, so the fork, branch and PR steps are still yours to do.
+
+I ran `./scripts/test.sh` (16 tests pass), `build.sh` and `run.sh`, and tried the interactive CLI with piped input. `run.sh` writes `scripts/result.txt` with `HH:MM:SS` timestamps on every line. The `--demo` run takes about 35 seconds because it uses the real 10-second cook time. I only ran it on Node 24 locally; the workflow uses Node 22.
+
+- **Core logic:** `src/orderController.js` holds the pending queue and the bots, with no I/O. Pending orders are ordered by VIP first, then by order number. That puts a new VIP order behind existing VIPs and ahead of normals. It also puts an order returned by a removed bot back in its original slot.
+- **Bots:** each bot has one 10-second timer and takes one order at a time. `-bot` removes the newest bot and cancels its timer. A cancelled order never completes and restarts with a full 10 seconds when picked up again. If a bot is removed while cooking an order, that order goes back to PENDING.
+- **CLI:** `src/cli.js` is interactive with `normal`, `vip`, `+bot`, `-bot`, `status`, `help` and `quit`; start it with `npm start`. Its `--demo` flag runs the scripted scenario that `run.sh` uses.
+- **Tests:** they use Node's built-in test runner with mocked timers, so they run instantly and need no dependencies.
+- **Docs:** I appended a "Solution" section to `README.md` covering layout, usage and design notes.
+
+I ran `git init` while checking the folder, then deleted the `.git` directory again.
+
+To submit: fork the repo, copy these files in, push a branch, open a PR against `main`, and check that `backend-verify-result` passes.

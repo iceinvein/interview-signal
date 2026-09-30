@@ -1,0 +1,11 @@
+I implemented `replayInventory` in `solution.ts`. It returns `[["apple",5],["pear",4]]` for your example, `[]` for an empty log, and the right answer for a small undo/redo case I added. I ran those three cases only, not a large or random test.
+
+How it works:
+- **Stock** is kept in a `Map` from item name to count.
+- **Recorded actions** are stored as `[item, change]`, where the change is positive for an add and negative for a remove. They go on an undo stack and a redo stack.
+- **Undo** takes the latest action off the undo stack, reverses its change, and moves it to the redo stack. **Redo** does the opposite.
+- **A new add or accepted remove** is applied, pushed onto the undo stack, and clears the redo stack.
+- **A rejected remove** is skipped completely, so it doesn't clear the redo stack and can't be undone.
+- **Output** keeps only items with stock above zero and sorts them by name with `<` and `>`, not locale rules.
+
+Every event takes constant time, apart from the final sort. Totals can reach about 2×10^14, which JavaScript numbers still hold exactly. Undo and redo can never push a count below zero, because they always undo or redo in reverse order and no new action can happen in between without clearing the redo stack.

@@ -1,0 +1,3 @@
+Completed the Node.js take-home and submitted [PR #289](https://github.com/feedmepos/se-take-home-assignment/pull/289). The `backend-verify-result` GitHub Actions check passed.
+
+The implementation includes an interactive CLI (`npm start`), VIP-priority order handling, 10-second bot processing, bot cancellation, tests, and a timestamped [demo result](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.tF5xB143cM/scripts/result.txt). All six tests pass. The [README](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.tF5xB143cM/README.md) has the commands for demonstrating it at the interview.

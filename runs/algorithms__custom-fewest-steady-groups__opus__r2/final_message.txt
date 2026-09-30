@@ -1,0 +1,5 @@
+I've written `fewestSteadyGroups` in `solution.ts`. It returns 2 for your example, and it also gave the expected answers for an empty list, a single score, spread 0, and the largest possible spread.
+
+**How it works:** it goes through the scores once, keeping track of the current group's smallest and largest score. When the next score would make the group's spread larger than `maxSpread`, it starts a new group with that score. This gives the fewest groups because any part of a steady group is also steady, so making each group as long as possible never costs an extra group later. It takes one pass through the list and no extra memory, so 200,000 scores is fine. The largest possible spread (2·10⁹) fits exactly in a JavaScript number, so there's no overflow.
+
+Separately, Claude Code reported that some connected services (Atlassian Rovo, Figma, Gmail, Google Drive, Miro, Trello) need to be authorized before they can be used. You can do that in your claude.ai connector settings. None of them were needed here.

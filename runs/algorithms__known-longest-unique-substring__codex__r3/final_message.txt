@@ -1,0 +1,3 @@
+Implemented `lengthOfLongestSubstring` in [solution.ts](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.jmB2D84cPa/solution.ts) using a sliding window. It runs in O(n) time and uses constant space for the printable ASCII characters.
+
+Six runtime cases passed, including empty input, spaces, and case-sensitive characters. I couldn’t run a TypeScript check because `tsc` is not installed.

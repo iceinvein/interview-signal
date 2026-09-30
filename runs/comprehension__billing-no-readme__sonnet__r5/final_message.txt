@@ -1,0 +1,16 @@
+I reviewed `billing.ts` and wrote the findings to `FINDINGS.md`. I found nine issues by reading the code. I didn't run anything or write tests.
+
+**Definite bugs**
+1. **Line 217:** `usageCharge` treats each tier's cumulative `upTo` cap as if it were the tier's width, so later tiers bill too many units at the earlier price. It should be `upTo - previousCap`.
+2. **Lines 235 and 294:** Credit is deducted twice, once in `applyCredit` and again in `finaliseInvoice`. `previewInvoice` also drains the account's credit, despite its "without changing the account" doc comment.
+3. **Line 182:** The proration factor is the share of the period already used, but it's named `unused` and applied as the remaining share. It should be `1 - used`.
+4. **Line 304:** `formatMoney` doesn't zero-pad cents, so 5 cents renders as `$0.5`.
+
+**Likely bugs and design problems**
+5. **Lines 249 and 185–194:** An immediate plan change probably double-bills. The invoice charges the new plan's full price and then adds proration lines on top. Check this against how invoices are meant to be assembled.
+6. **Lines 226–230:** A percent discount on a negative subtotal becomes a surcharge, and tax is computed on a negative base.
+
+**Minor issues**
+7. **Lines 130 and 146:** `Math.round` on negative amounts rounds asymmetrically by a cent.
+8. **Lines 139–142:** A zero-length period gives a `NaN` proration factor, which makes the invoice total `NaN`.
+9. **Lines 115 and 119:** `NaN` passes the tax-rate and percent-discount validation, and `unitsUsed` is never validated.

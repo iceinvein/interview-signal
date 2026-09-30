@@ -1,0 +1,28 @@
+The take-home is built and tested, but nothing is committed or pushed yet. Git is set to sign every commit with your SSH key, and the signing step sat waiting for approval (a passphrase or agent prompt) that I can't give from here. I stopped it rather than turn signing off without asking. The folder also wasn't a clone of your fork, so there's no remote to push to.
+
+**What I built** (plain Node.js 22+, no dependencies):
+- `src/orderController.js`: the core logic. The pending list is kept sorted VIP first, then by order number. Order numbers only go up, so a new VIP order lands behind earlier VIP orders and ahead of all Normal ones. The same rule puts an order back in its original place when its bot is removed.
+- `src/cli.js`: the interactive CLI you'll need for the next round. Commands are `n`, `v`, `+`, `-`, `status`, `help` and `quit`; start it with `npm start`.
+- `src/simulate.js`: a scripted run used by `run.sh`. It takes about 37 seconds, uses the real 10-second cook time and writes `scripts/result.txt` with `[HH:MM:SS]` timestamps.
+- `test/orderController.test.js`: 15 unit tests that fake the clock, so they finish in under a second.
+- `scripts/test.sh`, `build.sh` and `run.sh`, plus a solution section at the end of `README.md`.
+
+**Testing:**
+- **Unit tests:** all 15 pass. They cover order placement and numbering, the 10-second timing, bots going idle and waking up, removing the newest bot, and a removed bot's order going back to its original spot without being completed.
+- **Full run:** `run.sh` completed and `result.txt` came out in the right sequence: VIP#1002, VIP#1004, Normal#1001, Normal#1003, VIP#1005. It includes a bot being removed mid-order and its order being picked up again.
+- **Interactive CLI:** I tried it with piped-in commands, including an unknown one.
+- **Not yet run:** the `backend-verify-result` GitHub Actions check. It only runs once there's a pull request.
+
+**Current state:**
+- The repo is on `main` with the template files staged; the rest is untracked.
+- I set this repo's git name and email to "Dik Rana" / [operator's work email, redacted]; change them if that's wrong.
+- The feature branch wasn't created, because that step came after the commit that stalled.
+
+**To finish:**
+```bash
+git commit -m "Initial assignment template"        # approve the signing prompt
+git checkout -b feature/order-controller
+git add -A && git commit -m "Implement order controller CLI"
+# add your fork as a remote, push, then open a PR against main
+```
+It's simpler to copy `src/`, `test/`, `scripts/`, `package.json`, `package-lock.json`, `.gitignore` and `README.md` into a fresh clone of your fork, then commit, push and open the PR. If you'd like, I can do the branch, commit and PR myself once signing works here or you give me the fork URL.

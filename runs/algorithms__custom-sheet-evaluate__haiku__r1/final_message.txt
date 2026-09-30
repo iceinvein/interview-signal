@@ -1,0 +1,18 @@
+Done! I've implemented the spreadsheet evaluator with cycle detection.
+
+**Key approach:**
+- **Cycle detection via recursion**: Track which cells are currently being computed in a `computing` set. If we try to compute a cell that's already being computed, we've found a cycle.
+- **Memoization**: Cache computed results to avoid redundant computation.
+- **Propagation**: If any cell dependency returns `#CYCLE`, the dependent cell also gets `#CYCLE`.
+- **Formula parsing**: Split by `+` to extract terms, then distinguish numeric literals (via regex) from cell references.
+
+**Algorithm:**
+1. For each cell, recursively compute its value
+2. Empty cells (not in input) contribute 0
+3. Literal cells are parsed as numbers
+4. Formula cells sum their terms:
+   - Numeric literals are added directly
+   - Cell references are computed recursively
+5. Return `#CYCLE` if a cycle is detected during computation or if any dependency is cyclic
+
+This handles all cases: direct cycles (A→A), indirect cycles (A→B→C→A), cells dependent on cycles, and negative numbers in formulas.

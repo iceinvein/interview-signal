@@ -1,0 +1,17 @@
+I found seven bugs in `billing.ts` and three lower-severity issues, and wrote all of them to `FINDINGS.md`. I only read the code; I didn't run or test anything.
+
+**Bugs against the README rules:**
+1. **Line 155:** the plan change is immediate when the new plan has more included units. Rule 5 says it should depend on a higher monthly price.
+2. **Lines 182, 188, 193:** proration uses the share of the period already used, but the code treats it as the unused share.
+3. **Lines 217-221:** `usageCharge` uses `tier.upTo` as the tier width instead of `upTo - previousCap`. Later tiers therefore cover too many units.
+4. **Lines 259-261:** tax is calculated before credit is applied. Rules 7 and 8 say credit comes off first and tax is charged on what remains.
+5. **Line 261:** `buildInvoice` reduces the account's credit balance, so a preview consumes credit.
+6. **Lines 261 and 294:** `finaliseInvoice` reduces the credit a second time, so the balance can go negative.
+7. **Line 304:** `formatMoney` doesn't pad the cents, so 105 cents prints as `$1.5`.
+
+**Lower-severity issues:**
+- **Line 230:** the discount can go negative when the subtotal is negative.
+- **Lines 131 and 146:** rounding uses floating-point arithmetic, so exact halves can round down.
+- **Lines 81-107:** `validatePlan` doesn't check that tier caps are integers.
+
+The file gives the reasoning for each finding and a suggested fix for the main ones.

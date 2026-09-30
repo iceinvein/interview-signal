@@ -1,0 +1,5 @@
+I wrote `fewestSteadyGroups` in `solution.ts`, but I haven't run it or tested it against any inputs, including your `[1, 5, 2, 6]` example.
+
+It scans left to right and tracks the running minimum and maximum of the current group. When adding a score would push the spread past `maxSpread`, it starts a new group with that score. This is optimal because any part of a steady group is also steady, so making each group as long as possible never costs extra groups.
+
+It runs in O(n) time and O(1) extra space, which is fine for 200,000 scores. An empty array returns `0`.

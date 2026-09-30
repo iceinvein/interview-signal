@@ -1,0 +1,17 @@
+The waitlist is built and working, with one deliberate gap: `GET /sessions/:sessionId/waitlist` does not return `email`. All 67 tests pass and `npm run typecheck` is clean.
+
+**Decision for you**
+- **Email is missing.** Your brief asks for `email` on each entry, but `CONTRIBUTING.md` ("Member data") limits contact details to the `/members` routes. It calls that a commitment in the studios' privacy notice, and says changing it needs sign-off from the data protection lead.
+- **What I returned instead.** Each entry has `position`, `memberId` and `name`, built from the existing `MemberSummary`.
+- **Getting email onto the tablets.** Front-desk staff can look each member up through `GET /members/:id`. Or, once the data protection lead signs off, it's a small change: add `email` to `waitlistListingView` and the service listing type, and update the HTTP test that asserts the exact shape.
+
+**What I built**
+- **Endpoints:** `POST`, `GET` and `DELETE` for the waitlist, with the statuses and error codes you specified. The README table is updated.
+- **Check order on join:** unknown member or session (404), then `session_started`, `already_booked`, `already_waitlisted`, `session_not_full`. This follows the order the booking rules already use. Your spec doesn't say which applies first when several do.
+- **Layering:** waitlist entries live behind a new `WaitlistRepository`, with an in-memory version wired into `createMemoryRepositories()`. A new `WaitlistService` holds the join, leave and list rules. Waitlist entries are deleted when removed, since the audit-trail rule only covers bookings.
+- **Automatic promotion:** this is in `BookingService.cancel`, because confirmed bookings may only be created there. The freed place goes to the first waitlisted member who passes the normal booking rules, through the same booking-creation code as `book()`.
+- **Tests:** new service tests in `test/services/waitlistService.test.ts` and HTTP tests in `test/http/waitlist.test.ts`. I did not need to change `test/fixtures.ts`.
+
+**Judgement calls**
+- **Skipped members stay queued.** If the front member can no longer take the place, for example they've since booked an overlapping class, they are passed over and keep their position. The next eligible member gets the place. Say if you'd rather remove them.
+- **Capacity increases don't promote.** Raising a session's capacity with `PATCH` does not promote anyone from the waitlist. That wasn't in the spec, so I left it alone.

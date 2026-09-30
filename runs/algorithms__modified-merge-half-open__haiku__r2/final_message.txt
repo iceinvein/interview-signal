@@ -1,0 +1,8 @@
+Done! I've implemented `mergeHalfOpen` with the following approach:
+
+1. **Filter empty intervals**: Remove any intervals where `start === end`
+2. **Sort**: Order by start position (then by end for consistency)
+3. **Merge overlapping intervals**: Iterate through sorted intervals, merging when `nextStart < currentEnd` (which correctly handles half-open intervals)
+4. **Handle edge cases**: Returns empty list if no valid intervals exist
+
+The key insight for half-open intervals is that they overlap only if the next interval's start is strictly less than the current interval's end, so `[1, 3)` and `[3, 5)` correctly stay separate since 3 ∉ `[1, 3)`.

@@ -1,0 +1,16 @@
+I've implemented `countIslandsTorus` in `solution.ts`. It returned the expected count on every test I ran, and a 1000×1000 all-land grid took about 12 ms.
+
+**How it works:** it walks each island by following neighbouring land cells, and when a step would go past an edge it continues from the opposite side. It keeps its own list of cells still to visit instead of calling itself for each step, so even a single island covering the whole 1000×1000 grid can't run out of stack space. The work grows in step with the number of cells. In a single-row or single-column grid, a cell's wrapped neighbour is the cell itself; it's already marked as visited, so it adds nothing.
+
+**Tests I ran:**
+- `[[1,0,1]]` → 1 (the two ends join across the edge)
+- `[[1],[0],[1]]` → 1
+- `[[1,0],[0,1]]` → 2 (diagonal only, even across edges)
+- opposite corners of a 3×3 grid → 2 (they only touch diagonally)
+- a 3×3 grid with land at top-left, bottom-left and bottom-right → 1
+- `[[0]]` → 0 and `[[1]]` → 1
+- a 1000×1000 checkerboard → 500,000
+
+The file has no imports.
+
+Separately, several claude.ai connectors (Atlassian Rovo, Figma, Gmail, Google Drive, Miro, Trello) need to be authorised in your claude.ai connector settings before they can be used. None of them were needed for this task.

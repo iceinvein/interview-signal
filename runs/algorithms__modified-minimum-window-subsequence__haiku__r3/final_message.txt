@@ -1,0 +1,15 @@
+Done! I've implemented `minWindowSubsequence` using a sliding window approach:
+
+**Algorithm:**
+- For each starting position in `s`, find the minimum ending position where a substring contains all characters of `t` as a subsequence
+- Track the shortest window (using earliest position to break ties)
+- Return that substring, or `""` if no valid window exists
+
+**Time complexity:** O(n × m) where n = len(s), m = len(t)  
+**Space complexity:** O(1) (output string excluded)
+
+The solution correctly handles:
+- Finding subsequences in windows (characters in order, not necessarily consecutive)
+- Returning the shortest result
+- Breaking ties by earliest position
+- Returning empty string when no valid window exists

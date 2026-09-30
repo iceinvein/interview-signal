@@ -1,0 +1,5 @@
+I wrote `lengthOfLIS` in `solution.ts`. I haven't run or tested it.
+
+It uses the standard patience-sorting approach. It keeps an array `tails`, where `tails[i]` is the smallest possible last value of an increasing subsequence of length `i+1`. For each number, a binary search finds the first entry that is greater than or equal to it and replaces that entry. If no entry qualifies, the number is appended. Because the search stops at entries `>=` the number, equal values replace an entry instead of extending the sequence, so they don't count as increasing. The answer is the final length of `tails`.
+
+It runs in O(n log n) time and O(n) space, which is fast enough for `nums.length` up to 100000. The file has no imports, and the export name and signature are unchanged.

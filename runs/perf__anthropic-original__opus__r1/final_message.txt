@@ -1,0 +1,1 @@
+That monitor expiring is expected: it was watching the tuning search, which had already finished. Nothing changed. The kernel is still at 1050 cycles and passes all submission tests.

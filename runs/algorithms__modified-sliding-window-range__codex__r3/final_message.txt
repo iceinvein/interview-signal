@@ -1,0 +1,1 @@
+Implemented [slidingWindowRange](/private/var/folders/r2/pl18fbqj08j8vhhkszck316h0000gn/T/tmp.LKaveGdokL/solution.ts) using monotonic queues. It runs in O(n) time and passed 6,000 randomized comparisons against a direct calculation.

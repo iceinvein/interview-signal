@@ -1,0 +1,12 @@
+I've implemented `firstOverCapacity` in `solution.ts`. It sorts the start times and end times separately, then walks through them in time order keeping a running count of people. At each start time it first removes every booking whose end is at or before that time, so people leaving at `t` have already gone before anyone arriving at `t` is counted. It then adds all bookings that start at `t` and checks the count. The count only goes up at a start time, so checking only at start times finds the earliest time over capacity. It runs in O(n log n).
+
+To keep sorting fast, each time and its head count are packed into one number (`time * 1024 + people`) in a `Float64Array`. That works because `people` is at most 1000 and the largest packed value (about 1.02×10¹²) is still stored exactly.
+
+I tested it with Node:
+- **Your examples:** capacity 5 gives `4` and capacity 6 gives `-1`.
+- **Edge cases:** no bookings, capacity 0, and one booking ending exactly when another starts all gave the right answer.
+- **Random tests:** 2,000 small random inputs all matched a brute-force check.
+
+I didn't time it on a full 200,000-booking input.
+
+Separately, several claude.ai connectors (Atlassian Rovo, Figma, Gmail, Google Drive, Miro, Trello) need authorizing in your claude.ai connector settings before they can be used. This task didn't need any of them.

@@ -1,0 +1,26 @@
+{
+  "format": "algorithms",
+  "task": "known-coin-change",
+  "agent": "codex",
+  "rep": 3,
+  "cli": "codex-cli 0.158.0",
+  "model": "gpt-6-sol",
+  "effort": "high",
+  "is_error": false,
+  "cost_usd": null,
+  "turns": 1,
+  "codex_steps": 8,
+  "usage": {
+    "input_tokens": 76271,
+    "cached_input_tokens": 71424,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 1120,
+    "reasoning_output_tokens": 189
+  },
+  "contamination": [],
+  "external_fetches": [],
+  "timed_out": false,
+  "interrupted": null,
+  "exit_code": 0,
+  "wall_s": 35.243
+}

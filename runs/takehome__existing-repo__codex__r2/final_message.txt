@@ -1,0 +1,5 @@
+Implemented the session waitlist API. Members can join a full session, leave the queue, and view their position; cancelling a confirmed booking promotes the first waitlisted member. I added service and HTTP tests and updated the API documentation.
+
+**Verification:** `npm test` passes (67 tests), and `npm run typecheck` is clean.
+
+**Privacy note:** The requested waitlist GET response includes member emails, which is an exception to the repository’s existing session-response privacy convention.

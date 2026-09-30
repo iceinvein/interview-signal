@@ -1,0 +1,32 @@
+The waitlist is built and working, with one gap. `GET /sessions/:sessionId/waitlist` returns `position`, `memberId` and `name`, but not `email`. All 67 tests pass, including the new ones, and typecheck is clean.
+
+## The email decision
+
+You asked for each entry to include the member's email. `CONTRIBUTING.md` ("Member data") says contact details may only come from the `/members` routes. It calls this a commitment in the studios' privacy notice, because session endpoints feed front-desk tablets and instructor apps. Changing it needs sign-off from the data protection lead, so I didn't put the email in.
+
+If sign-off comes through, the change is small:
+- Add `email` to `waitlistEntryView` in `src/http/views.ts`.
+- Carry the full `Member` instead of `MemberSummary` in `SessionWaitlistEntry`.
+- Update the HTTP test that asserts the current shape.
+
+Until then, staff can look up the email through `GET /members/:id` using the `memberId` from each entry.
+
+## What I changed
+
+- **Storage:** there's a new `WaitlistEntry` type and a `WaitlistRepository` interface, with an in-memory version registered in `createMemoryRepositories()`. Position comes from queue order, so nobody has to renumber when someone leaves.
+- **Service:** the new `WaitlistService` (`src/services/waitlistService.ts`) handles joining, leaving and listing.
+- **Error codes:** I added `session_not_full` and `already_waitlisted`, plus a `waitlist_entry` entity for the 404 when a member isn't on the list.
+- **Routes:** the three waitlist routes are in `src/http/routes/waitlist.ts`. `DELETE` answers `204`.
+- **Auto-promotion:** cancelling a booking now gives the freed place to the first waitlisted member. It goes through the same booking rules as `book()` (I pulled them into a shared `confirm()` in `BookingService`), so the capacity rule holds.
+
+## Decisions for you
+
+- **Order of join checks:** `session_started`, then `already_booked`, `already_waitlisted`, `session_not_full`. The spec didn't set an order.
+- **Skipped members:** if the person at the front can't take the place when it frees up (for example, they've since booked an overlapping class), they're skipped and keep their spot in the queue. The place goes to the next eligible member.
+
+## Tests
+
+- `test/services/waitlistService.test.ts` covers the rules: each error code, queue positions, everyone moving up after a leave, and promotion (including the skip case).
+- `test/http/waitlist.test.ts` covers the wiring: success statuses and shapes, one representative error per route, and that the list has no email.
+
+I ran `npm ci` because `node_modules` wasn't installed.

@@ -1,0 +1,12 @@
+The Node.js order controller is built and works locally. I haven't opened the Pull Request, so the `backend-verify-result` workflow hasn't run.
+
+`./scripts/test.sh`, `./scripts/build.sh` and `./scripts/run.sh` all pass here. The 13 unit tests pass. I also piped commands through the interactive mode to check it. `run.sh` runs a scripted demo of about 30 seconds and writes `scripts/result.txt` with `[HH:MM:SS]` timestamps.
+
+- **Queue order:** VIP orders go ahead of Normal ones and behind earlier VIP orders. Order numbers start at 1 and only increase.
+- **Adding a bot:** a new bot picks up a pending order immediately. It takes 10 seconds per order, then takes the next one or goes idle.
+- **Removing a bot:** `-bot` removes the newest bot and cancels its timer. If it was cooking, the order goes back to its original place in PENDING and another idle bot can take it.
+- **Interactive mode:** run `node src/index.js` and use `normal`, `vip`, `+bot`, `-bot`, `status`, `help` or `quit`.
+
+I added a solution section to `README.md` covering usage and design. The core logic is in `src/orderController.js`, and the tests use a fake clock, so they don't wait real time.
+
+To submit, run `git init`, push this to your fork, and open a PR against `main`. The directory isn't a git repository, so I didn't do that step.

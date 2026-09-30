@@ -1,0 +1,139 @@
+{
+  "criteria": [
+    {
+      "id": "visible-money-format-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`${abs % 100}` is not zero-padded, so 105\u00a2 renders as `$1.5` instead of `$1.05`, and 100\u00a2 as `$1.0`. Every rendered invoice amount with fewer than 10 cents is wrong."
+        },
+        {
+          "label": "met",
+          "quote": "`${abs % 100}` is not zero-padded, so 105\u00a2 renders as `$1.5` instead of `$1.05`, and 100\u00a2\nas `$1.0`. Every rendered invoice amount with fewer than 10 cents is wrong."
+        },
+        {
+          "label": "met",
+          "quote": "`${abs % 100}` is not zero-padded, so 105\u00a2 renders as `$1.5` instead of `$1.05`, and 100\u00a2 as `$1.0`. Every rendered invoice amount with fewer than 10 cents is wrong."
+        }
+      ]
+    },
+    {
+      "id": "visible-usage-tiers-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`tierWidth = tier.upTo` uses the cap itself as the size of each tier. Rule 4 and the `UsageTier` doc comment say `upTo` is a running total of billable units. The width must be `tier.upTo - previousCap`. ... The code charges 100\u00d710 + 150\u00d75 = 1,750\u00a2. The correct charge is 100\u00d710 + 100\u00d75 + 50\u00d71 = 1,550\u00a2."
+        },
+        {
+          "label": "met",
+          "quote": "`tierWidth = tier.upTo` uses the cap itself as the size of each tier. Rule 4 and the `UsageTier` doc comment say `upTo` is a running total of billable units. The width must be `tier.upTo - previousCap`. ... The code charges 100\u00d710 + 150\u00d75 = 1,750\u00a2. The correct charge is 100\u00d710 + 100\u00d75 + 50\u00d71 = 1,550\u00a2."
+        },
+        {
+          "label": "met",
+          "quote": "`tierWidth = tier.upTo` uses the cap itself as the size of each tier. Rule 4 and the `UsageTier` doc comment say `upTo` is a running total of billable units. The width must be `tier.upTo - previousCap`. ... The code charges 100\u00d710 + 150\u00d75 = 1,750\u00a2. The correct charge is 100\u00d710 + 100\u00d75 + 50\u00d71 = 1,550\u00a2."
+        }
+      ]
+    },
+    {
+      "id": "trace-proration-direction-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns how much of the period has **already passed** (0 at the start, 1 at the end, per its doc comment on line 138). `changePlan` stores this in a variable named `unused` and uses it for both the credit and the charge. ... The share should be `1 - prorationFactor(period, at)`."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns how much of the period has **already passed** (0 at the start, 1 at the end, per its doc comment on line 138). `changePlan` stores this in a variable named `unused` and uses it for both the credit and the charge. An upgrade on day 1 gives almost no proration, and an upgrade on the last day credits and charges almost the whole month. The share should be `1 - prorationFactor(period, at)`."
+        },
+        {
+          "label": "met",
+          "quote": "`prorationFactor` returns how much of the period has **already passed** (0 at the start, 1 at the end, per its doc comment on line 138). `changePlan` stores this in a variable named `unused` and uses it for both the credit and the charge. ... The share should be `1 - prorationFactor(period, at)`."
+        }
+      ]
+    },
+    {
+      "id": "trace-preview-credit-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, which does `account.creditBalanceCents -= applied`. `previewInvoice` calls `buildInvoice` directly, so previewing an invoice spends the customer's credit."
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, which does `account.creditBalanceCents -= applied`. `previewInvoice` calls `buildInvoice` directly, so previewing an invoice spends the customer's credit. ... `finaliseInvoice` subtracts `invoice.creditAppliedCents` again."
+        },
+        {
+          "label": "met",
+          "quote": "`buildInvoice` calls `applyCredit`, which does `account.creditBalanceCents -= applied`. `previewInvoice` calls `buildInvoice` directly, so previewing an invoice spends the customer's credit."
+        }
+      ]
+    },
+    {
+      "id": "rule-credit-before-tax-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "Credit is applied to `due = subtotal - discount + tax`, so it also pays off tax. Rule 7 says credit goes on the post-discount subtotal, before tax. The order should be: `base = subtotal - discount` \u2192 `credit = min(balance, max(0, base))` \u2192 `tax = percentOf(base - credit, rate)`"
+        },
+        {
+          "label": "met",
+          "quote": "Credit is applied to `due = subtotal - discount + tax`, so it also pays off tax. Rule 7 says credit goes on the post-discount subtotal, before tax. ... `tax = percentOf(base - credit, rate)` ... The rules give tax 800\u00a2, total 8,800\u00a2."
+        },
+        {
+          "label": "met",
+          "quote": "Credit is applied to `due = subtotal - discount + tax`, so it also pays off tax. Rule 7 says credit goes on the post-discount subtotal, before tax. The order should be: `base = subtotal - discount` \u2192 `credit = min(balance, max(0, base))` \u2192 `tax = percentOf(base - credit, rate)`"
+        }
+      ]
+    },
+    {
+      "id": "rule-downgrade-timing-explained",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`planChangeTiming` treats a change as immediate when `next.includedUnits > current.includedUnits`. Rule 5 bases the decision on the **monthly price**... a pricier plan with the same or fewer included units gets deferred, and a cheaper plan with more included units takes effect immediately and gives prorated credit."
+        },
+        {
+          "label": "met",
+          "quote": "`planChangeTiming` treats a change as immediate when `next.includedUnits > current.includedUnits`. Rule 5 bases the decision on the **monthly price** ... a pricier plan with the same or fewer included units gets deferred, and a cheaper plan with more included units takes effect immediately and gives prorated credit."
+        },
+        {
+          "label": "met",
+          "quote": "`planChangeTiming` treats a change as immediate when `next.includedUnits > current.includedUnits`. Rule 5 bases the decision on the **monthly price** ... a cheaper plan with more included units takes effect immediately and gives prorated credit."
+        }
+      ]
+    },
+    {
+      "id": "no-false-positives",
+      "label": "met",
+      "unanimous": true,
+      "votes": [
+        {
+          "label": "met",
+          "quote": "`percentOf(750, 8.2)` computes `61.49999999999999` and returns 61, but the exact value is 61.5 and should round up to 62."
+        },
+        {
+          "label": "met",
+          "quote": "`percentOf(750, 8.2)` computes `61.49999999999999` and returns 61, but the exact value is 61.5 and should round up to 62."
+        },
+        {
+          "label": "met",
+          "quote": "`percentOf(750, 8.2)` computes `61.49999999999999` and returns 61, but the exact value is 61.5 and should round up to 62."
+        }
+      ]
+    }
+  ],
+  "trap": null,
+  "model": "opus"
+}

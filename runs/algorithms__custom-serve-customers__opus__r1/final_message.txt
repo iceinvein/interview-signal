@@ -1,0 +1,14 @@
+I've implemented `serveCustomers` in `solution.ts`. It returns the right answers on the tests below and handles the largest allowed input in about 12 ms.
+
+**How it works:** it keeps a min-heap of when each server will next be free, stored in a `Float64Array`. The heap has `min(servers, n)` entries, all starting at 0, since at most `n` servers can ever be used. For each customer in index order:
+- the earliest-free server is at the top of the heap;
+- service starts at the later of the customer's arrival and that server's free time, and the finish time is start plus duration;
+- that server's free time becomes the finish time and is moved back into its correct place in the heap.
+
+This takes O(n log min(servers, n)) time. There are no imports.
+
+**Tests run:**
+- Your example gives `[10, 1, 2, 3]`.
+- Edge cases: an empty input gives `[]`, and a zero-length service is handled correctly.
+- 2,000 random small cases matched a simple brute-force version exactly.
+- A maximum-size run (200,000 customers, 100,000 servers, durations of 10^9) finished in about 12 ms.

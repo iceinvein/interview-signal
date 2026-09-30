@@ -1,0 +1,5 @@
+I implemented `countPairsWithSum` in `solution.ts`. I haven't run it or tested it.
+
+It makes one pass over the array and keeps a `Map` of how many times each value has appeared so far. For each element `x`, it adds the number of earlier elements equal to `target - x` to the count, then records `x`. This counts pairs by position and never pairs an element with itself. It runs in O(n) time. An empty array returns `0`.
+
+The count stays exact as a `number`. It tops out around 5·10⁹, well under 2⁵³.

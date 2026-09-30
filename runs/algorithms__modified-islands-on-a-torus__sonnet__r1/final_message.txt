@@ -1,0 +1,7 @@
+I wrote `countIslandsTorus` to `solution.ts`. I haven't run it or tested it.
+
+It scans every cell and starts a flood fill from each land cell it hasn't visited yet. The fill uses an explicit stack, so a 1000×1000 grid can't overflow the call stack. Each fill adds one to the island count. Neighbours are found with modular arithmetic, so up/down/left/right wrap across the edges. Diagonals are never checked.
+
+Single-row and single-column grids need no special case. A cell that is its own neighbour is already marked visited, so it joins nothing. Time and memory are linear in the number of cells.
+
+The file has no imports.
