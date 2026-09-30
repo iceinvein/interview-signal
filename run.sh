@@ -148,10 +148,12 @@ OUTBOUND_TARGETS=(registry.npmjs.org:443 pypi.org:443 api.anthropic.com:443 api.
   chatgpt.com:443 github.com:443)
 
 # vm_firewall setup|check: in Docker's VM, as root, (re)writes or checks the
-# chains that drop the runs bridge's traffic to the VM's own LAN (where the
-# Mac answers at the gateway) and to the VM itself except DNS. Prints the
-# Mac's address and the VM's LAN address. Everything it matches is read in
-# the VM rather than assumed, so a Colima with other addresses still works.
+# chains that drop the runs bridge's traffic to every private, shared and
+# link-local IPv4 range (the Mac answers at the VM's gateway, and the Mac's
+# own LAN sits behind it) and to the VM itself except DNS to its resolver.
+# The VM's LAN is dropped by name too, in case a Colima puts it outside
+# those ranges. Prints the Mac's address and the VM's LAN address, read in
+# the VM rather than assumed.
 vm_firewall() {
   colima ssh -- sudo sh -s "$1" "$RUN_BRIDGE" <<'SH'
 set -eu
@@ -164,6 +166,10 @@ dns=$(awk '$1 == "nameserver" {print $2; exit}' /etc/resolv.conf)
 [ -n "$host" ] && [ -n "$subnet" ] && [ -n "$vm" ] && [ -n "$dns" ] \
   || { echo "cannot read the VM's gateway, subnet, address or DNS server" >&2; exit 1; }
 forward_rules="-A ISIG-FORWARD -d $subnet -j DROP"
+for range in 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 169.254.0.0/16 100.64.0.0/10; do
+  forward_rules="$forward_rules
+-A ISIG-FORWARD -d $range -j DROP"
+done
 input_rules="-A ISIG-INPUT -d $dns/32 -p udp -m udp --dport 53 -j ACCEPT
 -A ISIG-INPUT -d $dns/32 -p tcp -m tcp --dport 53 -j ACCEPT
 -A ISIG-INPUT -j DROP"
@@ -189,13 +195,15 @@ SH
 }
 
 # Prints the runs network's gateway (the VM's address on it), after checking
-# the network exists with inter-container traffic off on the expected bridge.
+# the network exists with inter-container traffic off on the expected bridge
+# and no IPv6, which the IPv4 firewall rules would not cover.
 runs_network_gateway() {
-  local state icc bridge gateway
+  local state icc bridge gateway ipv6
   state=$(docker network inspect --format \
-    '{{index .Options "com.docker.network.bridge.enable_icc"}} {{index .Options "com.docker.network.bridge.name"}} {{(index .IPAM.Config 0).Gateway}}' \
+    '{{index .Options "com.docker.network.bridge.enable_icc"}} {{index .Options "com.docker.network.bridge.name"}} {{(index .IPAM.Config 0).Gateway}} {{.EnableIPv6}}' \
     "$RUN_NETWORK") || { echo "no Docker network $RUN_NETWORK: run ./run.sh --setup-network" >&2; return 1; }
-  read -r icc bridge gateway <<< "$state"
+  read -r icc bridge gateway ipv6 <<< "$state"
+  [[ "$ipv6" == false ]] || { echo "network $RUN_NETWORK has IPv6 enabled, which the firewall does not cover" >&2; return 1; }
   [[ "$icc" == false ]] || { echo "network $RUN_NETWORK has enable_icc=$icc, not false" >&2; return 1; }
   [[ "$bridge" == "$RUN_BRIDGE" ]] || { echo "network $RUN_NETWORK uses bridge '$bridge', not $RUN_BRIDGE" >&2; return 1; }
   [[ -n "$gateway" ]] || { echo "network $RUN_NETWORK has no gateway address" >&2; return 1; }
@@ -219,11 +227,15 @@ done
 wait'
 
 # preflight <network> <mac address> <vm lan address> <vm gateway on network>
-# From a container on the network, the Mac's Postgres and SSH ports and the
-# VM's SSH port must be unreachable and every outbound target reachable.
+# From a container on the network, the Mac's Postgres and SSH ports, the
+# VM's SSH port, the Mac's own LAN gateway (read here with route) and a
+# sample address in each of 192.168.0.0/16 and 10.0.0.0/8 must be
+# unreachable, and every outbound target reachable.
 preflight() {
-  local network=$1 host=$2 vm=$3 gateway=$4 out target problems=0
-  local closed=("$host:5432" "$host:22" "$gateway:22" "$vm:22")
+  local network=$1 host=$2 vm=$3 gateway=$4 out target problems=0 lan_gateway
+  lan_gateway=$(route -n get default | awk '/gateway:/ {print $2}')
+  [[ -n "$lan_gateway" ]] || { echo "cannot read this Mac's default gateway with route -n get default" >&2; return 1; }
+  local closed=("$host:5432" "$host:22" "$gateway:22" "$vm:22" 192.168.0.1:80 10.0.0.1:80 "$lan_gateway:80")
   out=$(docker run --rm --network "$network" --user candidate --security-opt no-new-privileges \
     "$IMAGE" bash -c "$PREFLIGHT_SCRIPT" preflight "${closed[@]}" "${OUTBOUND_TARGETS[@]}")
   for target in "${closed[@]}"; do

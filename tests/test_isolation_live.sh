@@ -40,6 +40,24 @@ test_host_postgres_is_unreachable_from_the_runs_network() {
   [[ "$out" == "blocked" ]] || fail "192.168.5.2:5432 from the runs network: $out"
 }
 
+test_the_macs_lan_gateway_is_unreachable_from_the_runs_network() {
+  local gateway out control
+  gateway=$(route -n get default | awk '/gateway:/ {print $2}')
+  out=$(on_runs_network "timeout 5 bash -c 'exec 3<>/dev/tcp/$gateway/80' && echo reachable || echo blocked")
+  [[ "$out" == "blocked" ]] || fail "$gateway:80 from the runs network: $out"
+  # Control: the gateway does answer on 80 from a network without the rules.
+  control=$(docker run --rm --network bridge "$IMAGE" bash -c "timeout 5 bash -c 'exec 3<>/dev/tcp/$gateway/80' && echo reachable || echo blocked")
+  [[ "$control" == "reachable" ]] || fail "control: $gateway:80 is not reachable even from the default bridge, so this test proves nothing"
+}
+
+test_every_private_and_link_local_range_is_dropped() {
+  local rules range
+  rules=$(colima ssh -- sudo iptables -S ISIG-FORWARD)
+  for range in 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 169.254.0.0/16 100.64.0.0/10; do
+    grep -qxF -- "-A ISIG-FORWARD -d $range -j DROP" <<< "$rules" || fail "ISIG-FORWARD does not drop $range"
+  done
+}
+
 test_model_apis_and_registries_answer_https_from_the_runs_network() {
   local url code
   for url in https://registry.npmjs.org/ https://pypi.org/simple/ https://api.anthropic.com/ https://api.openai.com/ https://chatgpt.com/ https://github.com/; do

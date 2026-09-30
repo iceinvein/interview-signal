@@ -78,7 +78,7 @@ EOF
 stub_docker() {
   mkdir -p "$SANDBOX/docker/home" "$SANDBOX/docker/empty"
   touch "$SANDBOX/docker/image"
-  echo "false isig-runs 172.30.9.1" > "$SANDBOX/docker/network"
+  echo "false isig-runs 172.30.9.1 false" > "$SANDBOX/docker/network"
   cat > "$SANDBOX/bin/docker" <<'EOF'
 #!/usr/bin/env python3
 import json, os, signal, subprocess, sys
@@ -100,7 +100,7 @@ if args[:2] == ["network", "inspect"]:
         sys.exit(1)
     sys.exit(0)
 if args[:2] == ["network", "create"]:
-    open(os.path.join(state, "network"), "w").write("false isig-runs 172.30.9.1\n")
+    open(os.path.join(state, "network"), "w").write("false isig-runs 172.30.9.1 false\n")
     print("stubnetid")
     sys.exit(0)
 if args[0] == "ps":
@@ -863,10 +863,27 @@ test_missing_runs_network_stops_the_run_unstarted() {
 
 test_runs_network_with_inter_container_traffic_stops_the_run_unstarted() {
   stub_claude
-  echo "true isig-runs 172.30.9.1" > "$SANDBOX/docker/network"
+  echo "true isig-runs 172.30.9.1 false" > "$SANDBOX/docker/network"
   local err
   err=$("$REPO/run.sh" --one takehome stub-task sonnet 1 2>&1 >/dev/null) && fail "run.sh ran on a network with icc on"
   assert_stopped_unstarted "$err" "enable_icc"
+}
+
+test_runs_network_with_ipv6_stops_the_run_unstarted() {
+  # The firewall rules are IPv4 only, so the network must carry no IPv6.
+  stub_claude
+  echo "false isig-runs 172.30.9.1 true" > "$SANDBOX/docker/network"
+  local err
+  err=$("$REPO/run.sh" --one takehome stub-task sonnet 1 2>&1 >/dev/null) && fail "run.sh ran on a network with IPv6"
+  assert_stopped_unstarted "$err" "IPv6"
+}
+
+test_preflight_reaching_the_lan_gateway_stops_the_run_unstarted() {
+  stub_claude
+  echo "10.0.0.1:80" > "$SANDBOX/docker/preflight-open"
+  local err
+  err=$("$REPO/run.sh" --one takehome stub-task sonnet 1 2>&1 >/dev/null) && fail "run.sh ran with a private address reachable"
+  assert_stopped_unstarted "$err" "10.0.0.1:80"
 }
 
 test_missing_firewall_rules_stop_the_run_unstarted() {
@@ -899,7 +916,7 @@ test_preflight_probes_the_host_and_vm_from_the_runs_network() {
   local args
   args=$(preflight_args | tr '\n' ' ')
   local want
-  for want in "--network interview-signal-runs " "--user candidate " " 192.168.5.2:5432 " " 192.168.5.2:22 " " 172.30.9.1:22 " " 192.168.5.1:22 " " registry.npmjs.org:443 " " api.anthropic.com:443 " " api.openai.com:443 " " chatgpt.com:443 "; do
+  for want in "--network interview-signal-runs " "--user candidate " " 192.168.5.2:5432 " " 192.168.5.2:22 " " 172.30.9.1:22 " " 192.168.5.1:22 " " 192.168.0.1:80 " " 10.0.0.1:80 " " $(route -n get default | awk '/gateway:/ {print $2}'):80 " " registry.npmjs.org:443 " " api.anthropic.com:443 " " api.openai.com:443 " " chatgpt.com:443 "; do
     [[ "$args" == *"$want"* ]] || fail "preflight lacks '$want': $args"
   done
 }
