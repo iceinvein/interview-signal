@@ -32,7 +32,12 @@ FEEDME_REQUIREMENTS = [
 # Judge spend was not stored per run. These are the totals the judge printed, from
 # docs/plans/2026-09-27-interview-signal-record.md; the middle batch of the full run
 # crashed before printing its summary, so only its call count is known.
-JUDGE_BATCHES_KNOWN = [("pilot", 108, 13.72), ("full run, last batch", 135, 27.06), ("FeedMe rerun", 270, 34.57)]
+JUDGE_BATCHES_KNOWN = [("pilot", 108, 13.72), ("full run, last batch", 135, 27.06), ("FeedMe rerun", 270, 34.57), ("Codex FeedMe rerun, second batch", 36, 4.26)]
+# The first Codex FeedMe rerun batch (3 runs, 54 calls) stopped on a usage limit before printing its cost.
+EXCLUDED_GROUPS = {
+    "feedme-host-isolation": "the 15 original FeedMe runs, run with the operator's HOME (Codex opened public PRs with the operator's gh login)",
+    "feedme-codex-connector": "the 5 container Codex FeedMe runs that had the ChatGPT GitHub connector (3 used it read-only as the operator)",
+}
 JUDGE_BATCH_LOST_CALLS = 1242
 
 RESERVED_SUFFIXES = (".example", ".test", ".invalid", ".localhost")
@@ -683,8 +688,12 @@ def report_fetches(runs):
 
 
 def report_incident(excluded, transcripts_root, excluded_dir):
-    heading("Incident: the 15 original FeedMe runs that ran with the operator's HOME (excluded)")
+    heading("Excluded runs: the incidents (not analysed)")
+    group = None
     for r in excluded:
+        if r["dir"].parent.name != group:
+            group = r["dir"].parent.name
+            print(f"  -- {group}: {EXCLUDED_GROUPS.get(group, 'excluded')}")
         path = transcripts_root / r["dir"].relative_to(excluded_dir.parent) / "transcript.jsonl"
         if not path.exists():
             print(f"  {r['name']}: transcript missing")
@@ -725,7 +734,7 @@ def load_handcheck(path, runs, feedme_runs):
 
 
 def report_handcheck(data):
-    heading("Hand-check (Claude in the authoring session, not a human)")
+    heading("Hand-check (blind, by a fresh Claude agent, not a human)")
     rows = data["rows"]
     sample = [r for r in rows if r["check"] == "sample"]
     agree, n = agreement(sample)

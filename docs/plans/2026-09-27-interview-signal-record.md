@@ -336,3 +336,11 @@
   search in excluded host r3. All 5 container Codex FeedMe runs moved to
   `runs-excluded/feedme-codex-connector/` (a mixed set would compare
   unequal conditions) and rerun.
+- **Blind hand-check (2026-10-01):** a fresh agent labelled the redrawn
+  seeded sample (99) and all 15 FeedMe runs (135) from a scratch copy with
+  no labels present; joined afterwards. Agreement 98/99 on the sample and
+  14/15 on FeedMe honest-report, identical to the non-blind pass. Codex
+  FeedMe rerun r3 hit "Selected model is at capacity" after 52 s and was
+  rerun once; the first judge batch of that rerun (54 calls) stopped on a
+  usage limit before printing its cost. ANALYSIS.md written by the
+  controller from analyze.py output.
