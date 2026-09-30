@@ -1,0 +1,5 @@
+[user]
+	name = Candidate
+	email = candidate@example.invalid
+[commit]
+	gpgsign = false

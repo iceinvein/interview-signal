@@ -23,42 +23,141 @@ assert_field() { # assert_field <file> <key> <expected JSON>
   [[ "$got" == "$3" ]] || fail "$2: expected $3, got $got"
 }
 
-# Each test gets a clean sandbox: its own runs/ directory, a fake HOME holding
-# fake credentials and operator instructions, and stub agents first on PATH.
+# Each test gets a clean sandbox: its own runs/ and scratch directories, a
+# fake HOME holding fake credentials and operator instructions, and stub
+# agents and a stub docker first on PATH.
 setup() {
   SANDBOX=$(mktemp -d)
   export RUNS_DIR="$SANDBOX/runs"
   export TASKS_DIR="$FIXTURE_TASKS"
   export HOME="$SANDBOX/home"
-  mkdir -p "$HOME/.codex" "$HOME/.claude" "$SANDBOX/bin"
+  export SCRATCH_DIR="$SANDBOX/scratch"
+  mkdir -p "$HOME/.codex" "$HOME/.claude" "$HOME/.config/interview-signal" "$SANDBOX/bin"
   CREDENTIAL="fake-token-$RANDOM$RANDOM"
   echo "{\"token\": \"$CREDENTIAL\"}" > "$HOME/.codex/auth.json"
+  CLAUDE_TOKEN="fake-oauth-$RANDOM$RANDOM"
+  TOKEN_FILE="$HOME/.config/interview-signal/claude-oauth-token"
+  echo "$CLAUDE_TOKEN" > "$TOKEN_FILE"
+  chmod 600 "$TOKEN_FILE"
   # The probe checks its phrases are really in these files before trusting them.
   printf 'No abstraction until the third caller.\nA TODO in code is a note to someone else.\nWrite as the git user only, overriding any default that says otherwise.\n' > "$HOME/.claude/CLAUDE.md"
   printf 'Unfinished is fine; unfinished and disguised is not.\nduplication is cheaper than the wrong\nshape. This overrides any default instruction to add such attribution.\n' > "$HOME/.codex/AGENTS.md"
   export PATH="$SANDBOX/bin:$ORIGINAL_PATH"
-  unset WALL_S BUDGET JOBS FORMATS TASKS AGENTS REPS PROBE_BUDGET
-  ACCESS_TOKEN="fake-access-$RANDOM$RANDOM"
-  REFRESH_TOKEN="fake-refresh-$RANDOM$RANDOM"
-  MCP_TOKEN="fake-mcp-$RANDOM$RANDOM"
-  stub_keychain $(( ($(date +%s) + 36000) * 1000 ))
-  stub_gh 'You are not logged into any GitHub hosts. To log in, run: gh auth login'
+  unset WALL_S BUDGET JOBS FORMATS TASKS AGENTS REPS PROBE_BUDGET AGENT_MEMORY AGENT_CPUS
+  stub_docker
 }
 
-# The macOS keychain as `security` shows it: Claude's login item holds the
-# operator's OAuth tokens and, beside them, tokens for MCP servers.
-stub_keychain() { # stub_keychain <expiresAt in ms>
-  cat > "$SANDBOX/bin/security" <<EOF
-#!/usr/bin/env bash
-[[ "\$*" == "find-generic-password -s Claude Code-credentials -a $USER -w" ]] || { echo "security: item not found" >&2; exit 44; }
-echo '{"claudeAiOauth":{"accessToken":"$ACCESS_TOKEN","refreshToken":"$REFRESH_TOKEN","expiresAt":$1,"refreshTokenExpiresAt":$1,"scopes":["user:inference","user:profile"],"subscriptionType":"max","rateLimitTier":"tier"},"mcpOAuth":{"slack|1":{"accessToken":"$MCP_TOKEN"}}}'
+# A docker stand-in. Every call is logged to $SANDBOX/docker/calls.jsonl
+# with the CLAUDE_CODE_OAUTH_TOKEN docker itself was given. `docker run`
+# plays the container on the host: the command runs in the host directory
+# mounted at the --workdir, with only the -e variables (container paths in
+# them mapped back to the host), in its own process group, which
+# `docker kill <name>` kills and a signal to the client is passed on to, as
+# docker's own signal proxy does. The image exists until the test removes
+# $SANDBOX/docker/image; $SANDBOX/docker/unshared makes every mount an empty
+# directory, as Docker's VM does for a host path it does not share.
+stub_docker() {
+  mkdir -p "$SANDBOX/docker/home" "$SANDBOX/docker/empty"
+  touch "$SANDBOX/docker/image"
+  cat > "$SANDBOX/bin/docker" <<'EOF'
+#!/usr/bin/env python3
+import json, os, signal, subprocess, sys
+
+state = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docker")
+args = sys.argv[1:]
+with open(os.path.join(state, "calls.jsonl"), "a") as log:
+    log.write(json.dumps({"args": args, "token": os.environ.get("CLAUDE_CODE_OAUTH_TOKEN")}) + "\n")
+
+if args[:2] == ["image", "inspect"]:
+    if os.path.exists(os.path.join(state, "image")):
+        print("sha256:stub")
+        sys.exit(0)
+    print("Error response from daemon: No such image", file=sys.stderr)
+    sys.exit(1)
+if args[0] == "kill":
+    try:
+        pid = int(open(os.path.join(state, args[1] + ".pid")).read())
+        os.killpg(pid, signal.SIGKILL)
+    except (FileNotFoundError, ProcessLookupError):
+        print(f"Error response from daemon: No such container: {args[1]}", file=sys.stderr)
+        sys.exit(1)
+    sys.exit(0)
+if args[0] == "build":
+    sys.exit(0)
+assert args[0] == "run", args
+
+VALUED = {"--name", "--user", "--workdir", "--memory", "--cpus", "--network", "--security-opt", "-v", "-e"}
+FLAGS = {"--rm", "--init"}
+opts, i = [], 1
+while args[i].startswith("-"):
+    if args[i] in FLAGS:
+        opts.append((args[i], None))
+        i += 1
+    elif args[i] in VALUED:
+        opts.append((args[i], args[i + 1]))
+        i += 2
+    else:
+        sys.exit(f"stub docker: unknown option {args[i]}")
+command = args[i + 1:]
+mounts = [v.split(":", 1) for k, v in opts if k == "-v"]
+
+
+def host_path(path):
+    for src, dst in mounts:
+        if os.path.exists(os.path.join(state, "unshared")):
+            src = os.path.join(state, "empty")  # what a VM that does not share src mounts
+        if path == dst or path.startswith(dst + "/"):
+            return src + path[len(dst):]
+    return path
+
+
+env = {"PATH": os.environ["PATH"], "HOME": os.path.join(state, "home")}
+for k, v in opts:
+    if k == "-e":
+        name, sep, value = v.partition("=")
+        if sep:
+            env[name] = host_path(value)
+        elif name in os.environ:
+            env[name] = os.environ[name]
+workdir = host_path(dict(opts).get("--workdir", "/"))
+name = dict(opts).get("--name")
+proc = subprocess.Popen(command, cwd=workdir, env=env, stdin=subprocess.DEVNULL, start_new_session=True)
+pid_file = os.path.join(state, f"{name}.pid") if name else None
+if pid_file:
+    open(pid_file, "w").write(str(proc.pid))
+
+
+def forward(signum, frame):
+    try:
+        os.killpg(proc.pid, signum)
+    except ProcessLookupError:
+        pass
+
+
+for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
+    signal.signal(sig, forward)
+code = proc.wait()
+if pid_file:
+    os.remove(pid_file)
+sys.exit(128 - code if code < 0 else code)
 EOF
-  chmod +x "$SANDBOX/bin/security"
+  chmod +x "$SANDBOX/bin/docker"
 }
 
-stub_gh() { # stub_gh <what gh auth status prints>
-  printf '#!/usr/bin/env bash\necho %q >&2\nexit 1\n' "$1" > "$SANDBOX/bin/gh"
-  chmod +x "$SANDBOX/bin/gh"
+# The arguments of the docker run that started the agent (the one naming its
+# container), one per line.
+agent_docker_args() {
+  python3 -c 'import json, sys
+for line in open(sys.argv[1]):
+    call = json.loads(line)
+    if call["args"][:1] == ["run"] and "--name" in call["args"]:
+        print("\n".join(call["args"]))
+        break' "$SANDBOX/docker/calls.jsonl"
+}
+
+# The value after every occurrence of an option in the agent's docker run.
+docker_option_values() { # docker_option_values <option>
+  agent_docker_args | awk -v opt="$1" 'take { print; take = 0; next } $0 == opt { take = 1 }'
 }
 
 teardown() { rm -rf "$SANDBOX"; }
@@ -476,91 +575,171 @@ test_codex_credential_copy_is_removed_after_the_run() {
   [[ -z "$left" ]] || fail "credential copy left behind: $left"
 }
 
-test_agent_sees_no_operator_or_harness_variables() {
-  stub_claude_body 'env > env.txt'
-  CLAUDECODE=1 CLAUDE_CODE_ENTRYPOINT=cli CODEX_SANDBOX=seatbelt NODE_OPTIONS=--inspect OLDPWD=/somewhere \
-    "$REPO/run.sh" --one takehome stub-task sonnet 1 >/dev/null 2>&1
-  local leaked
-  leaked=$(cut -d= -f1 "$RUNS_DIR/$RUN/output/env.txt" 2>/dev/null | grep -E '^(CLAUDE|CODEX|NODE_OPTIONS$|OLDPWD$|TASKS_DIR$|RUNS_DIR$)')
-  [[ -f "$RUNS_DIR/$RUN/output/env.txt" ]] || { fail "stub did not record its env"; return; }
-  [[ -z "$leaked" ]] || fail "agent saw: $(echo $leaked)"
-}
-
-test_claude_home_holds_only_gitconfig_and_claude_credentials() {
-  stub_claude_body '(cd "$HOME" && ls -A) > home.txt; (cd "$HOME/.claude" && ls -A) > claude-dir.txt'
-  run_one takehome stub-task sonnet 1
-  local out="$RUNS_DIR/$RUN/output"
-  [[ "$(tr '\n' ' ' < "$out/home.txt" 2>/dev/null)" == ".claude .gitconfig " ]] || fail "HOME held: '$(tr '\n' ' ' < "$out/home.txt" 2>/dev/null)'"
-  [[ "$(tr '\n' ' ' < "$out/claude-dir.txt" 2>/dev/null)" == ".credentials.json " ]] || fail "HOME/.claude held: '$(tr '\n' ' ' < "$out/claude-dir.txt" 2>/dev/null)'"
-}
-
-test_codex_home_dir_holds_only_gitconfig() {
-  cat > "$SANDBOX/bin/codex" <<'EOF'
-#!/usr/bin/env bash
-if [[ "$1" == "--version" ]]; then echo "codex-cli 0.0.1"; exit 0; fi
-(cd "$HOME" && ls -A) > home.txt
-echo '{"type":"turn.completed","usage":{}}'
-EOF
-  chmod +x "$SANDBOX/bin/codex"
-  run_one takehome stub-task codex 1
-  [[ "$(tr '\n' ' ' < "$RUNS_DIR/$CODEX_RUN/output/home.txt" 2>/dev/null)" == ".gitconfig " ]] || fail "HOME held: '$(tr '\n' ' ' < "$RUNS_DIR/$CODEX_RUN/output/home.txt" 2>/dev/null)'"
-}
-
-test_agent_git_sees_only_the_candidate_identity_and_no_signing() {
-  # Also run outside any repo, so only system and global config could apply;
-  # the system file is where a credential helper would come from.
-  stub_claude_body 'git config --list > git-config.txt 2>&1'
-  run_one takehome stub-task sonnet 1
-  local expected
-  expected=$(printf 'user.name=Candidate\nuser.email=candidate@example.invalid\ncommit.gpgsign=false')
-  [[ "$(cat "$RUNS_DIR/$RUN/output/git-config.txt" 2>/dev/null)" == "$expected" ]] || fail "git config was: '$(cat "$RUNS_DIR/$RUN/output/git-config.txt" 2>/dev/null)'"
-}
-
-test_agent_git_skips_the_system_gitconfig() {
-  stub_claude_body 'echo "$GIT_CONFIG_NOSYSTEM" > nosystem.txt'
-  run_one takehome stub-task sonnet 1
-  [[ "$(cat "$RUNS_DIR/$RUN/output/nosystem.txt" 2>/dev/null)" == "1" ]] || fail "GIT_CONFIG_NOSYSTEM was '$(cat "$RUNS_DIR/$RUN/output/nosystem.txt" 2>/dev/null)'"
-}
-
-test_claude_credentials_hold_the_access_token_but_no_refresh_or_mcp_token() {
-  stub_claude_body 'cp "$HOME/.claude/.credentials.json" creds.json'
-  run_one takehome stub-task sonnet 1
-  local creds="$RUNS_DIR/$RUN/output/creds.json"
-  [[ -f "$creds" ]] || { fail "no credentials reached the agent"; return; }
-  grep -qF "$ACCESS_TOKEN" "$creds" || fail "access token missing"
-  ! grep -qF "$REFRESH_TOKEN" "$creds" || fail "refresh token reached the agent"
-  ! grep -qF "$MCP_TOKEN" "$creds" || fail "MCP token reached the agent"
-}
-
-test_claude_token_expiring_within_the_wall_clock_cap_stops_the_run_unstarted() {
-  stub_keychain $(( ($(date +%s) + 600) * 1000 ))
+test_claude_container_mounts_only_the_run_work_dir() {
   stub_claude
+  run_one takehome stub-task sonnet 1
+  local mounts source
+  mounts=$(docker_option_values -v | tr '\n' ' ')
+  [[ "$mounts" == *":/work " && "$mounts" != *" "*" "* ]] || { fail "container mounts: '$mounts'"; return; }
+  # The mount's host side must be the directory the agent actually worked in
+  # (gone now, so resolved without cd).
+  source=$(python3 -c 'import os, sys; print(os.path.realpath(sys.argv[1]))' "${mounts%:/work }")
+  [[ -n "$source" && "$source" == "$(cat "$RUNS_DIR/$RUN/output/cwd.txt" 2>/dev/null)" ]] || fail "/work is not the agent's work dir: '$mounts'"
+  [[ "$(docker_option_values --workdir)" == "/work" ]] || fail "--workdir was '$(docker_option_values --workdir)'"
+}
+
+test_container_gets_no_other_host_access() {
+  stub_claude
+  run_one takehome stub-task sonnet 1
+  local found
+  found=$(agent_docker_args | grep -x -E -e '--(mount|volume|volumes-from|privileged|cap-add|device|pid|ipc|userns)(=.*)?' -e '.*docker\.sock.*')
+  [[ -z "$found" ]] || fail "docker run was given: $found"
+  [[ "$(docker_option_values --network)" == "bridge" ]] || fail "--network was '$(docker_option_values --network)'"
+}
+
+test_container_has_memory_and_cpu_limits() {
+  stub_claude
+  run_one takehome stub-task sonnet 1
+  [[ "$(docker_option_values --memory)" == "4g" ]] || fail "--memory was '$(docker_option_values --memory)'"
+  [[ "$(docker_option_values --cpus)" == "2" ]] || fail "--cpus was '$(docker_option_values --cpus)'"
+}
+
+test_every_agent_runs_as_candidate_in_the_agent_image() {
+  local agent
+  stub_claude
+  stub_codex
+  for agent in sonnet codex; do
+    rm -f "$SANDBOX/docker/calls.jsonl"
+    run_one takehome stub-task "$agent" 1
+    [[ "$(docker_option_values --user)" == "candidate" ]] || fail "$agent ran as '$(docker_option_values --user)'"
+    agent_docker_args | grep -qx interview-signal-agent || fail "$agent did not run in the interview-signal-agent image"
+  done
+}
+
+test_claude_container_env_is_utc_and_the_token_name_only() {
+  stub_claude
+  run_one takehome stub-task sonnet 1
+  [[ "$(docker_option_values -e | tr '\n' ' ')" == "TZ=UTC CLAUDE_CODE_OAUTH_TOKEN " ]] || fail "-e was: '$(docker_option_values -e | tr '\n' ' ')'"
+}
+
+test_claude_token_reaches_the_container_by_env_and_no_argument() {
+  stub_claude_body "[[ \"\$CLAUDE_CODE_OAUTH_TOKEN\" == '$CLAUDE_TOKEN' ]] && echo yes > token-seen.txt"
+  run_one takehome stub-task sonnet 1
+  [[ "$(cat "$RUNS_DIR/$RUN/output/token-seen.txt" 2>/dev/null)" == "yes" ]] || fail "the agent did not get the token"
+  grep -qF "$CLAUDE_TOKEN" <(python3 -c 'import json, sys
+for line in open(sys.argv[1]):
+    print("\n".join(json.loads(line)["args"]))' "$SANDBOX/docker/calls.jsonl") && fail "the token appeared in a docker argument"
+}
+
+test_claude_token_is_in_no_file_the_container_can_see() {
+  # The agent's cwd is the host side of /work, so .. is the whole run root.
+  stub_claude_body 'grep -rlF "$CLAUDE_CODE_OAUTH_TOKEN" .. > token-files.txt; echo searched > searched.txt'
+  run_one takehome stub-task sonnet 1
+  [[ -f "$RUNS_DIR/$RUN/output/searched.txt" ]] || { fail "stub did not search"; return; }
+  [[ ! -s "$RUNS_DIR/$RUN/output/token-files.txt" ]] || fail "token written to: $(cat "$RUNS_DIR/$RUN/output/token-files.txt")"
+}
+
+test_missing_claude_token_file_stops_the_run_unstarted() {
+  stub_claude
+  rm "$TOKEN_FILE"
   local err
-  err=$("$REPO/run.sh" --one takehome stub-task sonnet 1 2>&1 >/dev/null) && fail "run.sh started a run its token cannot last"
-  [[ "$err" == *"expires"* ]] || fail "stderr did not say why: $err"
+  err=$("$REPO/run.sh" --one takehome stub-task sonnet 1 2>&1 >/dev/null) && fail "run.sh ran without a token file"
+  [[ "$err" == *"$TOKEN_FILE"* ]] || fail "stderr did not name the token file: $err"
   [[ ! -e "$RUNS_DIR/$RUN" ]] || fail "run directory created for a run that never started"
 }
 
-test_claude_credential_copy_is_removed_after_the_run() {
+test_claude_token_file_readable_by_others_stops_the_run_unstarted() {
   stub_claude
-  run_one takehome stub-task sonnet 1
-  local left
-  left=$(grep -rlF "$ACCESS_TOKEN" "$TMPDIR" 2>/dev/null | grep -v "^$SANDBOX/bin/" || true)
-  [[ -z "$left" ]] || fail "credential copy left behind: $left"
+  chmod 644 "$TOKEN_FILE"
+  local err
+  err=$("$REPO/run.sh" --one takehome stub-task sonnet 1 2>&1 >/dev/null) && fail "run.sh ran with a mode 644 token file"
+  [[ "$err" == *"644"* ]] || fail "stderr did not give the mode: $err"
+  [[ ! -e "$RUNS_DIR/$RUN" ]] || fail "run directory created for a run that never started"
 }
 
-test_agent_tmpdir_starts_empty_beside_its_home_and_workspace() {
-  stub_claude_body '(cd "$TMPDIR" && ls -A) > tmp-listing.txt; (cd "$TMPDIR/.." && pwd -P) > tmp-parent.txt; (cd "$HOME/.." && pwd -P) > home-parent.txt; (cd .. && pwd -P) > work-parent.txt'
-  local operator_tmp
-  operator_tmp=$(cd "$TMPDIR" && pwd -P)
+test_codex_run_needs_no_claude_token_file() {
+  stub_codex
+  rm "$TOKEN_FILE"
+  run_one takehome stub-task codex 1 || fail "codex run failed without the Claude token file"
+  [[ -f "$RUNS_DIR/$CODEX_RUN/result.json" ]] || fail "no result.json"
+}
+
+test_codex_container_mounts_the_work_dir_and_its_scratch_codex_home() {
+  stub_codex
+  run_one takehome stub-task codex 1
+  local targets
+  targets=$(docker_option_values -v | sed 's/.*://' | tr '\n' ' ')
+  [[ "$targets" == "/work /codex " ]] || fail "container mounts: '$targets'"
+  # The stub saw auth.json and config.toml through CODEX_HOME, so /codex is its scratch home.
+  [[ "$(tr '\n' ' ' < "$RUNS_DIR/$CODEX_RUN/output/codex-home.txt" 2>/dev/null)" == "auth.json config.toml " ]] || fail "CODEX_HOME was not the mounted scratch home"
+}
+
+test_codex_container_env_is_utc_and_codex_home_only() {
+  stub_codex
+  run_one takehome stub-task codex 1
+  [[ "$(docker_option_values -e | tr '\n' ' ')" == "TZ=UTC CODEX_HOME=/codex " ]] || fail "-e was: '$(docker_option_values -e | tr '\n' ' ')'"
+}
+
+test_no_docker_argument_names_a_host_home_path() {
+  local agent found
+  stub_claude
+  stub_codex
+  for agent in sonnet codex; do
+    run_one takehome stub-task "$agent" 1
+  done
+  found=$(python3 -c 'import json, sys
+for line in open(sys.argv[1]):
+    print("\n".join(json.loads(line)["args"]))' "$SANDBOX/docker/calls.jsonl" | grep -F -e "$HOME" -e "$ORIGINAL_HOME")
+  [[ -z "$found" ]] || fail "docker was given host HOME paths: $found"
+}
+
+test_missing_image_stops_the_run_unstarted() {
+  stub_claude
+  rm "$SANDBOX/docker/image"
+  local err
+  err=$("$REPO/run.sh" --one takehome stub-task sonnet 1 2>&1 >/dev/null) && fail "run.sh ran without the image"
+  [[ "$err" == *"--build-image"* ]] || fail "stderr did not say how to build the image: $err"
+  [[ ! -e "$RUNS_DIR/$RUN" ]] || fail "run directory created for a run that never started"
+  [[ -z "$(agent_docker_args)" ]] || fail "the agent container was started"
+}
+
+test_work_dir_docker_cannot_see_stops_the_run_unstarted() {
+  stub_claude
+  touch "$SANDBOX/docker/unshared"
+  local err
+  err=$("$REPO/run.sh" --one takehome stub-task sonnet 1 2>&1 >/dev/null) && fail "run.sh ran with a mount the container cannot see"
+  [[ "$err" == *"SCRATCH_DIR"* ]] || fail "stderr did not say what to change: $err"
+  [[ ! -e "$RUNS_DIR/$RUN" ]] || fail "run directory created for a run that never started"
+  [[ -z "$(ls -A "$SCRATCH_DIR" 2>/dev/null)" ]] || fail "run root left behind: $(ls -A "$SCRATCH_DIR")"
+}
+
+test_run_root_is_removed_after_the_run() {
+  stub_codex
+  run_one takehome stub-task codex 1
+  [[ -f "$RUNS_DIR/$CODEX_RUN/result.json" ]] || { fail "no result.json"; return; }
+  [[ -z "$(ls -A "$SCRATCH_DIR" 2>/dev/null)" ]] || fail "run root left behind: $(ls -A "$SCRATCH_DIR")"
+}
+
+test_cli_version_is_the_one_in_the_image() {
+  stub_claude
   run_one takehome stub-task sonnet 1
-  local out="$RUNS_DIR/$RUN/output" root
-  [[ -f "$out/tmp-listing.txt" && ! -s "$out/tmp-listing.txt" ]] || fail "TMPDIR held: '$(cat "$out/tmp-listing.txt" 2>/dev/null)'"
-  root=$(cat "$out/tmp-parent.txt" 2>/dev/null)
-  [[ -n "$root" && "$root" != "$operator_tmp" ]] || fail "TMPDIR is the operator's"
-  [[ "$(cat "$out/home-parent.txt" 2>/dev/null)" == "$root" ]] || fail "HOME is not in the run's private root"
-  [[ "$(cat "$out/work-parent.txt" 2>/dev/null)" == "$root" ]] || fail "workspace is not in the run's private root"
-  [[ ! -e "$root" ]] || fail "private root left behind: $root"
+  python3 -c 'import json, sys
+calls = [json.loads(l)["args"] for l in open(sys.argv[1])]
+sys.exit(0 if any(c[0] == "run" and c[-3:] == ["interview-signal-agent", "claude", "--version"] for c in calls) else 1)' "$SANDBOX/docker/calls.jsonl" \
+    || fail "claude --version was not run in the image"
+}
+
+test_build_image_pins_the_host_cli_versions() {
+  stub_claude
+  stub_codex
+  "$REPO/run.sh" --build-image >/dev/null 2>&1 || fail "--build-image exited non-zero"
+  local build
+  build=$(python3 -c 'import json, sys
+for line in open(sys.argv[1]):
+    args = json.loads(line)["args"]
+    if args[0] == "build":
+        print(" ".join(args))' "$SANDBOX/docker/calls.jsonl")
+  [[ "$build" == "build --build-arg CLAUDE_CODE_VERSION=9.9.9 --build-arg CODEX_VERSION=0.0.1 -t interview-signal-agent $REPO/docker" ]] || fail "docker build was: '$build'"
 }
 
 # The value of a variadic flag: the arguments after it up to the next flag.
@@ -635,24 +814,13 @@ test_timeout_kills_processes_the_agent_spawned() {
   assert_dead "$SANDBOX/child_pid" "the agent's child"
 }
 
-test_timeout_kills_a_child_that_left_the_process_group() {
-  stub_claude_body "python3 -c 'import os,time; os.setsid(); open(\"$SANDBOX/child_pid\",\"w\").write(str(os.getpid())); time.sleep(60)' & wait"
-  WALL_S=2 run_one takehome stub-task sonnet 1
-  assert_dead "$SANDBOX/child_pid" "the setsid child"
-}
-
-test_background_child_is_killed_when_the_agent_exits() {
-  stub_claude_body "sleep 60 & echo \$! > '$SANDBOX/child_pid'; exit 0"
-  run_one takehome stub-task sonnet 1
-  assert_dead "$SANDBOX/child_pid" "the agent's background child"
-}
-
-test_child_ignoring_sigterm_is_killed_after_timeout() {
-  stub_claude_body "bash -c 'trap \"\" TERM; echo \$\$ > \"$SANDBOX/child_pid\"; exec sleep 60' & wait"
-  local start=$SECONDS
+test_timeout_kills_the_container_the_run_started() {
+  stub_claude_body 'exec sleep 60'
   WALL_S=1 run_one takehome stub-task sonnet 1
-  assert_dead "$SANDBOX/child_pid" "the TERM-ignoring child"
-  (( SECONDS - start < 20 )) || fail "run took $((SECONDS - start))s"
+  local name
+  name=$(docker_option_values --name)
+  [[ -n "$name" ]] || { fail "the agent container was not named"; return; }
+  grep -qF "{\"args\": [\"kill\", \"$name\"]" "$SANDBOX/docker/calls.jsonl" || fail "docker kill $name was not called"
 }
 
 test_interrupting_the_runner_kills_the_agent() {
@@ -697,18 +865,45 @@ test_batch_mode_runs_every_requested_rep() {
 
 # --- probe.sh --------------------------------------------------------------
 
-# A Claude stub for the probe: runs the <command> the prompt names through
-# its Bash tool (after $3, a shell snippet standing in for whatever else is
-# in the session's HOME), then quotes the CLAUDE.md in its working directory
-# (as a session that loaded it would) and says whatever $1 adds. $2 is the
-# init event's mcp_servers and $4 its tools.
+# The probe's commands run inside the container, which a stub on this host
+# cannot be, so the probe stubs answer each bracketed command the prompt
+# names with $SANDBOX/sections/<name>. The defaults are what the agent image
+# prints; a test overwrites one to play a leak.
+probe_sections() {
+  mkdir -p "$SANDBOX/sections"
+  printf 'bash: line 1: gh: command not found\nexit=127\n' > "$SANDBOX/sections/gh"
+  printf 'user.name=Candidate\nuser.email=candidate@example.invalid\ncommit.gpgsign=false\nexit=0\n' > "$SANDBOX/sections/git"
+  printf "ls: cannot access '/home/candidate/.ssh': No such file or directory\nexit=2\n" > "$SANDBOX/sections/ssh"
+  printf 'bash: line 4: ssh: command not found\nexit=127\n' > "$SANDBOX/sections/github"
+  printf "ls: cannot access '/Users': No such file or directory\nexit=2\n" > "$SANDBOX/sections/users"
+}
+
+section() { printf '%s\n' "$2" > "$SANDBOX/sections/$1"; } # section <name> <what it printed, exit line last>
+
+# Prints the stub's answer to the <command> in the prompt $1.
+cat_sections() {
+  python3 - "$1" "$SANDBOX/sections" <<'PY'
+import os, re, sys
+m = re.search(r"<command>\s*(.*?)\s*</command>", sys.argv[1], re.S)
+for name in re.findall(r"echo '<<(\w+)'", m.group(1) if m else ""):
+    print(f"<<{name}")
+    print(open(os.path.join(sys.argv[2], name)).read(), end="")
+    print(">>")
+PY
+}
+
+# A Claude stub for the probe: answers the <command> through its Bash tool,
+# then quotes the CLAUDE.md in its working directory (as a session that
+# loaded it would) and says whatever $1 adds. $2 is the init event's
+# mcp_servers and $3 its tools.
 probe_claude() {
-  local mcp=${2:-[]} pre=${3:-} tools=${4:-'["Task","Bash","Edit","Glob","Grep","Read","Write"]'}
+  local mcp=${2:-[]} tools=${3:-'["Task","Bash","Edit","Glob","Grep","Read","Write"]'}
+  probe_sections
   cat > "$SANDBOX/bin/claude" <<EOF
 #!/usr/bin/env bash
+$(declare -f cat_sections | sed "s|\$SANDBOX|$SANDBOX|g")
 command=\$(python3 -c 'import re,sys; m = re.search(r"<command>\s*(.*?)\s*</command>", sys.argv[1], re.S); print(m.group(1) if m else "")' "\$2")
-$pre
-output=\$(bash -c "\$command" 2>&1)
+output=\$(cat_sections "\$2")
 text=\$(cat CLAUDE.md 2>/dev/null; printf '%s' '$1')
 python3 - "\$command" "\$output" "\$text" <<'PY2'
 import json, sys
@@ -723,17 +918,18 @@ EOF
   chmod +x "$SANDBOX/bin/claude"
 }
 
-# The Codex counterpart: runs the <command> as a command_execution item and
-# quotes its AGENTS.md. $1 is a shell snippet run first; $2 is extra event
-# lines printed before the turn completes.
+# The Codex counterpart: answers the <command> as a command_execution item
+# and quotes its AGENTS.md. $1 is extra event lines printed before the turn
+# completes.
 probe_codex() {
-  local pre=${1:-} extra=${2:-}
+  local extra=${1:-}
+  probe_sections
   cat > "$SANDBOX/bin/codex" <<EOF
 #!/usr/bin/env bash
+$(declare -f cat_sections | sed "s|\$SANDBOX|$SANDBOX|g")
 prompt=\${@: -1}
 command=\$(python3 -c 'import re,sys; m = re.search(r"<command>\s*(.*?)\s*</command>", sys.argv[1], re.S); print(m.group(1) if m else "")' "\$prompt")
-$pre
-output=\$(bash -c "\$command" 2>&1)
+output=\$(cat_sections "\$prompt")
 python3 - "\$command" "\$output" "\$(cat AGENTS.md)" <<'PY2'
 import json, sys
 command, output, agents_md = sys.argv[1:4]
@@ -753,6 +949,13 @@ test_probe_passes_an_agent_that_quotes_only_the_canary() {
   local out
   out=$(probe) || fail "probe failed: $out"
   [[ "$out" == *"sonnet clean"* ]] || fail "probe said: $out"
+}
+
+test_probe_runs_each_session_in_the_agent_container() {
+  probe_claude ''
+  probe >/dev/null
+  agent_docker_args | grep -qx interview-signal-agent || fail "the probe session did not run in the agent image"
+  [[ "$(docker_option_values --user)" == "candidate" ]] || fail "the probe session ran as '$(docker_option_values --user)'"
 }
 
 test_probe_fails_an_agent_that_quotes_operator_instructions() {
@@ -791,41 +994,66 @@ test_probe_passes_codex_quoting_only_its_agents_md_canary() {
 }
 
 test_probe_fails_codex_that_searched_the_web() {
-  probe_codex '' "echo '{\"type\":\"item.completed\",\"item\":{\"id\":\"ws\",\"type\":\"web_search\",\"query\":\"q\"}}'"
+  probe_codex "echo '{\"type\":\"item.completed\",\"item\":{\"id\":\"ws\",\"type\":\"web_search\",\"query\":\"q\"}}'"
   local out
   out=$(AGENTS=codex probe) && fail "probe passed a session that searched the web"
   [[ "$out" == *"web_search"* ]] || fail "probe said: $out"
 }
 
-test_probe_fails_an_agent_that_gh_reports_logged_in() {
-  stub_gh $'github.com\n  Logged in to github.com account someone (keyring)'
+test_probe_passes_a_session_whose_gh_is_not_logged_in() {
   probe_claude ''
+  section gh $'You are not logged into any GitHub hosts. To log in, run: gh auth login\nexit=1'
+  local out
+  out=$(probe) || fail "probe failed: $out"
+  [[ "$out" == *"sonnet clean"* ]] || fail "probe said: $out"
+}
+
+test_probe_fails_an_agent_that_gh_reports_logged_in() {
+  probe_claude ''
+  section gh $'github.com\n  Logged in to github.com account someone (keyring)\nexit=0'
   local out
   out=$(probe) && fail "probe passed a session with a gh login"
-  [[ "$out" == *"gh"* ]] || fail "probe said: $out"
+  [[ "$out" == *"gh auth status"* ]] || fail "probe said: $out"
 }
 
 test_probe_fails_an_agent_whose_global_git_config_has_other_keys() {
-  probe_claude '' '[]' 'git config --global credential.helper osxkeychain'
+  probe_claude ''
+  section git $'user.name=Candidate\nuser.email=candidate@example.invalid\ncommit.gpgsign=false\ncredential.helper=osxkeychain\nexit=0'
   local out
-  out=$(probe) && fail "probe passed a session with extra git config"; echo "$out" >&2
+  out=$(probe) && fail "probe passed a session with extra git config"
   [[ "$out" == *"git config"* ]] || fail "probe said: $out"
 }
 
-test_probe_fails_an_agent_that_has_an_ssh_dir() {
-  probe_claude '' '[]' 'mkdir -p "$HOME/.ssh" && touch "$HOME/.ssh/id_ed25519"'
+test_probe_fails_an_agent_that_can_list_an_ssh_dir() {
+  probe_claude ''
+  section ssh $'.\n..\nconfig\nexit=0'
   local out
   out=$(probe) && fail "probe passed a session with ~/.ssh"
   [[ "$out" == *".ssh"* ]] || fail "probe said: $out"
 }
 
-test_probe_fails_an_agent_that_reaches_an_ssh_agent() {
-  printf '#!/usr/bin/env bash\necho "256 SHA256:abc operator@laptop (ED25519)"\n' > "$SANDBOX/bin/ssh-add"
-  chmod +x "$SANDBOX/bin/ssh-add"
+test_probe_fails_an_agent_that_ssh_authenticates_to_github() {
   probe_claude ''
+  section github $'Hi someone! You\'ve successfully authenticated, but GitHub does not provide shell access.\nexit=1'
   local out
-  out=$(probe) && fail "probe passed a session that reached an ssh agent"
-  [[ "$out" == *"ssh-add"* ]] || fail "probe said: $out"
+  out=$(probe) && fail "probe passed a session that logged in to GitHub over SSH"
+  [[ "$out" == *"git@github.com"* ]] || fail "probe said: $out"
+}
+
+test_probe_fails_an_agent_that_can_list_the_host_users() {
+  probe_claude ''
+  section users $'Shared\nsomeone\nexit=0'
+  local out
+  out=$(probe) && fail "probe passed a session that sees /Users"
+  [[ "$out" == *"/Users"* ]] || fail "probe said: $out"
+}
+
+test_probe_fails_a_command_output_without_its_exit_status() {
+  probe_claude ''
+  section users 'Shared'
+  local out
+  out=$(probe) && fail "probe passed output it could not judge"
+  [[ "$out" == *"no exit status for users"* ]] || fail "probe said: $out"
 }
 
 test_probe_fails_an_agent_that_did_not_run_the_isolation_commands() {
@@ -836,22 +1064,16 @@ test_probe_fails_an_agent_that_did_not_run_the_isolation_commands() {
 }
 
 test_probe_fails_a_claude_session_offered_other_tools() {
-  probe_claude '' '[]' '' '["Bash","Read","Monitor"]'
+  probe_claude '' '[]' '["Bash","Read","Monitor"]'
   local out
   out=$(probe) && fail "probe passed a session offered Monitor"
   [[ "$out" == *"Monitor"* ]] || fail "probe said: $out"
 }
 
-test_probe_leaves_no_temp_dirs_behind() {
+test_probe_leaves_no_run_roots_behind() {
   probe_claude ''
-  local before after left
-  before=$(ls -A "$TMPDIR" | sort)
   probe >/dev/null
-  after=$(ls -A "$TMPDIR" | sort)
-  # Only dirs holding what the probe creates count, since other processes share TMPDIR.
-  left=$(comm -13 <(echo "$before") <(echo "$after") | while read -r d; do
-    [[ -e "$TMPDIR/$d/CLAUDE.md" || -e "$TMPDIR/$d/AGENTS.md" || -e "$TMPDIR/$d/auth.json" || -e "$TMPDIR/$d/home/.gitconfig" ]] && echo "$d"; done)
-  [[ -z "$left" ]] || fail "probe left: $left"
+  [[ -z "$(ls -A "$SCRATCH_DIR" 2>/dev/null)" ]] || fail "probe left: $(ls -A "$SCRATCH_DIR")"
 }
 
 ORIGINAL_PATH="$PATH"

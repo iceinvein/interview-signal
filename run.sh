@@ -6,12 +6,23 @@
 #   ./run.sh --rebuild-result <run dir>          recompute result.json and
 #                                                final_message.txt from the
 #                                                run's transcript.jsonl
+#   ./run.sh --build-image                       build the agent image, with
+#                                                the host's Claude Code and
+#                                                Codex versions
 #   ./run.sh                                     every run selected by the env below
+#
+# Every agent runs in a fresh Docker container of the image docker/Dockerfile
+# builds, as the user candidate, seeing only its run's work dir (at /work)
+# and, for Codex, a scratch CODEX_HOME. Claude authenticates with the token in
+# ~/.config/interview-signal/claude-oauth-token (mode 0600), made with
+# `claude setup-token`; Codex with a copy of ~/.codex/auth.json.
 #
 # Env: FORMATS, TASKS, AGENTS (space-separated filters), REPS (count per
 # task and agent), JOBS (parallel runs, default 1), BUDGET (per-run USD cap
-# for Claude agents), WALL_S (per-run wall-clock cap in seconds). Defaults for
-# agents, reps and caps follow the plan's Ground Rules per format.
+# for Claude agents), WALL_S (per-run wall-clock cap in seconds), SCRATCH_DIR
+# (where run roots are made, default ~/.cache/interview-signal/scratch),
+# AGENT_MEMORY and AGENT_CPUS (container limits, default 4g and 2). Defaults
+# for agents, reps and caps follow the plan's Ground Rules per format.
 # A run whose result.json exists is skipped; delete it to re-run. A run in
 # progress holds <run dir>.lock; one left by a crashed runner must be removed
 # by hand.
@@ -21,6 +32,14 @@ REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 TASKS_DIR=${TASKS_DIR:-$REPO/tasks}
 RUNS_DIR=${RUNS_DIR:-$REPO/runs}
 ALL_FORMATS="takehome comprehension algorithms perf"
+IMAGE=interview-signal-agent
+CLAUDE_TOKEN_FILE="$HOME/.config/interview-signal/claude-oauth-token"
+# Colima shares only the operator's home with its VM, and a bind mount of a
+# path the VM cannot see is silently an empty directory, so the default sits
+# under HOME (make_run_root checks the container really sees the mount).
+SCRATCH_DIR=${SCRATCH_DIR:-$HOME/.cache/interview-signal/scratch}
+AGENT_MEMORY=${AGENT_MEMORY:-4g}
+AGENT_CPUS=${AGENT_CPUS:-2}
 
 default_agents() {
   case "$1" in
@@ -42,6 +61,47 @@ default_reps() {
 default_budget() { if [[ "$1" == perf ]]; then echo 25.00; else echo 2.00; fi; }
 default_wall_s() { if [[ "$1" == perf ]]; then echo 7200; else echo 1200; fi; }
 
+# Builds the agent image with the CLI versions the host runs, then checks the
+# image reports the same versions.
+build_image() {
+  local claude_host codex_host claude_version codex_version
+  claude_host=$(claude --version)
+  codex_host=$(codex --version)
+  claude_version=$(sed -nE 's/^([0-9][0-9.]*) .*$/\1/p' <<< "$claude_host")
+  codex_version=$(sed -nE 's/^codex-cli ([0-9][0-9.]*)$/\1/p' <<< "$codex_host")
+  [[ -n "$claude_version" ]] || { echo "cannot read a version from claude --version: $claude_host" >&2; return 1; }
+  [[ -n "$codex_version" ]] || { echo "cannot read a version from codex --version: $codex_host" >&2; return 1; }
+  docker build --build-arg "CLAUDE_CODE_VERSION=$claude_version" --build-arg "CODEX_VERSION=$codex_version" \
+    -t "$IMAGE" "$REPO/docker"
+  local claude_image codex_image
+  claude_image=$(docker run --rm --network none "$IMAGE" claude --version)
+  codex_image=$(docker run --rm --network none "$IMAGE" codex --version)
+  [[ "$claude_image" == "$claude_host" ]] || { echo "image has $claude_image, host has $claude_host" >&2; return 1; }
+  [[ "$codex_image" == "$codex_host" ]] || { echo "image has $codex_image, host has $codex_host" >&2; return 1; }
+}
+
+require_image() {
+  docker image inspect --format '{{.Id}}' "$IMAGE" > /dev/null \
+    || { echo "no Docker image $IMAGE: build it with ./run.sh --build-image" >&2; return 1; }
+}
+
+# The token goes to the container as an environment variable, never as a
+# file, so it must be the operator's alone on the host.
+check_claude_token() {
+  python3 - "$CLAUDE_TOKEN_FILE" <<'PY'
+import os, stat, sys
+path = sys.argv[1]
+how = "make it with `claude setup-token`, save the token there and chmod 600 it"
+if not os.path.isfile(path):
+    sys.exit(f"missing Claude token file {path}: {how}")
+mode = stat.S_IMODE(os.stat(path).st_mode)
+if mode != 0o600:
+    sys.exit(f"Claude token file {path} has mode {mode:o}, not 600: {how}")
+if not open(path).read().strip():
+    sys.exit(f"Claude token file {path} is empty: {how}")
+PY
+}
+
 # Codex reads instructions from CODEX_HOME, so each Codex session gets a
 # scratch one holding credentials and a config that pins the operator's model
 # and effort, turns off Codex's own web search, and lets the sandbox reach the
@@ -62,57 +122,63 @@ network_access = true
 TOML
 }
 
-# Claude's login lives in the macOS keychain, which a session with a scratch
-# HOME cannot find, so the session gets the one thing it needs from it: the
-# claude.ai access token, as the plaintext credentials file Claude falls back
-# to. Not the refresh token (a session that refreshed could rotate it and log
-# the operator out) and not the MCP server tokens stored beside it. Without a
-# refresh token the session cannot outlive the access token, so a token that
-# would expire before the run's wall-clock cap stops the run before it starts.
-write_claude_credentials() { # write_claude_credentials <file> <seconds needed>
-  security find-generic-password -s "Claude Code-credentials" -a "$USER" -w \
-    | python3 -c '
-import json, sys, time
-path, needed = sys.argv[1], float(sys.argv[2])
-oauth = json.load(sys.stdin)["claudeAiOauth"]
-left = oauth["expiresAt"] / 1000 - time.time()
-if left < needed:
-    sys.exit(f"Claude access token expires in {left / 60:.0f} min, before this run could end "
-             f"({needed / 60:.0f} min); use Claude Code interactively until it refreshes, then retry")
-fields = ("accessToken", "expiresAt", "scopes", "subscriptionType")
-with open(path, "x") as f:
-    json.dump({"claudeAiOauth": {k: oauth[k] for k in fields}}, f)' "$1" "$2"
+# Fails when the container would get an empty /work because Docker's VM does
+# not share the directory.
+check_mount() { # check_mount <work dir>
+  local marker=".mount-check-$RANDOM$RANDOM"
+  : > "$1/$marker"
+  if ! docker run --rm --network none -v "$1:/work" --workdir /work "$IMAGE" test -e "$marker"; then
+    echo "a container cannot see $1 (Docker's VM does not share it); set SCRATCH_DIR to a directory it shares" >&2
+    return 1
+  fi
+  rm "$1/$marker"
 }
 
-# make_run_root <agent> <wall_s> -> prints a fresh private directory holding
-#   work/   the agent's working directory, empty
-#   home/   its HOME: a .gitconfig naming a placeholder candidate with signing
-#           off, plus (Claude only) .claude/.credentials.json
-#   tmp/    its TMPDIR, so it cannot stumble on other runs' temp dirs
-#   codex/  (Codex only) its CODEX_HOME
-# The operator's own HOME holds a gh login, SSH keys and a signing git
-# config, and a session that found them once pushed to GitHub as the operator.
+# make_run_root <agent> -> prints a fresh private directory holding
+#   work/   the agent's working directory, empty, mounted at /work
+#   codex/  (Codex only) its CODEX_HOME, mounted at /codex
+# after checking the image exists and, for Claude, the token file. Nothing
+# else of the host reaches the container: the operator's HOME holds a gh
+# login, SSH keys and a signing git config, and its keychain the operator's
+# full Claude login, and sessions running as the operator found all of them.
 # The caller removes the directory.
 make_run_root() {
-  local agent=$1 wall_s=$2 root
-  root=$(mktemp -d)
-  mkdir "$root/work" "$root/home" "$root/tmp"
-  cat > "$root/home/.gitconfig" <<'GIT'
-[user]
-	name = Candidate
-	email = candidate@example.invalid
-[commit]
-	gpgsign = false
-GIT
+  local agent=$1 root
+  # Called as $(make_run_root ...), where set -e does not apply.
+  require_image || return 1
+  [[ "$agent" == codex ]] || check_claude_token || return 1
+  mkdir -p -m 700 "$SCRATCH_DIR" || return 1
+  root=$(mktemp -d "$SCRATCH_DIR/run.XXXXXX") || return 1
+  mkdir "$root/work" || { rm -rf "$root"; return 1; }
   if [[ "$agent" == codex ]]; then
     make_codex_home "$root/codex" || { rm -rf "$root"; return 1; }
-  else
-    mkdir "$root/home/.claude"
-    # A minute past the cap covers the grace run_timed gives a stopped agent.
-    write_claude_credentials "$root/home/.claude/.credentials.json" $((wall_s + 60)) \
-      || { rm -rf "$root"; return 1; }
   fi
+  check_mount "$root/work" || { rm -rf "$root"; return 1; }
   echo "$root"
+}
+
+container_name() { echo "interview-signal-$(basename "$1")"; } # container_name <run root>
+
+# container_command <array> <agent> <run root> <agent command...>
+# Fills the named array with the docker run line that runs the agent command
+# in a fresh container. The Claude token is named but not given a value, so
+# docker takes it from run_timed's environment and it never appears in an
+# argument list or a file.
+container_command() {
+  local -n line=$1
+  local agent=$2 root=$3
+  shift 3
+  line=(docker run --rm --init --name "$(container_name "$root")"
+    --user candidate --workdir /work
+    --memory "$AGENT_MEMORY" --cpus "$AGENT_CPUS"
+    --network bridge --security-opt no-new-privileges
+    -v "$root/work:/work" -e TZ=UTC)
+  if [[ "$agent" == codex ]]; then
+    line+=(-v "$root/codex:/codex" -e CODEX_HOME=/codex)
+  else
+    line+=(-e CLAUDE_CODE_OAUTH_TOKEN)
+  fi
+  line+=("$IMAGE" "$@")
 }
 
 # Fills the named array with the agent's exact command line.
@@ -137,108 +203,62 @@ agent_command() {
 
 agent_cli_version() {
   case "$1" in
-    codex) codex --version ;;
-    *) claude --version ;;
+    codex) docker run --rm --network none "$IMAGE" codex --version ;;
+    *) docker run --rm --network none "$IMAGE" claude --version ;;
   esac
 }
 
-# run_timed <wall_s> <cwd> <stdout> <stderr> <status.json> <run root> -- <command...>
-# Runs the command in its own session under an allowlisted environment, with
-# HOME, TMPDIR and (when the root has one) CODEX_HOME from make_run_root, and
-# records exit code, wall time, whether the cap was hit and any signal that
-# stopped it. Whatever the agent started is killed when it exits, when the
-# cap is hit, or when this runner gets SIGINT, SIGTERM or SIGHUP: the process
-# group, plus descendants that left it with setsid, which a ps walk finds
-# while their parent is still alive.
+# run_timed <wall_s> <stdout> <stderr> <status.json> <container> <token file|""> -- <docker run...>
+# Runs the docker run line and records exit code, wall time, whether the cap
+# was hit and any signal that stopped it. With a token file, its contents are
+# the CLAUDE_CODE_OAUTH_TOKEN that docker hands the container. When the cap
+# is hit, or this runner gets SIGINT, SIGTERM or SIGHUP, the container is
+# killed with docker kill, which ends everything the agent started.
 run_timed() {
   python3 - "$@" <<'PY'
 import json, os, signal, subprocess, sys, time
 
-wall_s, cwd, out_path, err_path, status_path, root = sys.argv[1:7]
+wall_s, out_path, err_path, status_path, container, token_file = sys.argv[1:7]
 assert sys.argv[7] == "--"
 command = sys.argv[8:]
+# How long docker gets to end the container after a kill before the client
+# itself is killed.
+KILL_GRACE_S = 30
 
-# Anything else in the operator's shell (CLAUDE*, CODEX*, NODE_OPTIONS,
-# SSH_AUTH_SOCK, GH_TOKEN, ...) could change how a session behaves or what it
-# can reach. The system git config is skipped because macOS's names the
-# keychain as a credential helper.
-env = {k: os.environ[k] for k in ("PATH", "USER", "LANG") if k in os.environ}
-env.update(TZ="UTC", PWD=cwd, HOME=os.path.join(root, "home"), TMPDIR=os.path.join(root, "tmp"),
-           GIT_CONFIG_NOSYSTEM="1")
-if os.path.isdir(os.path.join(root, "codex")):
-    env["CODEX_HOME"] = os.path.join(root, "codex")
-
-
-def process_table():
-    """pid -> (ppid, start time); the start time tells a reused pid apart."""
-    out = subprocess.run(["ps", "-A", "-o", "pid=,ppid=,lstart="],
-                         capture_output=True, text=True, check=True).stdout
-    table = {}
-    for line in out.splitlines():
-        pid, ppid, started = line.split(None, 2)
-        table[int(pid)] = (int(ppid), started)
-    return table
-
-
-def descendants(root, table):
-    children = {}
-    for pid, (ppid, started) in table.items():
-        children.setdefault(ppid, []).append((pid, started))
-    found, frontier = {}, [root]
-    while frontier:
-        for pid, started in children.get(frontier.pop(), []):
-            if pid not in found:
-                found[pid] = started
-                frontier.append(pid)
-    return found
-
+env = dict(os.environ)
+if token_file:
+    with open(token_file) as f:
+        env["CLAUDE_CODE_OAUTH_TOKEN"] = f.read().strip()
 
 proc = None
-reaped = False
 stopped_by = None
-known = {}
+stop_started = None
 
 
-def kill_all(sig):
-    # Only before the leader is reaped: until then its zombie holds its pid,
-    # so the group id and the walk from it cannot reach an unrelated process.
-    if proc is None or reaped:
-        return
-    try:
-        os.killpg(proc.pid, sig)
-    except ProcessLookupError:
-        pass
-    except PermissionError:
-        pass  # macOS answers EPERM when the group's only member is the unreaped leader.
-    table = process_table()
-    for pid, started in {**known, **descendants(proc.pid, table)}.items():
-        if table.get(pid, (None, None))[1] == started:
-            try:
-                os.kill(pid, sig)
-            except ProcessLookupError:
-                pass
+def kill_container():
+    # Before docker has created the container, or after --rm has removed it,
+    # docker kill finds nothing; the wait loop below retries until the client
+    # has exited, so a signal that comes before the container exists still
+    # ends it.
+    subprocess.run(["docker", "kill", container], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 def on_signal(signum, frame):
-    global stopped_by
+    global stopped_by, stop_started
     stopped_by = signal.Signals(signum).name
-    kill_all(signal.SIGKILL)
-
-
-def leader_exited():
-    # WNOWAIT leaves the leader unreaped, so kill_all stays safe afterwards.
-    return os.waitid(os.P_PID, proc.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT) is not None
+    stop_started = stop_started or time.monotonic()
 
 
 def wait_for_exit(until):
-    while not leader_exited():
-        if stopped_by:
-            kill_all(signal.SIGKILL)  # the signal came before the agent had started
-        known.update(descendants(proc.pid, process_table()))
-        remaining = until - time.monotonic()
-        if remaining <= 0:
+    while proc.poll() is None:
+        now = time.monotonic()
+        if stop_started is not None:
+            kill_container()
+            if now - stop_started > KILL_GRACE_S:
+                proc.kill()
+        if now >= until:
             return False
-        time.sleep(min(1.0, remaining))
+        time.sleep(min(1.0, until - now))
     return True
 
 
@@ -248,19 +268,18 @@ for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
 start = time.monotonic()
 timed_out = False
 with open(out_path, "wb") as out, open(err_path, "wb") as err:
-    proc = subprocess.Popen(command, cwd=cwd, env=env, stdin=subprocess.DEVNULL,
-                            stdout=out, stderr=err, start_new_session=True)
+    # Its own session, so a signal to the runner's process group reaches the
+    # agent only through the kill below, after this helper has noted it.
+    proc = subprocess.Popen(command, env=env, stdin=subprocess.DEVNULL, stdout=out, stderr=err,
+                            start_new_session=True)
     if not wait_for_exit(start + float(wall_s)):
         timed_out = True
-        kill_all(signal.SIGTERM)
-        wait_for_exit(time.monotonic() + 10)
-    # Also after a clean exit: a background child of the agent would
-    # otherwise keep writing to the workspace while it is copied.
-    kill_all(signal.SIGKILL)
-    signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGINT, signal.SIGTERM, signal.SIGHUP})
-    code = proc.wait()
-    reaped = True
-    signal.pthread_sigmask(signal.SIG_UNBLOCK, {signal.SIGINT, signal.SIGTERM, signal.SIGHUP})
+        stop_started = stop_started or time.monotonic()
+        wait_for_exit(float("inf"))
+    # Also after a clean exit: a client that died on its own would otherwise
+    # leave the container writing to the workspace while it is copied.
+    kill_container()
+    code = proc.returncode
 with open(status_path, "w") as f:
     json.dump({"exit_code": code, "timed_out": timed_out, "interrupted": stopped_by,
                "wall_s": round(time.monotonic() - start, 3)}, f)
@@ -525,7 +544,7 @@ run_one() {
   local dir="$RUNS_DIR/${format}__${id}__${agent}__r${rep}"
   [[ -d "$task" ]] || { echo "no such task: $task" >&2; return 1; }
 
-  # The run's private root (with its credential copies) and the lock go
+  # The run's private root (with its Codex credential copy) and the lock go
   # however the run ends. A stop signal before the agent starts ends the run
   # unrecorded; once it has started, forward_stop takes over.
   trap cleanup EXIT
@@ -545,11 +564,11 @@ run_one() {
   fi
   local budget=${BUDGET:-$(default_budget "$format")}
   local wall_s=${WALL_S:-$(default_wall_s "$format")}
-  local root work codex_home=""
-  root=$(make_run_root "$agent" "$wall_s")
+  local root work codex_home="" token_file=""
+  root=$(make_run_root "$agent")
   CLEANUP+=("$root")
   work="$root/work"
-  [[ "$agent" != codex ]] || codex_home="$root/codex"
+  if [[ "$agent" == codex ]]; then codex_home="$root/codex"; else token_file=$CLAUDE_TOKEN_FILE; fi
 
   # A directory without result.json is a run that died part way; start over.
   rm -rf "$dir"
@@ -561,8 +580,9 @@ run_one() {
     cp -R "$task/workspace/." "$work/"
   fi
 
-  local -a command_line
+  local -a command_line docker_line
   agent_command command_line "$agent" "$(cat "$task/prompt.md")" "$budget"
+  container_command docker_line "$agent" "$root" "${command_line[@]}"
   local cli
   cli=$(agent_cli_version "$agent")
 
@@ -576,7 +596,8 @@ run_one() {
   # the helper (which sets its own handlers) has recorded the run.
   (
     trap '' HUP INT TERM
-    run_timed "$wall_s" "$work" "$dir/transcript.jsonl" "$dir/stderr.txt" "$root/status.json" "$root" -- "${command_line[@]}"
+    run_timed "$wall_s" "$dir/transcript.jsonl" "$dir/stderr.txt" "$root/status.json" "$(container_name "$root")" "$token_file" \
+      -- "${docker_line[@]}"
   ) &
   TIMED_PID=$!
   [[ -z "$STOP_SIGNAL" ]] || forward_stop "$STOP_SIGNAL"
@@ -674,7 +695,10 @@ run_all() {
 }
 
 main() {
-  if [[ "${1:-}" == --one ]]; then
+  if [[ "${1:-}" == --build-image ]]; then
+    [[ $# -eq 1 ]] || { echo "usage: $0 --build-image" >&2; return 2; }
+    build_image
+  elif [[ "${1:-}" == --one ]]; then
     [[ $# -eq 5 ]] || { echo "usage: $0 --one <format> <id> <agent> <rep>" >&2; return 2; }
     run_one "$2" "$3" "$4" "$5"
   elif [[ "${1:-}" == --rebuild-result ]]; then
@@ -683,7 +707,7 @@ main() {
   elif [[ $# -eq 0 ]]; then
     run_all
   else
-    echo "usage: $0 [--one <format> <id> <agent> <rep> | --rebuild-result <run dir>]" >&2
+    echo "usage: $0 [--build-image | --one <format> <id> <agent> <rep> | --rebuild-result <run dir>]" >&2
     return 2
   fi
 }
