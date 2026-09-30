@@ -109,6 +109,15 @@ class TakehomePrompt(Fixture):
         prompt = judge.build_prompt(run, task, self.criterion(task, "tests-control-time"))
         self.assertIn("Build the thing the brief describes.", prompt)
 
+    def test_symlink_the_agent_planted_is_not_followed_into_the_prompt(self):
+        outside = self.tmp / "operator-secret.txt"
+        outside.write_text("operator secret line\n")
+        task, run = self.takehome(final_message="Done.")
+        (run / "output" / "leak.txt").symlink_to(outside)
+        prompt = judge.build_prompt(run, task, self.criterion(task, "tests-control-time"))
+        self.assertNotIn("operator secret line", prompt)
+        self.assertNotIn("leak.txt", prompt)
+
     def test_file_left_unchanged_is_not_in_the_diff(self):
         task = self.make_task("takehome", "repo", TAKEHOME_RUBRIC, {"README.md": "untouched words\n"})
         run = self.make_run("takehome", "repo", {"README.md": "untouched words\n", "a.ts": "x\n"}, "Done.")
