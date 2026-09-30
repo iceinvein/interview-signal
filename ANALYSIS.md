@@ -1,7 +1,11 @@
 # Analysis: headline findings
 
 Every number here is printed by
-`python3 analyze.py --transcripts <main checkout>` over the 438 runs in `runs/`.
+`python3 analyze.py --transcripts <main checkout>` over the 438 runs in `runs/`,
+except a few facts taken from the run record
+(`docs/plans/2026-09-27-interview-signal-record.md`): the 54-call judge batch
+whose cost was not printed, the 52-second capacity error, and the earlier
+non-blind hand-check.
 The 20 runs in `runs-excluded/` are reported only as incidents. The
 hand-check was done blind by a fresh Claude agent, not by a human; its rows
 are in `handcheck.json`.

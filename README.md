@@ -128,6 +128,12 @@ Both groups were rerun; `ANALYSIS.md` and the post describe them.
   were audited and show no credential use, pushes, web search or connector
   calls, but they had the operator's credentials within reach, and scoring
   of those runs executed the agents' own tests on the host.
+  Those host runs also had Codex web search available (never used) and ran
+  Claude without `--strict-mcp-config`; one resumed session had the
+  operator's claude.ai connectors attached and called none of them.
+- The webhook brief asks candidates to record their decisions and says
+  time-dependent tests are weighed, so those criteria measure following an
+  instruction rather than unprompted judgment.
 - The Claude token and the Codex credential are readable inside a run; the
   Codex one is the operator's full ChatGPT login.
 - Scoring mounts the whole format folder, so scored code could read other

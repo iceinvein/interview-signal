@@ -224,7 +224,7 @@
   `HOME` through (the env allowlist covered variables, not credentials on
   disk). The FeedMe brief tells candidates to fork and open a PR; Codex did.
   Live on GitHub, confirmed read-only: open PRs feedmepos/se-take-home-
-  assignment #288-#291 and [another candidate]/feedme-backend-service #3 (a
+  assignment #288-#291 and feedme-backend-service #3 on another candidate's repo (a
   stranger's solution repo that r3 found, read, forked and PR'd); forks
   iceinvein/se-take-home-assignment and iceinvein/feedme-backend-service.
 - r3 also ran a live Codex web search: the scratch config never disabled
@@ -313,7 +313,7 @@
   `runs-excluded/feedme-host-isolation/` (kept as the incident's evidence,
   excluded from analysis); FeedMe is rerun in the container.
 - **FeedMe rerun complete (9ab6642):** 15/15 clean in containers; no new PRs or
-  forks under the operator's account; Claude spend $4.17; judging 270 calls
+  forks under the operator's account; Claude spend $3.25 per result.json (an earlier $4.17 here was a miscount); judging 270 calls
   $34.57 (recorded exactly this time). Six runs tried `gh` and found it
   absent; two Codex runs cloned the public upstream repo (main branch, no
   solutions).
@@ -336,7 +336,7 @@
   search in excluded host r3. All 5 container Codex FeedMe runs moved to
   `runs-excluded/feedme-codex-connector/` (a mixed set would compare
   unequal conditions) and rerun.
-- **Blind hand-check (2026-10-01):** a fresh agent labelled the redrawn
+- **Blind hand-check (2026-09-30):** a fresh agent labelled the redrawn
   seeded sample (99) and all 15 FeedMe runs (135) from a scratch copy with
   no labels present; joined afterwards. Agreement 98/99 on the sample and
   14/15 on FeedMe honest-report, identical to the non-blind pass. Codex
@@ -344,3 +344,34 @@
   rerun once; the first judge batch of that rerun (54 calls) stopped on a
   usage limit before printing its cost. ANALYSIS.md written by the
   controller from analyze.py output.
+
+## Tasks 13 and 14
+
+- **T13 README (d18ca43, link a later commit):** results table, isolation,
+  scoring, tasks with licences, running, what is committed, the incidents,
+  limitations. Written by the controller.
+- **T14 blog post (who-is-iceinvein cb02e42 and the fix commit after it):**
+  "Your Interview Measures the Agent, Not the Candidate", dated 2026-10-05,
+  three inline SVG charts checked in light and dark via agent-browser;
+  typecheck, tests and build pass. Discloses the author's interview overlay
+  with no link or usage instructions.
+- **Final review:** five blocking findings (unpublished harness repo;
+  documentation row misdescribed; "web search off for both" false for the
+  host runs; descriptions overstated; the webhook brief's invited-decision
+  qualifier missing) and should-fixes, all applied. Claims checklist, each
+  verified by the final reviewer against analyze.py output, committed data or
+  the fetched source: run counts and models; no-signal shares 10/14, 12/15,
+  6/10, 12/13, 8/13, 21/30; separating rows 3/5/0, 3/5/2, 5/5/3, 0/5/5/5
+  (documentation, reworded to the rubric's completeness bar), honest report
+  4/2/5 hand-graded (judge Opus 3/5); traps 5/5/5 and 5/5/4+1, secret in
+  Codex stdout 5/5 and Claude 0/10; comprehension 30/30 with README and
+  30/30/30/3 without; algorithms 90/90 x3 and Haiku 75/90 over 9 questions;
+  perf 1031/1050/1297 in 22-31 min against starts 18,532 and 147,734;
+  hand-check 98/99; cost about $315; CoderPad (650 respondents, 11 Feb 2026,
+  52% agent-generated solutions, 34% ban and 46% allow, 12% recruiters and
+  hiring leaders on take-homes reflecting on-the-job ability vs 60% live
+  coding); interviewing.io 73% verbatim and 25% custom, no interviewer
+  noticed; Anthropic post and upstream README wording verbatim.
+- **Redactions before publishing:** the operator's work email in an excluded
+  run's closing message and another candidate's GitHub handle are removed
+  from the tree and from history.
