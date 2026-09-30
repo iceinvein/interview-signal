@@ -7,7 +7,7 @@ Real and authored interview tasks are given, unaided, to headless coding
 agents (Claude Code and Codex). Every criterion an agent meets on its own is a
 criterion that tells an interviewer nothing about the person in front of
 them. This repo is the harness, the tasks and the data behind
-[Your Interview Measures the Agent, Not the Candidate](https://dikrana.dev/blog/interview-measures-the-agent/),
+[Your Interview Measures the Agent, Not the Candidate](https://dikrana.dev/blog/interview-measures-agent/),
 and [`ANALYSIS.md`](ANALYSIS.md) has every headline number.
 
 ## Result in one table
