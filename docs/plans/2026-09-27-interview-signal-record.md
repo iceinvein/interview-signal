@@ -166,7 +166,7 @@
 - **T6 (e7f2272)**, tier 2, stat read: 30 questions, one `all-cases`
   criterion each. The implementer's own sub-worker for the last five custom
   tasks never reported; T6 stalled about 13 hours waiting on it and was
-  prompted to finish directly. Coin change lowered to a 5000 maximum so a
+  prompted to finish directly. Coin change lowered to a 2000 maximum (5000 still overflowed, 9862d0c) so a
   correct memoised recursive solution is not failed by JS stack depth.
   Carried to Task 12/14: the substring and islands performance cases are
   weak (a typed-array naive scan or a shift()-queue BFS can pass), so the
