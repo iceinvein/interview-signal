@@ -4,3 +4,5 @@ runs/*/stderr.txt
 __pycache__/
 .sluice/
 logs/
+runs-excluded/*/*/transcript.jsonl
+runs-excluded/*/*/stderr.txt

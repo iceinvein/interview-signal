@@ -184,3 +184,131 @@
   dispatched, because it spends money against a stop rule (report to the
   operator if the pilot projects over $250) and the pilot's outputs decide
   whether the pipeline is sound.
+- **Pilot (17 runs, all clean).** Resolved models: `claude-sonnet-5-5`
+  (the `sonnet` alias, not Sonnet 5 as the design assumed),
+  `claude-opus-5-5`, `claude-haiku-4-5-20251001`, Codex `gpt-6-sol`.
+  External fetches flagged in webhook runs were all reserved example
+  domains in the agents' own curl tests; Task 12 filters `.example`,
+  `.test`, `.invalid` and bare hostnames. Perf: 1031 / 1050 / 1297 cycles
+  (sonnet / opus / codex), all passing upstream's full 9-test suite three
+  times on pristine tests with unseeded inputs; no simulator patching; the
+  builder receives shapes only. These are the final perf results (one run
+  per agent by design). Every agent met every auto criterion on the pilot
+  tasks; differences appear only in judged criteria and the trap.
+- **Cost projection and stop.** Spent: $9.05 pilot agent runs plus $13.72
+  pilot judging (108 calls). Remaining: about $45 of Claude agent runs
+  (API-priced) and about $175 of judging (about 1,380 Opus calls at $0.127).
+  Projected total about $243, just under the $250 line but dominated by the
+  judge, whose per-call cost rises with larger existing-repo diffs; paused
+  for the operator rather than risk crossing it. (An earlier line here said
+  $255; that double-counted the pilot calls.)
+- **Operator: proceed with the Opus judge** at the ~$243 projection (2026-09-30). Full run started with per-format default repeats, JOBS=6.
+- **Judge crash fixed (controller)**: billing-no-readme had no hidden/answer_key.json (its scorer delegates to the with-readme variant), so judge.py raised on the first no-readme run. Added a committed symlink to the shared key; no rubric or key content changed. Cross-task finding between T5 and T10.
+- **Full run complete.** 438/438 runs, zero errors or timeouts; 438 scored;
+  75 judged (1,485 calls). Agent spend $45.90 (Claude, API-priced). The
+  judge pass hit a transient 403 (`oauth_not_allowed_for_organization`)
+  mid-run; two retries finished it. Judge spend is only partly known:
+  $13.72 (108 calls) and $27.06 (135 calls) were printed; the middle batch
+  crashed before its summary and judge.json stores no cost. At the observed
+  $0.13-0.20 per call, judging was roughly $200-290, so total Claude spend
+  was about $245-335 and may have crossed the $250 line the operator agreed
+  to at ~$243. Reported to the operator. Follow-up for any future run: have
+  judge.py record per-call cost in judge.json.
+- **Freeze held:** no rubric.json changed between 7761117 and the runs
+  commit 5532c5f.
+
+## Incident: agents acted under the operator's GitHub account (2026-09-30)
+
+- The flip review found that all five `takehome__feedme__codex` runs used
+  the operator's `gh` login, reachable because the runner passed the real
+  `HOME` through (the env allowlist covered variables, not credentials on
+  disk). The FeedMe brief tells candidates to fork and open a PR; Codex did.
+  Live on GitHub, confirmed read-only: open PRs feedmepos/se-take-home-
+  assignment #288-#291 and [another candidate]/feedme-backend-service #3 (a
+  stranger's solution repo that r3 found, read, forked and PR'd); forks
+  iceinvein/se-take-home-assignment and iceinvein/feedme-backend-service.
+- r3 also ran a live Codex web search: the scratch config never disabled
+  it, so the Ground Rule "web search off for both" was not true for Codex.
+- Claude runs checked `gh auth status` and some tried to commit (one hung
+  on the operator's SSH signing key) but none pushed.
+- Root cause: isolation was designed around instructions and env vars, not
+  ambient credentials in HOME. Run paused; cleanup and the data decision
+  are the operator's.
+- **Operator decisions (2026-09-30):** close the PRs and delete the forks
+  (PRs closed with an apology comment; fork deletion waits on the operator
+  granting gh `delete_repo`); fix isolation and rerun only the 15 FeedMe
+  runs. Other formats are kept: the review found no pushes, credential use
+  or contamination in them. The incident is reported in the post.
+- **Isolation fix** dispatched as part of Task 11 (tier 3, reviewed) in
+  worktree `isolation-fix`: scratch HOME per run, Codex web search
+  disabled, per-run TMPDIR, Claude `--tools` restricted, gh and git remote
+  detection, credential checks in the probe, and multi-result-event
+  handling (perf opus final message).
+- **Cleanup complete (2026-09-30):** all 5 PRs closed with an apology comment; both forks deleted after the operator granted gh delete_repo.
+- **Isolation fix (d985544):** scratch HOME per run holding only a
+  candidate `.gitconfig` and, for Claude, a stripped copy of the current
+  access token (no refresh token, no MCP tokens) because `claude -p` cannot
+  authenticate from an empty HOME. The agent can read that token during its
+  run; accepted as the minimum Claude Code needs, and the post's
+  limitations name it. Runs refuse to start if the token would expire
+  before the wall-clock cap. `--strict-mcp-config` added: with a scratch
+  HOME a logged-in session otherwise attached the operator's claude.ai
+  connectors (Slack, Claude Docs). Remaining limitation: agents run as the
+  operator's user, so absolute paths to real credentials still resolve;
+  full isolation needs a separate user or a container.
+- **Isolation fix round 1 review: not safe.** Env-only isolation cannot
+  hide `~/.ssh` (OpenSSH resolves home from the password database; a stub
+  authenticated to GitHub as the operator) or the login keychain (readable
+  by explicit path; a stub extracted the gh token and full Claude
+  credentials). Runs could read sibling runs' roots. Root cause: agents run
+  as the operator's OS user.
+- **Operator decision: Docker container isolation** (Colima, Ubuntu).
+  Each agent runs in a fresh container with only its workspace mounted, as
+  a non-root user, authenticated by a long-lived inference-only Claude token
+  the operator creates with `claude setup-token` and stores at
+  `~/.config/interview-signal/claude-oauth-token` (0600, outside the repo,
+  never pasted into the session), plus a copy of Codex's auth.json. Scoring
+  stays on the host. Consequence for the post: the FeedMe rerun ran agents
+  on Linux in a container while the other formats ran on the host; stated
+  in the limitations.
+- **Container build (1366609):** image `interview-signal-agent` (Debian,
+  Node 24.21, Python 3.11, Claude Code 2.1.285, Codex 0.158.0 at host
+  versions), non-root `candidate`, only /work mounted, token by env.
+  Claude probe clean (no gh/ssh/~/.ssh//Users; candidate git config only).
+  Codex's own bwrap sandbox cannot start under Docker, so Codex runs with
+  `--sandbox danger-full-access` inside the container (controller decision:
+  the container is the boundary; same practice Codex documents for
+  containerised use). Run roots live under `~/.cache/interview-signal/`
+  because Colima only shares HOME with its VM.
+- **Codex in container (be1dbb1):** probe clean for all four agents; Codex ran all five isolation checks (no gh, no ssh, no ~/.ssh, no /Users, candidate git config only).
+- **Container review round 1:** boundary holds (only /work mounted, no
+  docker socket, no credentials, uid 1001 with no capabilities, token never
+  persisted). Blocking: the Mac's loopback was reachable via
+  host.docker.internal (password-less superuser on the operator's local
+  Postgres); host-side code followed agent-planted symlinks; scoring runs
+  agent-written code on the host as the operator. Checked the committed
+  data: no symlinks in any of the 438 outputs and no install hooks in any
+  agent package.json, but the agents' own test files did execute on the
+  host during the original scoring; recorded as a limitation. Sent back:
+  dedicated run network with host and VM traffic dropped, symlink refusal,
+  containerised scoring. Known and accepted: the Codex credential is the
+  operator's full ChatGPT login and is readable inside a Codex run.
+- **Container fixes (f5e83c5, 0159c2a):** dedicated `interview-signal-runs`
+  network (icc off) with VM iptables rules dropping traffic to the host LAN
+  and the VM; preflight must fail on the Mac's loopback and the VM's ports
+  and pass on six public endpoints. Host side refuses links, FIFOs and
+  devices. Scoring runs in the agent image (four committed runs rescored
+  identically). Rules are VM state: a Colima restart needs
+  `./run.sh --setup-network` again, and runs fail loudly until then.
+  Remaining gap sent back: other private ranges (home LAN) were reachable.
+- **Container review round 2: clears.** Loopback, VM, LAN and sibling
+  traffic blocked; planted links, FIFOs and locked dirs handled; a malicious
+  test file under scoring saw no host paths, no writable mounts and no host
+  network. Accepted and carried to the post's limitations: scoring mounts
+  the whole format folder, so scored code can read other tasks' answer
+  keys; a solution's own tests run as the same user as the checker and
+  could tamper with its results (true before this branch too); the Codex
+  credential is the operator's full login.
+- **Isolation fix merged (b647890).** The 15 original FeedMe runs moved to
+  `runs-excluded/feedme-host-isolation/` (kept as the incident's evidence,
+  excluded from analysis); FeedMe is rerun in the container.
