@@ -3,6 +3,9 @@
 #   runs/<format>__<id>__<agent>__r<rep>/{transcript.jsonl,stderr.txt,output/,final_message.txt,result.json}
 #
 #   ./run.sh --one <format> <id> <agent> <rep>   exactly one run
+#   ./run.sh --rebuild-result <run dir>          recompute result.json and
+#                                                final_message.txt from the
+#                                                run's transcript.jsonl
 #   ./run.sh                                     every run selected by the env below
 #
 # Env: FORMATS, TASKS, AGENTS (space-separated filters), REPS (count per
@@ -40,23 +43,76 @@ default_budget() { if [[ "$1" == perf ]]; then echo 25.00; else echo 2.00; fi; }
 default_wall_s() { if [[ "$1" == perf ]]; then echo 7200; else echo 1200; fi; }
 
 # Codex reads instructions from CODEX_HOME, so each Codex session gets a
-# scratch home holding credentials and a config that pins the operator's model
-# and effort and lets the sandbox reach the network (to install packages, as
-# Claude can), never the operator's AGENTS.md. Prints the directory; the
-# caller removes it.
-make_codex_home() {
-  local auth="$HOME/.codex/auth.json" home
+# scratch one holding credentials and a config that pins the operator's model
+# and effort, turns off Codex's own web search, and lets the sandbox reach the
+# network (to install packages, as Claude can), never the operator's
+# AGENTS.md.
+make_codex_home() { # make_codex_home <dir>
+  local auth="$HOME/.codex/auth.json"
   [[ -f "$auth" ]] || { echo "missing Codex credentials: $auth" >&2; return 1; }
-  home=$(mktemp -d)
-  cp "$auth" "$home/auth.json"
-  cat > "$home/config.toml" <<'TOML'
+  mkdir "$1"
+  cp "$auth" "$1/auth.json"
+  cat > "$1/config.toml" <<'TOML'
 model = "gpt-6-sol"
 model_reasoning_effort = "high"
+web_search = "disabled"
 
 [sandbox_workspace_write]
 network_access = true
 TOML
-  echo "$home"
+}
+
+# Claude's login lives in the macOS keychain, which a session with a scratch
+# HOME cannot find, so the session gets the one thing it needs from it: the
+# claude.ai access token, as the plaintext credentials file Claude falls back
+# to. Not the refresh token (a session that refreshed could rotate it and log
+# the operator out) and not the MCP server tokens stored beside it. Without a
+# refresh token the session cannot outlive the access token, so a token that
+# would expire before the run's wall-clock cap stops the run before it starts.
+write_claude_credentials() { # write_claude_credentials <file> <seconds needed>
+  security find-generic-password -s "Claude Code-credentials" -a "$USER" -w \
+    | python3 -c '
+import json, sys, time
+path, needed = sys.argv[1], float(sys.argv[2])
+oauth = json.load(sys.stdin)["claudeAiOauth"]
+left = oauth["expiresAt"] / 1000 - time.time()
+if left < needed:
+    sys.exit(f"Claude access token expires in {left / 60:.0f} min, before this run could end "
+             f"({needed / 60:.0f} min); use Claude Code interactively until it refreshes, then retry")
+fields = ("accessToken", "expiresAt", "scopes", "subscriptionType")
+with open(path, "x") as f:
+    json.dump({"claudeAiOauth": {k: oauth[k] for k in fields}}, f)' "$1" "$2"
+}
+
+# make_run_root <agent> <wall_s> -> prints a fresh private directory holding
+#   work/   the agent's working directory, empty
+#   home/   its HOME: a .gitconfig naming a placeholder candidate with signing
+#           off, plus (Claude only) .claude/.credentials.json
+#   tmp/    its TMPDIR, so it cannot stumble on other runs' temp dirs
+#   codex/  (Codex only) its CODEX_HOME
+# The operator's own HOME holds a gh login, SSH keys and a signing git
+# config, and a session that found them once pushed to GitHub as the operator.
+# The caller removes the directory.
+make_run_root() {
+  local agent=$1 wall_s=$2 root
+  root=$(mktemp -d)
+  mkdir "$root/work" "$root/home" "$root/tmp"
+  cat > "$root/home/.gitconfig" <<'GIT'
+[user]
+	name = Candidate
+	email = candidate@example.invalid
+[commit]
+	gpgsign = false
+GIT
+  if [[ "$agent" == codex ]]; then
+    make_codex_home "$root/codex" || { rm -rf "$root"; return 1; }
+  else
+    mkdir "$root/home/.claude"
+    # A minute past the cap covers the grace run_timed gives a stopped agent.
+    write_claude_credentials "$root/home/.claude/.credentials.json" $((wall_s + 60)) \
+      || { rm -rf "$root"; return 1; }
+  fi
+  echo "$root"
 }
 
 # Fills the named array with the agent's exact command line.
@@ -67,8 +123,10 @@ agent_command() {
     sonnet | opus | haiku)
       into=(claude -p "$prompt" --model "$agent" --setting-sources project
         --output-format stream-json --verbose
+        --tools Bash Edit Glob Grep Read Write TodoWrite Task
         --allowedTools Read Write Edit Glob Grep Bash
         --disallowedTools WebSearch WebFetch Workflow RemoteTrigger SendMessage
+        --strict-mcp-config
         --permission-mode bypassPermissions --no-session-persistence
         --max-budget-usd "$budget") ;;
     codex)
@@ -84,8 +142,9 @@ agent_cli_version() {
   esac
 }
 
-# run_timed <wall_s> <cwd> <stdout> <stderr> <status.json> <codex_home|""> -- <command...>
-# Runs the command in its own session under an allowlisted environment and
+# run_timed <wall_s> <cwd> <stdout> <stderr> <status.json> <run root> -- <command...>
+# Runs the command in its own session under an allowlisted environment, with
+# HOME, TMPDIR and (when the root has one) CODEX_HOME from make_run_root, and
 # records exit code, wall time, whether the cap was hit and any signal that
 # stopped it. Whatever the agent started is killed when it exits, when the
 # cap is hit, or when this runner gets SIGINT, SIGTERM or SIGHUP: the process
@@ -95,16 +154,19 @@ run_timed() {
   python3 - "$@" <<'PY'
 import json, os, signal, subprocess, sys, time
 
-wall_s, cwd, out_path, err_path, status_path, codex_home = sys.argv[1:7]
+wall_s, cwd, out_path, err_path, status_path, root = sys.argv[1:7]
 assert sys.argv[7] == "--"
 command = sys.argv[8:]
 
-# Anything else in the operator's shell (CLAUDE*, CODEX*, NODE_OPTIONS, ...)
-# could change how a session behaves or what it can see.
-env = {k: os.environ[k] for k in ("HOME", "PATH", "USER", "LANG", "TMPDIR") if k in os.environ}
-env.update(TZ="UTC", PWD=cwd)
-if codex_home:
-    env["CODEX_HOME"] = codex_home
+# Anything else in the operator's shell (CLAUDE*, CODEX*, NODE_OPTIONS,
+# SSH_AUTH_SOCK, GH_TOKEN, ...) could change how a session behaves or what it
+# can reach. The system git config is skipped because macOS's names the
+# keychain as a credential helper.
+env = {k: os.environ[k] for k in ("PATH", "USER", "LANG") if k in os.environ}
+env.update(TZ="UTC", PWD=cwd, HOME=os.path.join(root, "home"), TMPDIR=os.path.join(root, "tmp"),
+           GIT_CONFIG_NOSYSTEM="1")
+if os.path.isdir(os.path.join(root, "codex")):
+    env["CODEX_HOME"] = os.path.join(root, "codex")
 
 
 def process_table():
@@ -207,10 +269,11 @@ PY
 
 # summarise <agent> <transcript> <status.json> <codex_home|""> <final_message.txt>
 # Prints JSON with the per-agent fields of result.json and writes the agent's
-# final message. A value the agent did not report is null, never guessed.
+# final message. A value the agent did not report is null, never guessed; with
+# no codex_home, Codex's model and effort are null.
 summarise() {
   python3 - "$REPO" "$@" <<'PY'
-import glob, json, os, re, sys, urllib.parse
+import glob, ipaddress, json, os, re, shlex, sys, urllib.parse
 
 repo, agent, transcript, status_path, codex_home, final_path = sys.argv[1:7]
 status = json.load(open(status_path))
@@ -249,7 +312,8 @@ if agent == "codex":
     # codex exec --json reports neither model nor effort; the session rollout
     # does. A session killed mid-write can leave a cut-off last line.
     model = effort = None
-    for path in sorted(glob.glob(os.path.join(codex_home, "sessions", "**", "rollout-*.jsonl"), recursive=True)):
+    rollouts = glob.glob(os.path.join(codex_home, "sessions", "**", "rollout-*.jsonl"), recursive=True) if codex_home else []
+    for path in sorted(rollouts):
         for line in open(path, errors="replace"):
             try:
                 e = json.loads(line)
@@ -271,15 +335,20 @@ if agent == "codex":
               "usage": usage}
 else:
     init = next((e for e in events if e.get("type") == "system" and e.get("subtype") == "init"), {})
-    result = next((e for e in reversed(events) if e.get("type") == "result"), None)
+    # A background task that ends after the answer (a Monitor timing out)
+    # makes Claude emit a further, shorter result event. The answer is the
+    # result with the most turns; cost is cumulative, so the last one has it.
+    results = [e for e in events if e.get("type") == "result"]
+    result = results[-1] if results else None
+    answer = max(results, key=lambda e: e.get("num_turns") or 0) if results else None
     commands = [c["input"]["command"] for e in events if e.get("type") == "assistant"
                 for c in e.get("message", {}).get("content", [])
                 if c.get("type") == "tool_use" and c.get("name") == "Bash" and "command" in c.get("input", {})]
-    final = result.get("result") if result else None
+    final = answer.get("result") if answer else None
     fields = {"model": init.get("model"), "effort": None,
               "is_error": failed_run or result is None or bool(result.get("is_error")),
               "cost_usd": result.get("total_cost_usd") if result else None,
-              "turns": result.get("num_turns") if result else None,
+              "turns": answer.get("num_turns") if answer else None,
               "codex_steps": None,
               "usage": result.get("usage") if result else None}
 
@@ -290,15 +359,89 @@ markers = (repo, "hidden/", "reference/", "rubric.json", ".claude/CLAUDE.md", ".
 fields["contamination"] = [m for m in markers if m in said]
 
 # Any URL in a command the agent ran counts, since a fetch can go through
-# git, pip, or a one-line script as easily as curl. Package registries are
-# how both agents install dependencies; loopback is the agent's own server.
-allowed_hosts = {"registry.npmjs.org", "pypi.org", "files.pythonhosted.org",
-                 "localhost", "127.0.0.1", "::1", "0.0.0.0"}
+# git, pip, or a one-line script as easily as curl; so does any gh command and
+# the target of any git push, clone or remote add, since those act on GitHub
+# (or another host) as whoever the session is logged in as. Package
+# registries are how both agents install dependencies. Reserved test domains,
+# bare hostnames and loopback cannot reach anyone else's server.
+allowed_hosts = {"registry.npmjs.org", "pypi.org", "files.pythonhosted.org", "0.0.0.0"}
+reserved_suffixes = (".example", ".test", ".invalid", ".localhost")
+
+
+def ignored_host(host):
+    if not host or host in allowed_hosts or host.endswith(reserved_suffixes):
+        return True
+    if "." not in host and ":" not in host:
+        return True  # a bare hostname: the agent's own machine or network
+    try:
+        return ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        return False
+
+
+# Where a command's text ends inside a line: a shell separator, or the quote
+# that closes a `bash -lc '...'` wrapper.
+SEGMENT = r"[^;&|\n'\"`()]*"
+STARTS = r"(?:^|(?<=[\s;&|('\"`]))(?:\S*/)?"
+GIT_VALUE_OPTIONS = {"-C", "-c", "-b", "--branch", "-o", "--origin", "--depth", "--reference",
+                     "--config", "-j", "--jobs", "--filter", "--template", "--separate-git-dir",
+                     "-u", "--upload-pack", "--receive-pack", "--push-option", "--shallow-since"}
+
+
+def positionals(words):
+    out, skip = [], False
+    for w in words:
+        if skip:
+            skip = False
+        elif w in GIT_VALUE_OPTIONS:
+            skip = True
+        elif not w.startswith("-"):
+            out.append(w)
+    return out
+
+
+def shell_words(text):
+    try:
+        return shlex.split(text)
+    except ValueError:
+        return text.split()
+
+
+def git_targets(command):
+    for m in re.finditer(STARTS + r"git((?:\s+(?:-[Cc]\s+\S+|--?[\w-]+(?:=\S+)?))*)\s+(push|clone|remote\s+add)\b(" + SEGMENT + ")", command):
+        sub, args = m.group(2).split()[0], positionals(shell_words(m.group(3)))
+        if sub == "remote":
+            target = args[1] if len(args) > 1 else None  # remote add <name> <url>
+        else:
+            target = args[0] if args else None
+        if target is None:
+            if sub == "push":
+                yield "git push"
+            continue
+        if target.startswith(("/", ".", "~", "file:")):
+            continue  # a local repository
+        if "://" in target:
+            host = urllib.parse.urlparse(target).hostname
+        elif ":" in target:
+            host = target.split(":", 1)[0].rsplit("@", 1)[-1]
+        elif sub == "push":
+            yield f"git push {target}"  # a remote named earlier, which could point anywhere
+            continue
+        else:
+            continue  # clone or remote add of a relative local path
+        if not ignored_host(host):
+            yield target
+
+
 fetches = []
 for command in commands:
-    for url in re.findall(r"https?://[^\s'\"<>()\\;&|`]+", command):
-        if urllib.parse.urlparse(url).hostname not in allowed_hosts and url not in fetches:
-            fetches.append(url)
+    found = [url for url in re.findall(r"https?://[^\s'\"<>()\\;&|`]+", command)
+             if not ignored_host(urllib.parse.urlparse(url).hostname)]
+    found += ["gh" + m.group(1).rstrip() for m in re.finditer(STARTS + r"gh(\s" + SEGMENT + ")", command)]
+    found += list(git_targets(command))
+    for item in found:
+        if item not in fetches:
+            fetches.append(item)
 fields["external_fetches"] = fetches
 
 # An agent that sent no final message leaves no final_message.txt, rather
@@ -382,9 +525,9 @@ run_one() {
   local dir="$RUNS_DIR/${format}__${id}__${agent}__r${rep}"
   [[ -d "$task" ]] || { echo "no such task: $task" >&2; return 1; }
 
-  # Temp dirs, the Codex credential copy and the lock go however the run
-  # ends. A stop signal before the agent starts ends the run unrecorded;
-  # once it has started, forward_stop takes over.
+  # The run's private root (with its credential copies) and the lock go
+  # however the run ends. A stop signal before the agent starts ends the run
+  # unrecorded; once it has started, forward_stop takes over.
   trap cleanup EXIT
   trap 'exit 129' HUP
   trap 'exit 130' INT
@@ -400,18 +543,20 @@ run_one() {
     echo "skip $(basename "$dir")"
     return 0
   fi
+  local budget=${BUDGET:-$(default_budget "$format")}
+  local wall_s=${WALL_S:-$(default_wall_s "$format")}
+  local root work codex_home=""
+  root=$(make_run_root "$agent" "$wall_s")
+  CLEANUP+=("$root")
+  work="$root/work"
+  [[ "$agent" != codex ]] || codex_home="$root/codex"
+
   # A directory without result.json is a run that died part way; start over.
   rm -rf "$dir"
   mkdir -p "$dir"
-
-  local budget=${BUDGET:-$(default_budget "$format")}
-  local wall_s=${WALL_S:-$(default_wall_s "$format")}
-  local work codex_home=""
-  work=$(mktemp -d)
-  CLEANUP+=("$work" "$work.status.json" "$work.snapshot.json")
   if [[ "$format" == perf ]]; then
     "$task/fetch.sh" "$work"
-    perf_tree snapshot "$work" "$work.snapshot.json"
+    perf_tree snapshot "$work" "$root/snapshot.json"
   else
     cp -R "$task/workspace/." "$work/"
   fi
@@ -420,10 +565,6 @@ run_one() {
   agent_command command_line "$agent" "$(cat "$task/prompt.md")" "$budget"
   local cli
   cli=$(agent_cli_version "$agent")
-  if [[ "$agent" == codex ]]; then
-    codex_home=$(make_codex_home)
-    CLEANUP+=("$codex_home")
-  fi
 
   echo "run  $(basename "$dir")"
   trap 'forward_stop HUP' HUP
@@ -435,7 +576,7 @@ run_one() {
   # the helper (which sets its own handlers) has recorded the run.
   (
     trap '' HUP INT TERM
-    run_timed "$wall_s" "$work" "$dir/transcript.jsonl" "$dir/stderr.txt" "$work.status.json" "$codex_home" -- "${command_line[@]}"
+    run_timed "$wall_s" "$work" "$dir/transcript.jsonl" "$dir/stderr.txt" "$root/status.json" "$root" -- "${command_line[@]}"
   ) &
   TIMED_PID=$!
   [[ -z "$STOP_SIGNAL" ]] || forward_stop "$STOP_SIGNAL"
@@ -444,34 +585,74 @@ run_one() {
   until wait "$TIMED_PID"; do
     kill -0 "$TIMED_PID" 2>/dev/null || break
   done
-  [[ -f "$work.status.json" ]] || { echo "run_timed failed without recording a status" >&2; return 1; }
+  [[ -f "$root/status.json" ]] || { echo "run_timed failed without recording a status" >&2; return 1; }
 
   # Agents sometimes git init their workspace; a nested .git cannot be
   # committed under runs/, and dependencies and bytecode are rebuilt when scoring.
   if [[ "$format" == perf ]]; then
-    perf_tree collect "$work" "$work.snapshot.json" "$task/run_config.json" "$dir/output"
+    perf_tree collect "$work" "$root/snapshot.json" "$task/run_config.json" "$dir/output"
   else
     rsync -a --exclude node_modules --exclude .git --exclude __pycache__ "$work/" "$dir/output/"
   fi
 
   local fields
-  fields=$(summarise "$agent" "$dir/transcript.jsonl" "$work.status.json" "$codex_home" "$dir/final_message.txt")
-  # Written aside and renamed, so a result.json that exists is always whole.
-  python3 - "$dir/result.json" "$format" "$id" "$agent" "$rep" "$cli" "$fields" <<'PY'
+  fields=$(summarise "$agent" "$dir/transcript.jsonl" "$root/status.json" "$codex_home" "$dir/final_message.txt")
+  local base
+  base=$(python3 -c 'import json, sys
+fmt, task, agent, rep, cli = sys.argv[1:6]
+print(json.dumps({"format": fmt, "task": task, "agent": agent, "rep": int(rep), "cli": cli}))' \
+    "$format" "$id" "$agent" "$rep" "$cli")
+  write_result "$dir/result.json" "$base" "$fields"
+  case "$STOP_SIGNAL" in
+    HUP) exit 129 ;;
+    INT) exit 130 ;;
+    TERM) exit 143 ;;
+  esac
+}
+
+# write_result <result.json> <base JSON> <fields JSON>: the base overlaid
+# with the fields, written aside and renamed so a result.json that exists is
+# always whole.
+write_result() {
+  python3 - "$@" <<'PY'
 import json, os, sys
-path, fmt, task, agent, rep, cli, fields = sys.argv[1:8]
-result = {"format": fmt, "task": task, "agent": agent, "rep": int(rep), "cli": cli}
+path, base, fields = sys.argv[1:4]
+result = json.loads(base)
 result.update(json.loads(fields))
 with open(path + ".tmp", "w") as f:
     json.dump(result, f, indent=2)
     f.write("\n")
 os.replace(path + ".tmp", path)
 PY
-  case "$STOP_SIGNAL" in
-    HUP) exit 129 ;;
-    INT) exit 130 ;;
-    TERM) exit 143 ;;
-  esac
+}
+
+# Recomputes a recorded run's result.json and final_message.txt from its
+# transcript, for when the summary logic changes after the run. The exit
+# status, wall time and CLI version come from the old result.json, since the
+# transcript does not hold them; so do Codex's model and effort, which came
+# from a session rollout deleted with the run's private root.
+rebuild_result() {
+  local dir=${1%/} status agent fields
+  [[ -f "$dir/result.json" && -f "$dir/transcript.jsonl" ]] \
+    || { echo "no result.json and transcript.jsonl in $dir" >&2; return 1; }
+  trap cleanup EXIT
+  status=$(mktemp)
+  CLEANUP+=("$status")
+  python3 - "$dir/result.json" "$status" <<'PY'
+import json, sys
+old = json.load(open(sys.argv[1]))
+json.dump({k: old[k] for k in ("exit_code", "timed_out", "interrupted", "wall_s")}, open(sys.argv[2], "w"))
+PY
+  agent=$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["agent"])' "$dir/result.json")
+  rm -f "$dir/final_message.txt"
+  fields=$(summarise "$agent" "$dir/transcript.jsonl" "$status" "" "$dir/final_message.txt")
+  if [[ "$agent" == codex ]]; then
+    fields=$(python3 -c 'import json, sys
+old, new = json.load(open(sys.argv[1])), json.loads(sys.argv[2])
+new.update(model=old["model"], effort=old["effort"])
+print(json.dumps(new))' "$dir/result.json" "$fields")
+  fi
+  write_result "$dir/result.json" "$(cat "$dir/result.json")" "$fields"
 }
 
 run_all() {
@@ -496,10 +677,13 @@ main() {
   if [[ "${1:-}" == --one ]]; then
     [[ $# -eq 5 ]] || { echo "usage: $0 --one <format> <id> <agent> <rep>" >&2; return 2; }
     run_one "$2" "$3" "$4" "$5"
+  elif [[ "${1:-}" == --rebuild-result ]]; then
+    [[ $# -eq 2 ]] || { echo "usage: $0 --rebuild-result <run dir>" >&2; return 2; }
+    rebuild_result "$2"
   elif [[ $# -eq 0 ]]; then
     run_all
   else
-    echo "usage: $0 [--one <format> <id> <agent> <rep>]" >&2
+    echo "usage: $0 [--one <format> <id> <agent> <rep> | --rebuild-result <run dir>]" >&2
     return 2
   fi
 }
