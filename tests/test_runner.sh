@@ -611,11 +611,11 @@ test_codex_home_holds_only_auth_and_config() {
   [[ "$listing" == "auth.json config.toml " ]] || fail "CODEX_HOME held: '$listing'"
 }
 
-test_codex_config_pins_model_effort_and_network_and_disables_web_search_and_apps() {
+test_codex_config_pins_model_effort_and_network_and_disables_web_search_and_extra_tools() {
   stub_codex
   run_one takehome stub-task codex 1
   local expected
-  expected=$(printf 'model = "gpt-6-sol"\nmodel_reasoning_effort = "high"\nweb_search = "disabled"\n\n[features]\napps = false\n\n[sandbox_workspace_write]\nnetwork_access = true')
+  expected=$(printf 'model = "gpt-6-sol"\nmodel_reasoning_effort = "high"\nweb_search = "disabled"\n\n[features]\napps = false\nbrowser_use = false\ncomputer_use = false\nimage_generation = false\nplugins = false\nremote_plugin = false\n\n[sandbox_workspace_write]\nnetwork_access = true')
   [[ "$(cat "$RUNS_DIR/$CODEX_RUN/output/codex-config.toml" 2>/dev/null)" == "$expected" ]] \
     || fail "config.toml was: '$(cat "$RUNS_DIR/$CODEX_RUN/output/codex-config.toml" 2>/dev/null)'"
 }

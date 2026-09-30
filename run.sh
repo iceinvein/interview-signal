@@ -121,8 +121,10 @@ PY
 # and effort and turns off Codex's own web search, never the operator's
 # AGENTS.md. It also turns off apps: with a ChatGPT login Codex otherwise
 # offers the account's ChatGPT connectors as codex_apps tools, which let a
-# run act on GitHub as the operator. network_access applies only under workspace-write, which runs
-# no longer use (see agent_command); it is moot, and left as it was.
+# run act on GitHub as the operator. Browser use, computer use, plugins and
+# image generation go too, as tools a candidate at a terminal would not have.
+# network_access applies only under workspace-write, which runs no longer use
+# (see agent_command); it is moot, and left as it was.
 make_codex_home() { # make_codex_home <dir>
   local auth="$HOME/.codex/auth.json"
   [[ -f "$auth" ]] || { echo "missing Codex credentials: $auth" >&2; return 1; }
@@ -135,6 +137,11 @@ web_search = "disabled"
 
 [features]
 apps = false
+browser_use = false
+computer_use = false
+image_generation = false
+plugins = false
+remote_plugin = false
 
 [sandbox_workspace_write]
 network_access = true
