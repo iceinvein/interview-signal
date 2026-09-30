@@ -375,3 +375,8 @@
 - **Redactions before publishing:** the operator's work email in an excluded
   run's closing message and another candidate's GitHub handle are removed
   from the tree and from history.
+- **History rewritten (2026-09-30, before first push)** with
+  `git filter-branch` to remove the operator's work email and another
+  candidate's handle from every commit. Commit hashes cited earlier in this
+  record are from before the rewrite; the pre-rewrite history is kept only
+  in the local, unpushed branch `pre-scrub-backup`.
