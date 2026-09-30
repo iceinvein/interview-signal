@@ -9,6 +9,11 @@
 #   ./run.sh --build-image                       build the agent image, with
 #                                                the host's Claude Code and
 #                                                Codex versions
+#   ./run.sh --setup-network                     create the runs network and
+#                                                its firewall in Docker's VM
+#                                                (again after a VM restart)
+#   ./run.sh --check-isolation                   the checks every run makes
+#                                                before its container starts
 #   ./run.sh                                     every run selected by the env below
 #
 # Every agent runs in a fresh Docker container of the image docker/Dockerfile
@@ -86,18 +91,27 @@ require_image() {
 }
 
 # The token goes to the container as an environment variable, never as a
-# file, so it must be the operator's alone on the host.
+# file, so it must be the operator's alone on the host: a regular file (not
+# a link someone could point elsewhere), owned by the operator, mode 0600.
 check_claude_token() {
   python3 - "$CLAUDE_TOKEN_FILE" <<'PY'
 import os, stat, sys
 path = sys.argv[1]
 how = "make it with `claude setup-token`, save the token there and chmod 600 it"
-if not os.path.isfile(path):
+try:
+    st = os.lstat(path)
+except FileNotFoundError:
     sys.exit(f"missing Claude token file {path}: {how}")
-mode = stat.S_IMODE(os.stat(path).st_mode)
+if stat.S_ISLNK(st.st_mode):
+    sys.exit(f"Claude token file {path} is a symlink; it must be the file itself: {how}")
+if not stat.S_ISREG(st.st_mode):
+    sys.exit(f"Claude token file {path} is not a regular file: {how}")
+if st.st_uid != os.getuid():
+    sys.exit(f"Claude token file {path} is owned by uid {st.st_uid}, not this user ({os.getuid()})")
+mode = stat.S_IMODE(st.st_mode)
 if mode != 0o600:
     sys.exit(f"Claude token file {path} has mode {mode:o}, not 600: {how}")
-if not open(path).read().strip():
+if st.st_size == 0:
     sys.exit(f"Claude token file {path} is empty: {how}")
 PY
 }
@@ -122,6 +136,118 @@ network_access = true
 TOML
 }
 
+# The docker network every run and scoring container joins. Its bridge
+# carries no traffic between containers, and firewall rules in Docker's VM
+# (see vm_firewall) keep it off the Mac's loopback, which Colima exposes at
+# its gateway address, and off the VM itself except for DNS.
+RUN_NETWORK=interview-signal-runs
+RUN_BRIDGE=isig-runs
+# Hosts a run must still reach: package registries, the model APIs and
+# GitHub (the perf task fetches its upstream from there).
+OUTBOUND_TARGETS=(registry.npmjs.org:443 pypi.org:443 api.anthropic.com:443 api.openai.com:443
+  chatgpt.com:443 github.com:443)
+
+# vm_firewall setup|check: in Docker's VM, as root, (re)writes or checks the
+# chains that drop the runs bridge's traffic to the VM's own LAN (where the
+# Mac answers at the gateway) and to the VM itself except DNS. Prints the
+# Mac's address and the VM's LAN address. Everything it matches is read in
+# the VM rather than assumed, so a Colima with other addresses still works.
+vm_firewall() {
+  colima ssh -- sudo sh -s "$1" "$RUN_BRIDGE" <<'SH'
+set -eu
+mode=$1 bridge=$2
+host=$(ip -4 route show default | awk '{print $3; exit}')
+lan=$(ip -4 route show default | awk '{print $5; exit}')
+subnet=$(ip -4 route show dev "$lan" proto kernel | awk '{print $1; exit}')
+vm=$(ip -4 addr show dev "$lan" | awk '$1 == "inet" {sub(/\/.*/, "", $2); print $2; exit}')
+dns=$(awk '$1 == "nameserver" {print $2; exit}' /etc/resolv.conf)
+[ -n "$host" ] && [ -n "$subnet" ] && [ -n "$vm" ] && [ -n "$dns" ] \
+  || { echo "cannot read the VM's gateway, subnet, address or DNS server" >&2; exit 1; }
+forward_rules="-A ISIG-FORWARD -d $subnet -j DROP"
+input_rules="-A ISIG-INPUT -d $dns/32 -p udp -m udp --dport 53 -j ACCEPT
+-A ISIG-INPUT -d $dns/32 -p tcp -m tcp --dport 53 -j ACCEPT
+-A ISIG-INPUT -j DROP"
+if [ "$mode" = setup ]; then
+  for chain in ISIG-FORWARD ISIG-INPUT; do
+    iptables -S "$chain" > /dev/null 2>&1 || iptables -N "$chain"
+    iptables -F "$chain"
+  done
+  printf '%s\n' "$forward_rules" "$input_rules" | while read -r rule; do iptables $rule; done
+  iptables -C DOCKER-USER -i "$bridge" -j ISIG-FORWARD 2> /dev/null || iptables -I DOCKER-USER -i "$bridge" -j ISIG-FORWARD
+  iptables -C INPUT -i "$bridge" -j ISIG-INPUT 2> /dev/null || iptables -I INPUT -i "$bridge" -j ISIG-INPUT
+fi
+[ "$(iptables -S ISIG-FORWARD 2> /dev/null | grep -v '^-N')" = "$forward_rules" ] \
+  || { echo "firewall chain ISIG-FORWARD is missing or changed" >&2; exit 1; }
+[ "$(iptables -S ISIG-INPUT 2> /dev/null | grep -v '^-N')" = "$input_rules" ] \
+  || { echo "firewall chain ISIG-INPUT is missing or changed" >&2; exit 1; }
+iptables -C DOCKER-USER -i "$bridge" -j ISIG-FORWARD 2> /dev/null \
+  || { echo "DOCKER-USER does not send $bridge to ISIG-FORWARD" >&2; exit 1; }
+iptables -C INPUT -i "$bridge" -j ISIG-INPUT 2> /dev/null \
+  || { echo "INPUT does not send $bridge to ISIG-INPUT" >&2; exit 1; }
+echo "$host $vm"
+SH
+}
+
+# Prints the runs network's gateway (the VM's address on it), after checking
+# the network exists with inter-container traffic off on the expected bridge.
+runs_network_gateway() {
+  local state icc bridge gateway
+  state=$(docker network inspect --format \
+    '{{index .Options "com.docker.network.bridge.enable_icc"}} {{index .Options "com.docker.network.bridge.name"}} {{(index .IPAM.Config 0).Gateway}}' \
+    "$RUN_NETWORK") || { echo "no Docker network $RUN_NETWORK: run ./run.sh --setup-network" >&2; return 1; }
+  read -r icc bridge gateway <<< "$state"
+  [[ "$icc" == false ]] || { echo "network $RUN_NETWORK has enable_icc=$icc, not false" >&2; return 1; }
+  [[ "$bridge" == "$RUN_BRIDGE" ]] || { echo "network $RUN_NETWORK uses bridge '$bridge', not $RUN_BRIDGE" >&2; return 1; }
+  [[ -n "$gateway" ]] || { echo "network $RUN_NETWORK has no gateway address" >&2; return 1; }
+  echo "$gateway"
+}
+
+setup_network() {
+  if [[ -z "$(docker network ls --quiet --filter "name=^${RUN_NETWORK}\$")" ]]; then
+    docker network create --driver bridge -o com.docker.network.bridge.enable_icc=false \
+      -o "com.docker.network.bridge.name=$RUN_BRIDGE" "$RUN_NETWORK" > /dev/null
+  fi
+  runs_network_gateway > /dev/null
+  vm_firewall setup > /dev/null
+}
+
+# Each target is tried at once from inside the container and reported as
+# "open <target>" or "closed <target>"; a dropped packet shows as a timeout.
+PREFLIGHT_SCRIPT='for target in "$@"; do
+  (timeout 5 bash -c "exec 3<>/dev/tcp/${target%:*}/${target##*:}" 2> /dev/null && echo "open $target" || echo "closed $target") &
+done
+wait'
+
+# preflight <network> <mac address> <vm lan address> <vm gateway on network>
+# From a container on the network, the Mac's Postgres and SSH ports and the
+# VM's SSH port must be unreachable and every outbound target reachable.
+preflight() {
+  local network=$1 host=$2 vm=$3 gateway=$4 out target problems=0
+  local closed=("$host:5432" "$host:22" "$gateway:22" "$vm:22")
+  out=$(docker run --rm --network "$network" --user candidate --security-opt no-new-privileges \
+    "$IMAGE" bash -c "$PREFLIGHT_SCRIPT" preflight "${closed[@]}" "${OUTBOUND_TARGETS[@]}")
+  for target in "${closed[@]}"; do
+    grep -qxF "closed $target" <<< "$out" \
+      || { echo "a container on $network can reach $target, which must be blocked" >&2; problems=1; }
+  done
+  for target in "${OUTBOUND_TARGETS[@]}"; do
+    grep -qxF "open $target" <<< "$out" \
+      || { echo "a container on $network cannot reach $target, which runs need" >&2; problems=1; }
+  done
+  return "$problems"
+}
+
+# Everything a container needs before it may start: the image, the runs
+# network and its firewall, and a live check that the rules hold.
+check_isolation() {
+  local gateway addresses
+  require_image || return 1
+  gateway=$(runs_network_gateway) || return 1
+  addresses=$(vm_firewall check) \
+    || { echo "firewall rules for $RUN_BRIDGE are missing in Docker's VM: run ./run.sh --setup-network" >&2; return 1; }
+  preflight "$RUN_NETWORK" ${addresses} "$gateway"
+}
+
 # Fails when the container would get an empty /work because Docker's VM does
 # not share the directory.
 check_mount() { # check_mount <work dir>
@@ -134,27 +260,56 @@ check_mount() { # check_mount <work dir>
   rm "$1/$marker"
 }
 
-# make_run_root <agent> -> prints a fresh private directory holding
+# Removes a directory an agent wrote into, which may hold files and
+# directories it made unreadable. chmod -R does not follow symlinks inside
+# the tree, so a planted link cannot widen the mode of a file outside it.
+remove_tree() {
+  [[ -e "$1" || -L "$1" ]] || return 0
+  [[ -L "$1" || ! -d "$1" ]] || chmod -R u+rwX "$1"
+  rm -rf "$1"
+}
+
+# A run root is stale when the runner that made it (named in its owner file)
+# has died and its container is not running. A root with no owner file yet is
+# one being made, unless it is older than any runner takes to write the file.
+sweep_stale_roots() {
+  local root owner
+  for root in "$SCRATCH_DIR"/run.*; do
+    [[ -d "$root" ]] || continue
+    if [[ -f "$root/owner" ]]; then
+      owner=$(cat "$root/owner")
+      ! kill -0 "$owner" 2> /dev/null || continue
+    else
+      [[ -n "$(find "$root" -maxdepth 0 -mmin +10)" ]] || continue
+    fi
+    [[ -z "$(docker ps --quiet --filter "name=^$(container_name "$root")\$")" ]] || continue
+    remove_tree "$root"
+  done
+}
+
+# make_run_root <agent> <variable> sets the variable to a fresh private
+# directory holding
+#   owner   this runner's pid, for sweep_stale_roots
 #   work/   the agent's working directory, empty, mounted at /work
 #   codex/  (Codex only) its CODEX_HOME, mounted at /codex
-# after checking the image exists and, for Claude, the token file. Nothing
-# else of the host reaches the container: the operator's HOME holds a gh
-# login, SSH keys and a signing git config, and its keychain the operator's
-# full Claude login, and sessions running as the operator found all of them.
-# The caller removes the directory.
+# after checking isolation holds and, for Claude, the token file. The root
+# joins CLEANUP before anything goes into it. Nothing else of the host
+# reaches the container: the operator's HOME holds a gh login, SSH keys and
+# a signing git config, its keychain the full Claude login, and the Mac's
+# loopback a password-less Postgres, and sessions found all of them.
 make_run_root() {
-  local agent=$1 root
-  # Called as $(make_run_root ...), where set -e does not apply.
-  require_image || return 1
-  [[ "$agent" == codex ]] || check_claude_token || return 1
-  mkdir -p -m 700 "$SCRATCH_DIR" || return 1
-  root=$(mktemp -d "$SCRATCH_DIR/run.XXXXXX") || return 1
-  mkdir "$root/work" || { rm -rf "$root"; return 1; }
-  if [[ "$agent" == codex ]]; then
-    make_codex_home "$root/codex" || { rm -rf "$root"; return 1; }
-  fi
-  check_mount "$root/work" || { rm -rf "$root"; return 1; }
-  echo "$root"
+  local agent=$1
+  local -n root_var=$2
+  check_isolation
+  [[ "$agent" == codex ]] || check_claude_token
+  mkdir -p -m 700 "$SCRATCH_DIR"
+  sweep_stale_roots
+  root_var=$(mktemp -d "$SCRATCH_DIR/run.XXXXXX")
+  CLEANUP+=("$root_var")
+  echo "$$" > "$root_var/owner"
+  mkdir "$root_var/work"
+  [[ "$agent" != codex ]] || make_codex_home "$root_var/codex"
+  check_mount "$root_var/work"
 }
 
 container_name() { echo "interview-signal-$(basename "$1")"; } # container_name <run root>
@@ -165,20 +320,20 @@ container_name() { echo "interview-signal-$(basename "$1")"; } # container_name 
 # docker takes it from run_timed's environment and it never appears in an
 # argument list or a file.
 container_command() {
-  local -n line=$1
+  local -n docker_args=$1
   local agent=$2 root=$3
   shift 3
-  line=(docker run --rm --init --name "$(container_name "$root")"
+  docker_args=(docker run --rm --init --name "$(container_name "$root")"
     --user candidate --workdir /work
     --memory "$AGENT_MEMORY" --cpus "$AGENT_CPUS"
-    --network bridge --security-opt no-new-privileges
+    --network "$RUN_NETWORK" --security-opt no-new-privileges
     -v "$root/work:/work" -e TZ=UTC)
   if [[ "$agent" == codex ]]; then
-    line+=(-v "$root/codex:/codex" -e CODEX_HOME=/codex)
+    docker_args+=(-v "$root/codex:/codex" -e CODEX_HOME=/codex)
   else
-    line+=(-e CLAUDE_CODE_OAUTH_TOKEN)
+    docker_args+=(-e CLAUDE_CODE_OAUTH_TOKEN)
   fi
-  line+=("$IMAGE" "$@")
+  docker_args+=("$IMAGE" "$@")
 }
 
 # Fills the named array with the agent's exact command line.
@@ -231,7 +386,7 @@ KILL_GRACE_S = 30
 
 env = dict(os.environ)
 if token_file:
-    with open(token_file) as f:
+    with open(os.open(token_file, os.O_RDONLY | os.O_NOFOLLOW)) as f:
         env["CLAUDE_CODE_OAUTH_TOKEN"] = f.read().strip()
 
 proc = None
@@ -486,17 +641,22 @@ PY
 # output/.upstream_changes.json so scoring can see tampering it cannot copy.
 perf_tree() {
   python3 - "$@" <<'PY'
-import hashlib, json, pathlib, shutil, sys
+import hashlib, json, os, pathlib, shutil, stat, sys
 
 SKIPPED = {".git", "node_modules", "__pycache__"}
 
 
 def tree(root):
-    return {
-        path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
-        for path in sorted(root.rglob("*"))
-        if path.is_file() and not SKIPPED & set(path.relative_to(root).parts)
-    }
+    """Regular files only, found without following links (skipped_entries
+    records the rest)."""
+    files = {}
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if d not in SKIPPED]
+        for name in filenames:
+            path = pathlib.Path(dirpath) / name
+            if stat.S_ISREG(path.lstat().st_mode):
+                files[path.relative_to(root).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
+    return dict(sorted(files.items()))
 
 
 mode, work, snapshot = sys.argv[1], pathlib.Path(sys.argv[2]), pathlib.Path(sys.argv[3])
@@ -522,13 +682,39 @@ changes = {
 out.mkdir(parents=True)
 for rel in sorted(set(kept) & set(after)) + [p for p in changes["added"] if not protected(p)]:
     (out / rel).parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(work / rel, out / rel)
+    shutil.copy2(work / rel, out / rel, follow_symlinks=False)
 (out / ".upstream_changes.json").write_text(json.dumps(changes, indent=2) + "\n")
 PY
 }
 
+# skipped_entries <work> prints, as a JSON list, every path in the work dir
+# the host-side copy leaves out because it is not a regular file or
+# directory: symlinks (which could point at any of the operator's files),
+# FIFOs, sockets and devices. Dependency, git and bytecode dirs are not
+# copied at all, so they are not listed.
+skipped_entries() {
+  python3 - "$1" <<'PY'
+import json, os, stat, sys
+
+SKIPPED = {".git", "node_modules", "__pycache__"}
+root = sys.argv[1]
+found = []
+for dirpath, dirnames, filenames in os.walk(root):
+    for name in dirnames + filenames:
+        path = os.path.join(dirpath, name)
+        mode = os.lstat(path).st_mode
+        if not (stat.S_ISREG(mode) or stat.S_ISDIR(mode)):
+            found.append(os.path.relpath(path, root))
+    dirnames[:] = [d for d in dirnames if d not in SKIPPED and not os.path.islink(os.path.join(dirpath, d))]
+print(json.dumps(sorted(found)))
+PY
+}
+
 CLEANUP=()
-cleanup() { rm -rf "${CLEANUP[@]}"; }
+cleanup() {
+  local path
+  for path in "${CLEANUP[@]}"; do remove_tree "$path"; done
+}
 
 # Once the agent is running, a stop signal to the runner is passed to
 # run_timed, which kills the agent at once; the runner then records the run
@@ -569,8 +755,7 @@ run_one() {
   local budget=${BUDGET:-$(default_budget "$format")}
   local wall_s=${WALL_S:-$(default_wall_s "$format")}
   local root work codex_home="" token_file=""
-  root=$(make_run_root "$agent")
-  CLEANUP+=("$root")
+  make_run_root "$agent" root
   work="$root/work"
   if [[ "$agent" == codex ]]; then codex_home="$root/codex"; else token_file=$CLAUDE_TOKEN_FILE; fi
 
@@ -612,21 +797,28 @@ run_one() {
   done
   [[ -f "$root/status.json" ]] || { echo "run_timed failed without recording a status" >&2; return 1; }
 
+  # The agent may have left files only its own user could read.
+  chmod -R u+rwX "$work"
+  local skipped
+  skipped=$(skipped_entries "$work")
   # Agents sometimes git init their workspace; a nested .git cannot be
-  # committed under runs/, and dependencies and bytecode are rebuilt when scoring.
+  # committed under runs/, and dependencies and bytecode are rebuilt when
+  # scoring. Links, FIFOs and devices stay behind (see skipped_entries).
   if [[ "$format" == perf ]]; then
     perf_tree collect "$work" "$root/snapshot.json" "$task/run_config.json" "$dir/output"
   else
-    rsync -a --exclude node_modules --exclude .git --exclude __pycache__ "$work/" "$dir/output/"
+    rsync -a --no-links --no-specials --no-devices --exclude node_modules --exclude .git --exclude __pycache__ \
+      "$work/" "$dir/output/" > /dev/null
   fi
 
   local fields
   fields=$(summarise "$agent" "$dir/transcript.jsonl" "$root/status.json" "$codex_home" "$dir/final_message.txt")
   local base
   base=$(python3 -c 'import json, sys
-fmt, task, agent, rep, cli = sys.argv[1:6]
-print(json.dumps({"format": fmt, "task": task, "agent": agent, "rep": int(rep), "cli": cli}))' \
-    "$format" "$id" "$agent" "$rep" "$cli")
+fmt, task, agent, rep, cli, skipped = sys.argv[1:7]
+print(json.dumps({"format": fmt, "task": task, "agent": agent, "rep": int(rep), "cli": cli,
+                  "skipped_links": json.loads(skipped)}))' \
+    "$format" "$id" "$agent" "$rep" "$cli" "$skipped")
   write_result "$dir/result.json" "$base" "$fields"
   case "$STOP_SIGNAL" in
     HUP) exit 129 ;;
@@ -702,6 +894,12 @@ main() {
   if [[ "${1:-}" == --build-image ]]; then
     [[ $# -eq 1 ]] || { echo "usage: $0 --build-image" >&2; return 2; }
     build_image
+  elif [[ "${1:-}" == --setup-network ]]; then
+    [[ $# -eq 1 ]] || { echo "usage: $0 --setup-network" >&2; return 2; }
+    setup_network
+  elif [[ "${1:-}" == --check-isolation ]]; then
+    [[ $# -eq 1 ]] || { echo "usage: $0 --check-isolation" >&2; return 2; }
+    check_isolation
   elif [[ "${1:-}" == --one ]]; then
     [[ $# -eq 5 ]] || { echo "usage: $0 --one <format> <id> <agent> <rep>" >&2; return 2; }
     run_one "$2" "$3" "$4" "$5"
@@ -711,7 +909,7 @@ main() {
   elif [[ $# -eq 0 ]]; then
     run_all
   else
-    echo "usage: $0 [--build-image | --one <format> <id> <agent> <rep> | --rebuild-result <run dir>]" >&2
+    echo "usage: $0 [--build-image | --setup-network | --check-isolation | --one <format> <id> <agent> <rep> | --rebuild-result <run dir>]" >&2
     return 2
   fi
 }

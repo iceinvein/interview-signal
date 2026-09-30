@@ -194,8 +194,7 @@ done
 
 status=0
 for agent in ${AGENTS:-sonnet opus haiku codex}; do
-  root=$(make_run_root "$agent")
-  CLEANUP+=("$root")
+  make_run_root "$agent" root
   work="$root/work"
   claude_canary="claudecanary$(python3 -c 'import secrets; print(secrets.token_hex(6))')"
   agents_canary="agentscanary$(python3 -c 'import secrets; print(secrets.token_hex(6))')"

@@ -45,6 +45,25 @@ setup() {
   export PATH="$SANDBOX/bin:$ORIGINAL_PATH"
   unset WALL_S BUDGET JOBS FORMATS TASKS AGENTS REPS PROBE_BUDGET AGENT_MEMORY AGENT_CPUS
   stub_docker
+  stub_colima
+}
+
+# Docker's VM as colima ssh reaches it: the firewall script's check prints
+# the host and VM addresses, or fails while $SANDBOX/colima/no-rules exists,
+# which setup removes. Every call is logged to $SANDBOX/colima/calls.txt.
+stub_colima() {
+  mkdir -p "$SANDBOX/colima"
+  cat > "$SANDBOX/bin/colima" <<'EOF'
+#!/usr/bin/env bash
+state="$(dirname "$(dirname "$0")")/colima"
+echo "$*" >> "$state/calls.txt"
+[[ "$1 $2 $3 $4 $5" == "ssh -- sudo sh -s" ]] || { echo "stub colima: unexpected $*" >&2; exit 2; }
+cat > /dev/null
+[[ "$6" != setup ]] || rm -f "$state/no-rules"
+if [[ -e "$state/no-rules" ]]; then echo "firewall chain ISIG-FORWARD is missing or changed" >&2; exit 1; fi
+echo "192.168.5.2 192.168.5.1"
+EOF
+  chmod +x "$SANDBOX/bin/colima"
 }
 
 # A docker stand-in. Every call is logged to $SANDBOX/docker/calls.jsonl
@@ -59,6 +78,7 @@ setup() {
 stub_docker() {
   mkdir -p "$SANDBOX/docker/home" "$SANDBOX/docker/empty"
   touch "$SANDBOX/docker/image"
+  echo "false isig-runs 172.30.9.1" > "$SANDBOX/docker/network"
   cat > "$SANDBOX/bin/docker" <<'EOF'
 #!/usr/bin/env python3
 import json, os, signal, subprocess, sys
@@ -68,6 +88,26 @@ args = sys.argv[1:]
 with open(os.path.join(state, "calls.jsonl"), "a") as log:
     log.write(json.dumps({"args": args, "token": os.environ.get("CLAUDE_CODE_OAUTH_TOKEN")}) + "\n")
 
+if args[:2] == ["network", "ls"]:
+    if os.path.exists(os.path.join(state, "network")):
+        print("stubnetid")
+    sys.exit(0)
+if args[:2] == ["network", "inspect"]:
+    try:
+        print(open(os.path.join(state, "network")).read().strip())
+    except FileNotFoundError:
+        print(f"Error response from daemon: network {args[-1]} not found", file=sys.stderr)
+        sys.exit(1)
+    sys.exit(0)
+if args[:2] == ["network", "create"]:
+    open(os.path.join(state, "network"), "w").write("false isig-runs 172.30.9.1\n")
+    print("stubnetid")
+    sys.exit(0)
+if args[0] == "ps":
+    name = args[args.index("--filter") + 1].removeprefix("name=^").removesuffix("$")
+    if os.path.exists(os.path.join(state, name + ".pid")):
+        print("stubcontainerid")
+    sys.exit(0)
 if args[:2] == ["image", "inspect"]:
     if os.path.exists(os.path.join(state, "image")):
         print("sha256:stub")
@@ -99,6 +139,19 @@ while args[i].startswith("-"):
     else:
         sys.exit(f"stub docker: unknown option {args[i]}")
 command = args[i + 1:]
+# The isolation preflight asks for TCP connections, which the host cannot
+# answer for the container: private targets report closed and port 443
+# open, unless the test lists a target in preflight-open or preflight-closed.
+if command[:2] == ["bash", "-c"] and command[3:4] == ["preflight"]:
+    def listed(name):
+        try:
+            return open(os.path.join(state, name)).read().split()
+        except FileNotFoundError:
+            return []
+    for target in command[4:]:
+        is_open = (target.endswith(":443") or target in listed("preflight-open")) and target not in listed("preflight-closed")
+        print(("open " if is_open else "closed ") + target)
+    sys.exit(0)
 mounts = [v.split(":", 1) for k, v in opts if k == "-v"]
 
 
@@ -588,13 +641,13 @@ test_claude_container_mounts_only_the_run_work_dir() {
   [[ "$(docker_option_values --workdir)" == "/work" ]] || fail "--workdir was '$(docker_option_values --workdir)'"
 }
 
-test_container_gets_no_other_host_access() {
+test_container_gets_no_other_host_access_and_uses_the_runs_network() {
   stub_claude
   run_one takehome stub-task sonnet 1
   local found
   found=$(agent_docker_args | grep -x -E -e '--(mount|volume|volumes-from|privileged|cap-add|device|pid|ipc|userns)(=.*)?' -e '.*docker\.sock.*')
   [[ -z "$found" ]] || fail "docker run was given: $found"
-  [[ "$(docker_option_values --network)" == "bridge" ]] || fail "--network was '$(docker_option_values --network)'"
+  [[ "$(docker_option_values --network)" == "interview-signal-runs" ]] || fail "--network was '$(docker_option_values --network)'"
 }
 
 test_container_has_memory_and_cpu_limits() {
@@ -780,6 +833,205 @@ test_agent_sees_utc_and_its_workspace_as_pwd() {
   local out="$RUNS_DIR/$RUN/output"
   [[ "$(cat "$out/tz.txt" 2>/dev/null)" == "UTC" ]] || fail "TZ was '$(cat "$out/tz.txt" 2>/dev/null)'"
   [[ "$(cat "$out/pwd.txt" 2>/dev/null)" == "$(cat "$out/cwd.txt" 2>/dev/null)" ]] || fail "PWD does not name the workspace"
+}
+
+# --- network isolation -----------------------------------------------------
+
+# The arguments of the preflight container run, one per line.
+preflight_args() {
+  python3 -c 'import json, sys
+for line in open(sys.argv[1]):
+    args = json.loads(line)["args"]
+    if args[:1] == ["run"] and "preflight" in args:
+        print("\n".join(args))
+        break' "$SANDBOX/docker/calls.jsonl"
+}
+
+assert_stopped_unstarted() { # assert_stopped_unstarted <stderr> <expected words>
+  [[ "$1" == *"$2"* ]] || fail "stderr did not say '$2': $1"
+  [[ ! -e "$RUNS_DIR/$RUN" ]] || fail "run directory created for a run that never started"
+  [[ -z "$(agent_docker_args)" ]] || fail "the agent container was started"
+}
+
+test_missing_runs_network_stops_the_run_unstarted() {
+  stub_claude
+  rm "$SANDBOX/docker/network"
+  local err
+  err=$("$REPO/run.sh" --one takehome stub-task sonnet 1 2>&1 >/dev/null) && fail "run.sh ran without the runs network"
+  assert_stopped_unstarted "$err" "--setup-network"
+}
+
+test_runs_network_with_inter_container_traffic_stops_the_run_unstarted() {
+  stub_claude
+  echo "true isig-runs 172.30.9.1" > "$SANDBOX/docker/network"
+  local err
+  err=$("$REPO/run.sh" --one takehome stub-task sonnet 1 2>&1 >/dev/null) && fail "run.sh ran on a network with icc on"
+  assert_stopped_unstarted "$err" "enable_icc"
+}
+
+test_missing_firewall_rules_stop_the_run_unstarted() {
+  stub_claude
+  touch "$SANDBOX/colima/no-rules"
+  local err
+  err=$("$REPO/run.sh" --one takehome stub-task sonnet 1 2>&1 >/dev/null) && fail "run.sh ran without the firewall rules"
+  assert_stopped_unstarted "$err" "--setup-network"
+}
+
+test_preflight_reaching_the_host_stops_the_run_unstarted() {
+  stub_claude
+  echo "192.168.5.2:5432" > "$SANDBOX/docker/preflight-open"
+  local err
+  err=$("$REPO/run.sh" --one takehome stub-task sonnet 1 2>&1 >/dev/null) && fail "run.sh ran with the host's Postgres reachable"
+  assert_stopped_unstarted "$err" "192.168.5.2:5432"
+}
+
+test_preflight_without_outbound_access_stops_the_run_unstarted() {
+  stub_claude
+  echo "api.anthropic.com:443" > "$SANDBOX/docker/preflight-closed"
+  local err
+  err=$("$REPO/run.sh" --one takehome stub-task sonnet 1 2>&1 >/dev/null) && fail "run.sh ran without outbound access"
+  assert_stopped_unstarted "$err" "api.anthropic.com:443"
+}
+
+test_preflight_probes_the_host_and_vm_from_the_runs_network() {
+  stub_claude
+  run_one takehome stub-task sonnet 1 || fail "run.sh exited non-zero"
+  local args
+  args=$(preflight_args | tr '\n' ' ')
+  local want
+  for want in "--network interview-signal-runs " "--user candidate " " 192.168.5.2:5432 " " 192.168.5.2:22 " " 172.30.9.1:22 " " 192.168.5.1:22 " " registry.npmjs.org:443 " " api.anthropic.com:443 " " api.openai.com:443 " " chatgpt.com:443 "; do
+    [[ "$args" == *"$want"* ]] || fail "preflight lacks '$want': $args"
+  done
+}
+
+test_setup_network_creates_the_network_without_icc_and_the_firewall() {
+  rm "$SANDBOX/docker/network"
+  touch "$SANDBOX/colima/no-rules"
+  "$REPO/run.sh" --setup-network >/dev/null 2>&1 || fail "--setup-network exited non-zero"
+  local create
+  create=$(python3 -c 'import json, sys
+for line in open(sys.argv[1]):
+    args = json.loads(line)["args"]
+    if args[:2] == ["network", "create"]:
+        print(" ".join(args))' "$SANDBOX/docker/calls.jsonl")
+  [[ "$create" == "network create --driver bridge -o com.docker.network.bridge.enable_icc=false -o com.docker.network.bridge.name=isig-runs interview-signal-runs" ]] || fail "network create was: '$create'"
+  [[ ! -e "$SANDBOX/colima/no-rules" ]] || fail "firewall was not set up"
+}
+
+test_setup_network_twice_creates_one_network() {
+  rm "$SANDBOX/docker/network"
+  "$REPO/run.sh" --setup-network >/dev/null 2>&1 || fail "first --setup-network failed"
+  "$REPO/run.sh" --setup-network >/dev/null 2>&1 || fail "second --setup-network failed"
+  [[ "$(grep -c '"network", "create"' "$SANDBOX/docker/calls.jsonl")" == 1 ]] || fail "network created more than once"
+}
+
+test_probe_stops_when_the_preflight_reaches_the_host() {
+  probe_claude ''
+  echo "192.168.5.2:5432" > "$SANDBOX/docker/preflight-open"
+  local out
+  out=$(probe) && fail "probe ran with the host reachable"
+  [[ "$out" == *"192.168.5.2:5432"* ]] || fail "probe said: $out"
+  [[ -z "$(agent_docker_args)" ]] || fail "the probe session was started"
+}
+
+# --- host side of the work dir ---------------------------------------------
+
+test_planted_links_and_fifos_are_not_copied_and_are_recorded() {
+  echo "operator secret" > "$SANDBOX/outside.txt"
+  chmod 400 "$SANDBOX/outside.txt"
+  stub_claude_body "echo mine > real.txt; ln -s '$SANDBOX/outside.txt' leak.txt; ln -s '$SANDBOX' leakdir; mkfifo pipe; mkdir -p deep && ln -s '$SANDBOX/outside.txt' deep/leak"
+  run_one takehome stub-task sonnet 1 || fail "run.sh exited non-zero"
+  local out="$RUNS_DIR/$RUN/output"
+  [[ "$(cat "$out/real.txt" 2>/dev/null)" == "mine" ]] || fail "output/ lost the agent's real file"
+  local name
+  for name in leak.txt leakdir pipe deep/leak; do
+    [[ ! -e "$out/$name" && ! -L "$out/$name" ]] || fail "output/ holds $name"
+  done
+  grep -rqF "operator secret" "$RUNS_DIR/$RUN" && fail "the linked file's content reached the run directory"
+  assert_field "$RUNS_DIR/$RUN/result.json" skipped_links '["deep/leak", "leak.txt", "leakdir", "pipe"]'
+  [[ "$(stat -f '%Lp' "$SANDBOX/outside.txt")" == "400" ]] || fail "the linked file's mode was changed"
+}
+
+test_clean_run_records_no_skipped_links() {
+  stub_claude
+  run_one takehome stub-task sonnet 1
+  assert_field "$RUNS_DIR/$RUN/result.json" skipped_links '[]'
+}
+
+test_perf_link_is_neither_read_nor_copied() {
+  echo "operator secret" > "$SANDBOX/outside.txt"
+  stub_claude_body "rm kernel.py; ln -s '$SANDBOX/outside.txt' kernel.py; ln -s '$SANDBOX/outside.txt' notes.md"
+  run_one perf stub-perf sonnet 1 || fail "run.sh exited non-zero"
+  local out="$RUNS_DIR/$PERF_RUN/output"
+  [[ ! -e "$out/kernel.py" && ! -e "$out/notes.md" ]] || fail "perf output/ holds a linked file"
+  grep -rqF "operator secret" "$RUNS_DIR/$PERF_RUN" && fail "the linked file's content reached the run directory"
+  assert_field "$out/.upstream_changes.json" deleted '["kernel.py"]'
+  assert_field "$RUNS_DIR/$PERF_RUN/result.json" skipped_links '["kernel.py", "notes.md"]'
+}
+
+test_files_the_agent_made_unreadable_are_copied_and_cleaned_up() {
+  stub_claude_body 'echo locked > locked.txt; chmod 000 locked.txt; mkdir sealed; echo inside > sealed/f; chmod 000 sealed'
+  run_one takehome stub-task sonnet 1 || fail "run.sh exited non-zero"
+  [[ "$(cat "$RUNS_DIR/$RUN/output/locked.txt" 2>/dev/null)" == "locked" ]] || fail "unreadable file not copied"
+  [[ "$(cat "$RUNS_DIR/$RUN/output/sealed/f" 2>/dev/null)" == "inside" ]] || fail "file in an unreadable dir not copied"
+  [[ -z "$(ls -A "$SCRATCH_DIR" 2>/dev/null)" ]] || fail "run root left behind: $(ls -A "$SCRATCH_DIR")"
+}
+
+test_claude_token_file_that_is_a_symlink_stops_the_run_unstarted() {
+  stub_claude
+  mv "$TOKEN_FILE" "$SANDBOX/real-token"
+  ln -s "$SANDBOX/real-token" "$TOKEN_FILE"
+  local err
+  err=$("$REPO/run.sh" --one takehome stub-task sonnet 1 2>&1 >/dev/null) && fail "run.sh followed a symlinked token file"
+  assert_stopped_unstarted "$err" "symlink"
+}
+
+# --- stale run roots -------------------------------------------------------
+
+dead_pid() { sleep 0 & local pid=$!; wait "$pid"; echo "$pid"; }
+
+stale_root() { # stale_root <name> <owner pid|""> -> makes $SCRATCH_DIR/<name> holding a work file
+  mkdir -p "$SCRATCH_DIR/$1/work"
+  echo left > "$SCRATCH_DIR/$1/work/file"
+  [[ -z "$2" ]] || echo "$2" > "$SCRATCH_DIR/$1/owner"
+}
+
+test_run_root_whose_runner_died_is_swept_at_startup() {
+  stub_claude
+  stale_root run.dead "$(dead_pid)"
+  chmod 000 "$SCRATCH_DIR/run.dead/work"
+  run_one takehome stub-task sonnet 1
+  [[ ! -e "$SCRATCH_DIR/run.dead" ]] || fail "stale root kept"
+}
+
+test_run_root_of_a_live_runner_is_kept() {
+  stub_claude
+  stale_root run.live "$$"
+  run_one takehome stub-task sonnet 1
+  [[ -e "$SCRATCH_DIR/run.live/work/file" ]] || fail "a live runner's root was swept"
+}
+
+test_run_root_whose_container_still_runs_is_kept() {
+  stub_claude
+  stale_root run.busy "$(dead_pid)"
+  echo "$$" > "$SANDBOX/docker/interview-signal-run.busy.pid"
+  run_one takehome stub-task sonnet 1
+  [[ -e "$SCRATCH_DIR/run.busy/work/file" ]] || fail "a root whose container runs was swept"
+}
+
+test_old_run_root_without_an_owner_is_swept() {
+  stub_claude
+  stale_root run.orphan ""
+  touch -t 202001010000 "$SCRATCH_DIR/run.orphan"
+  run_one takehome stub-task sonnet 1
+  [[ ! -e "$SCRATCH_DIR/run.orphan" ]] || fail "old ownerless root kept"
+}
+
+test_new_run_root_without_an_owner_is_kept() {
+  stub_claude
+  stale_root run.fresh ""
+  run_one takehome stub-task sonnet 1
+  [[ -e "$SCRATCH_DIR/run.fresh/work/file" ]] || fail "a root still being made was swept"
 }
 
 # --- process control -------------------------------------------------------
