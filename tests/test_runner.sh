@@ -674,6 +674,16 @@ test_codex_container_mounts_the_work_dir_and_its_scratch_codex_home() {
   [[ "$(tr '\n' ' ' < "$RUNS_DIR/$CODEX_RUN/output/codex-home.txt" 2>/dev/null)" == "auth.json config.toml " ]] || fail "CODEX_HOME was not the mounted scratch home"
 }
 
+test_codex_runs_without_its_own_sandbox_inside_the_container() {
+  # Codex's workspace-write sandbox needs bwrap, which cannot make a user
+  # namespace in the container; the container is the boundary instead.
+  stub_codex
+  run_one takehome stub-task codex 1
+  local command
+  command=$(agent_docker_args | sed -n '/^interview-signal-agent$/,$p' | sed '1d;$d' | tr '\n' ' ')
+  [[ "$command" == "codex exec --skip-git-repo-check --sandbox danger-full-access --json " ]] || fail "codex command was: '$command'"
+}
+
 test_codex_container_env_is_utc_and_codex_home_only() {
   stub_codex
   run_one takehome stub-task codex 1

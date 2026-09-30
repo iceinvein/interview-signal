@@ -104,9 +104,9 @@ PY
 
 # Codex reads instructions from CODEX_HOME, so each Codex session gets a
 # scratch one holding credentials and a config that pins the operator's model
-# and effort, turns off Codex's own web search, and lets the sandbox reach the
-# network (to install packages, as Claude can), never the operator's
-# AGENTS.md.
+# and effort and turns off Codex's own web search, never the operator's
+# AGENTS.md. network_access applies only under workspace-write, which runs
+# no longer use (see agent_command); it is moot, and left as it was.
 make_codex_home() { # make_codex_home <dir>
   local auth="$HOME/.codex/auth.json"
   [[ -f "$auth" ]] || { echo "missing Codex credentials: $auth" >&2; return 1; }
@@ -195,8 +195,12 @@ agent_command() {
         --strict-mcp-config
         --permission-mode bypassPermissions --no-session-persistence
         --max-budget-usd "$budget") ;;
+    # Codex's workspace-write sandbox runs every command through bwrap,
+    # which cannot create a user namespace under Docker's default seccomp
+    # profile, so inside the container Codex runs unsandboxed and the
+    # container is the boundary.
     codex)
-      into=(codex exec --skip-git-repo-check --sandbox workspace-write --json "$prompt") ;;
+      into=(codex exec --skip-git-repo-check --sandbox danger-full-access --json "$prompt") ;;
     *) echo "unknown agent: $agent" >&2; return 1 ;;
   esac
 }
