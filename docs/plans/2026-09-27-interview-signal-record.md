@@ -312,3 +312,8 @@
 - **Isolation fix merged (b647890).** The 15 original FeedMe runs moved to
   `runs-excluded/feedme-host-isolation/` (kept as the incident's evidence,
   excluded from analysis); FeedMe is rerun in the container.
+- **FeedMe rerun complete (9ab6642):** 15/15 clean in containers; no new PRs or
+  forks under the operator's account; Claude spend $4.17; judging 270 calls
+  $34.57 (recorded exactly this time). Six runs tried `gh` and found it
+  absent; two Codex runs cloned the public upstream repo (main branch, no
+  solutions).
