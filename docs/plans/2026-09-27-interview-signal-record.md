@@ -317,3 +317,14 @@
   $34.57 (recorded exactly this time). Six runs tried `gh` and found it
   absent; two Codex runs cloned the public upstream repo (main branch, no
   solutions).
+- **T12 first pass (6d5d9ab), merged.** New findings: (1) in the container
+  rerun, Codex FeedMe r1, r2 and r5 used the ChatGPT GitHub connector
+  (`codex_apps`) that comes with the operator's Codex login: read-only, but
+  it resolved the operator's GitHub account and r1 opened a stranger's
+  solution repo; `external_fetches` missed it. (2) The hand-check was not
+  blind: the sample list showed each judge label. (3) Excluded host runs:
+  Opus r1 and r4 set git author to the operator's real name and email from
+  session context. Decisions: disable Codex app connectors and rerun the 5
+  Codex FeedMe runs; redo the hand-check blind with a fresh agent; the
+  controller writes ANALYSIS.md (the implementer's environment refused .md
+  output).
