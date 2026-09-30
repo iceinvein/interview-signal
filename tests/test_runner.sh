@@ -611,13 +611,22 @@ test_codex_home_holds_only_auth_and_config() {
   [[ "$listing" == "auth.json config.toml " ]] || fail "CODEX_HOME held: '$listing'"
 }
 
-test_codex_config_pins_model_effort_and_network_and_disables_web_search() {
+test_codex_config_pins_model_effort_and_network_and_disables_web_search_and_apps() {
   stub_codex
   run_one takehome stub-task codex 1
   local expected
-  expected=$(printf 'model = "gpt-6-sol"\nmodel_reasoning_effort = "high"\nweb_search = "disabled"\n\n[sandbox_workspace_write]\nnetwork_access = true')
+  expected=$(printf 'model = "gpt-6-sol"\nmodel_reasoning_effort = "high"\nweb_search = "disabled"\n\n[features]\napps = false\n\n[sandbox_workspace_write]\nnetwork_access = true')
   [[ "$(cat "$RUNS_DIR/$CODEX_RUN/output/codex-config.toml" 2>/dev/null)" == "$expected" ]] \
     || fail "config.toml was: '$(cat "$RUNS_DIR/$CODEX_RUN/output/codex-config.toml" 2>/dev/null)'"
+}
+
+test_codex_config_turns_off_app_connectors() {
+  stub_codex
+  run_one takehome stub-task codex 1
+  local apps
+  apps=$(python3 -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1], "rb"))["features"]["apps"])' \
+    "$RUNS_DIR/$CODEX_RUN/output/codex-config.toml" 2>&1)
+  [[ "$apps" == "False" ]] || fail "features.apps was: '$apps'"
 }
 
 test_codex_credential_copy_is_removed_after_the_run() {
@@ -1197,11 +1206,12 @@ EOF
   chmod +x "$SANDBOX/bin/claude"
 }
 
-# The Codex counterpart: answers the <command> as a command_execution item
-# and quotes its AGENTS.md. $1 is extra event lines printed before the turn
-# completes.
+# The Codex counterpart: answers the <command> as a command_execution item,
+# quotes its AGENTS.md and gives $2 (default: the no-GitHub-tool answer) as
+# its GitHub answer. $1 is extra shell run before the turn completes, such as
+# more event lines.
 probe_codex() {
-  local extra=${1:-}
+  local extra=${1:-} github=${2-NO GITHUB TOOL}
   probe_sections
   cat > "$SANDBOX/bin/codex" <<EOF
 #!/usr/bin/env bash
@@ -1209,11 +1219,11 @@ $(declare -f cat_sections | sed "s|\$SANDBOX|$SANDBOX|g")
 prompt=\${@: -1}
 command=\$(python3 -c 'import re,sys; m = re.search(r"<command>\s*(.*?)\s*</command>", sys.argv[1], re.S); print(m.group(1) if m else "")' "\$prompt")
 output=\$(cat_sections "\$prompt")
-python3 - "\$command" "\$output" "\$(cat AGENTS.md)" <<'PY2'
+python3 - "\$command" "\$output" "\$(cat AGENTS.md)" '$github' <<'PY2'
 import json, sys
-command, output, agents_md = sys.argv[1:4]
+command, output, agents_md, github = sys.argv[1:5]
 print(json.dumps({"type": "item.completed", "item": {"type": "command_execution", "command": command, "aggregated_output": output, "exit_code": 0}}))
-print(json.dumps({"type": "item.completed", "item": {"type": "agent_message", "text": agents_md + "\n" + output}}))
+print(json.dumps({"type": "item.completed", "item": {"type": "agent_message", "text": agents_md + "\n" + output + "\n" + github}}))
 PY2
 $extra
 echo '{"type":"turn.completed","usage":{}}'
@@ -1277,6 +1287,27 @@ test_probe_fails_codex_that_searched_the_web() {
   local out
   out=$(AGENTS=codex probe) && fail "probe passed a session that searched the web"
   [[ "$out" == *"web_search"* ]] || fail "probe said: $out"
+}
+
+test_probe_fails_codex_that_calls_a_codex_apps_tool() {
+  probe_codex "echo '{\"type\":\"item.completed\",\"item\":{\"id\":\"a1\",\"type\":\"mcp_tool_call\",\"server\":\"codex_apps\",\"tool\":\"github.get_user_login\",\"status\":\"completed\"}}'"
+  local out
+  out=$(AGENTS=codex probe) && fail "probe passed a session that called a codex_apps tool"
+  [[ "$out" == *"codex_apps"* ]] || fail "probe said: $out"
+}
+
+test_probe_fails_codex_that_was_offered_codex_apps_tools() {
+  probe_codex 'mkdir -p "$CODEX_HOME/cache/codex_apps_tools"; echo '"'"'{"schema_version":1,"tools":[{"server_name":"codex_apps","tool_namespace":"codex_apps__github","tool_name":"get_user_login"}]}'"'"' > "$CODEX_HOME/cache/codex_apps_tools/x.json"'
+  local out
+  out=$(AGENTS=codex probe) && fail "probe passed a session offered codex_apps tools"
+  [[ "$out" == *"codex_apps__github"* ]] || fail "probe said: $out"
+}
+
+test_probe_fails_codex_that_does_not_say_it_has_no_github_tool() {
+  probe_codex '' 'The signed-in account is someone.'
+  local out
+  out=$(AGENTS=codex probe) && fail "probe passed a session that did not deny having a GitHub tool"
+  [[ "$out" == *"GitHub tool"* ]] || fail "probe said: $out"
 }
 
 test_probe_passes_a_session_whose_gh_is_not_logged_in() {
