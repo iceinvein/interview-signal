@@ -18,7 +18,10 @@ class RunDirs(unittest.TestCase):
     """Builds run directories the way run.sh leaves them, against fixture tasks."""
 
     def setUp(self):
-        self.tmp = pathlib.Path(tempfile.mkdtemp()).resolve()
+        # Checkers run in a container, which sees only what Docker's VM
+        # shares, so the runs live where score.py makes its own scratch.
+        score.SCRATCH_DIR.mkdir(parents=True, exist_ok=True)
+        self.tmp = pathlib.Path(tempfile.mkdtemp(dir=score.SCRATCH_DIR)).resolve()
         self.addCleanup(shutil.rmtree, self.tmp)
         self.runs = self.tmp / "runs"
 
@@ -75,7 +78,7 @@ class ScoreRun(RunDirs):
         run = self.make_run("answer", "reference")
         score.score_run(run, tasks_dir=FIXTURE_TASKS)
         self.assertEqual((run / "score_stderr.txt").read_text(),
-                         f"checked {run / 'output'}/answer.txt under TZ=UTC\n")
+                         "checked /solution/answer.txt under TZ=UTC\n")
 
     def test_checker_that_breaks_raises_and_writes_no_score(self):
         run = self.make_run("broken", "reference")
@@ -93,6 +96,52 @@ class ScoreRun(RunDirs):
         rubric_path.write_text(json.dumps(rubric))
         with self.assertRaisesRegex(score.ScoringError, "no-such-result"):
             score.score_run(self.make_run("answer", "reference"), tasks_dir=tasks)
+
+
+class Isolation(RunDirs):
+    """The checker runs agent-written code, so it runs in the agent image."""
+
+    def isolation_results(self, run):
+        scored = score.score_run(run, tasks_dir=FIXTURE_TASKS)
+        return {r["id"]: r["passed"] for r in scored["results"]}
+
+    def test_checker_runs_as_candidate_without_the_host_filesystem(self):
+        results = self.isolation_results(self.make_run("isolation", "../answer/reference"))
+        self.assertEqual({k: results[k] for k in ("as-candidate", "no-host-users", "solution-file-present")},
+                         {"as-candidate": True, "no-host-users": True, "solution-file-present": True})
+
+    def test_checker_cannot_write_the_solution_or_the_task(self):
+        results = self.isolation_results(self.make_run("isolation", "../answer/reference"))
+        self.assertEqual({k: results[k] for k in ("solution-read-only", "task-read-only")},
+                         {"solution-read-only": True, "task-read-only": True})
+
+    def test_checker_reaches_the_internet_but_not_the_host(self):
+        results = self.isolation_results(self.make_run("isolation", "../answer/reference"))
+        self.assertEqual({k: results[k] for k in ("host-postgres-blocked", "registry-reachable")},
+                         {"host-postgres-blocked": True, "registry-reachable": True})
+
+    def test_link_planted_in_the_output_is_not_given_to_the_checker(self):
+        outside = self.tmp / "operator-secret.txt"
+        outside.write_text("operator secret\n")
+        run = self.make_run("isolation", "../answer/reference")
+        (run / "output" / "leak.txt").symlink_to(outside)
+        self.assertTrue(self.isolation_results(run)["planted-link-absent"])
+
+    def test_checker_past_its_time_limit_is_killed_and_raises(self):
+        run = self.make_run("slow", "reference")
+        original = score.CHECKER_TIMEOUT_S
+        score.CHECKER_TIMEOUT_S = 3
+        self.addCleanup(setattr, score, "CHECKER_TIMEOUT_S", original)
+        with self.assertRaisesRegex(score.ScoringError, "ran past 3 s"):
+            score.score_run(run, tasks_dir=FIXTURE_TASKS)
+        running = subprocess.run(["docker", "ps", "--quiet", "--filter", "name=^interview-signal-score"],
+                                 capture_output=True, text=True, check=True).stdout
+        self.assertEqual(running, "")
+
+    def test_scoring_leaves_no_scratch_behind(self):
+        before = set(score.SCRATCH_DIR.iterdir())
+        score.score_run(self.make_run("answer", "reference"), tasks_dir=FIXTURE_TASKS)
+        self.assertEqual(set(score.SCRATCH_DIR.iterdir()), before)
 
 
 class Cli(RunDirs):

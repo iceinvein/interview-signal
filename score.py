@@ -8,6 +8,14 @@ checker's results. Each score lands in <run>/score.json and the checker's
 stderr in <run>/score_stderr.txt. A run that already has score.json is left
 alone unless --rescore is given. RUNS_DIR and TASKS_DIR override where runs
 and tasks are read from, as they do for run.sh.
+
+The checker runs code the agent wrote, so it runs where the agent did: in a
+fresh container of run.sh's agent image, as the user candidate, on the runs
+network (which reaches the internet but not the Mac or Docker's VM), seeing
+only a copy of the output's regular files at /solution and the task's
+format directory at /tasks/<format>, both read-only. Before scoring, the
+command runs run.sh --check-isolation, the checks every agent run makes.
+SCRATCH_DIR is where the copies are made, as for run.sh.
 """
 
 import argparse
@@ -16,15 +24,24 @@ import concurrent.futures
 import json
 import os
 import pathlib
-import signal
+import shutil
+import stat
 import subprocess
 import sys
+import tempfile
 
 REPO = pathlib.Path(__file__).resolve().parent
 TASKS_DIR = pathlib.Path(os.environ.get("TASKS_DIR", REPO / "tasks"))
 RUNS_DIR = pathlib.Path(os.environ.get("RUNS_DIR", REPO / "runs"))
+# A copy of the output goes where Docker's VM can mount it; see run.sh.
+SCRATCH_DIR = pathlib.Path(os.environ.get("SCRATCH_DIR", pathlib.Path.home() / ".cache" / "interview-signal" / "scratch"))
 CHECKER_TIMEOUT_S = 600
 WORKERS = 4
+# The same image, network and limits as agent runs (run.sh).
+IMAGE = "interview-signal-agent"
+RUN_NETWORK = "interview-signal-runs"
+MEMORY = os.environ.get("AGENT_MEMORY", "4g")
+CPUS = os.environ.get("AGENT_CPUS", "2")
 
 
 class ScoringError(Exception):
@@ -67,23 +84,76 @@ def score_run(run_dir: pathlib.Path, tasks_dir: pathlib.Path = TASKS_DIR) -> dic
     return scored
 
 
+def copy_regular_files(source: pathlib.Path, dest: pathlib.Path) -> None:
+    """Copies directories and regular files only: a symlink the agent left
+    could point at any of the operator's files, and a FIFO would block."""
+    dest.mkdir()
+    for dirpath, dirnames, filenames in os.walk(source):
+        rel = pathlib.Path(dirpath).relative_to(source)
+        dirnames[:] = [d for d in dirnames if not os.path.islink(os.path.join(dirpath, d))]
+        for d in dirnames:
+            (dest / rel / d).mkdir()
+        for name in filenames:
+            path = pathlib.Path(dirpath) / name
+            if stat.S_ISREG(path.lstat().st_mode):
+                shutil.copy2(path, dest / rel / name, follow_symlinks=False)
+
+
+def check_mounts(mounts: list[str], probes: list[str], what: str) -> None:
+    """A path Docker's VM does not share mounts as an empty directory, which
+    would score every run as failing without saying why."""
+    command = ["docker", "run", "--rm", "--network", "none"]
+    for mount in mounts:
+        command += ["-v", mount]
+    expression = []
+    for probe in probes:
+        if expression:
+            expression.append("-a")
+        expression += ["-e", probe]
+    proc = subprocess.run(command + [IMAGE, "test", *expression], capture_output=True, text=True)
+    if proc.returncode != 0:
+        raise ScoringError(f"a container cannot see {what} (Docker's VM does not share it, or the image is missing): "
+                           f"{proc.stderr.strip()[-300:]}")
+
+
 def run_checker(task_dir: pathlib.Path, run_dir: pathlib.Path) -> dict:
-    """Run hidden/run.sh on the run's output and return its parsed JSON."""
-    run_sh = task_dir / "hidden" / "run.sh"
-    env = dict(os.environ, TZ="UTC")
-    with open(run_dir / "score_stderr.txt", "w") as stderr:
-        # Its own session, so a timeout can stop the npm and vitest children too.
-        proc = subprocess.Popen(
-            [str(run_sh), str((run_dir / "output").resolve())],
-            cwd=task_dir, env=env, stdout=subprocess.PIPE, stderr=stderr, text=True,
-            start_new_session=True,
-        )
-        try:
-            stdout, _ = proc.communicate(timeout=CHECKER_TIMEOUT_S)
-        except subprocess.TimeoutExpired:
-            os.killpg(proc.pid, signal.SIGKILL)
-            proc.communicate()
-            raise ScoringError(f"{run_dir.name}: checker ran past {CHECKER_TIMEOUT_S} s") from None
+    """Run hidden/run.sh on the run's output in a container and return its parsed JSON."""
+    fmt, task = task_dir.parent.name, task_dir.name
+    container_task = f"/tasks/{fmt}/{task}"
+    SCRATCH_DIR.mkdir(mode=0o700, parents=True, exist_ok=True)
+    scratch = pathlib.Path(tempfile.mkdtemp(prefix="score.", dir=SCRATCH_DIR))
+    name = f"interview-signal-{scratch.name}"
+    try:
+        solution = scratch / "solution"
+        copy_regular_files(run_dir / "output", solution)
+        # The marker sits beside the solution, not in it: a change to the
+        # mounted tree just before the checker starts can reach the container
+        # late, and tar then fails with "file changed as we read it".
+        (scratch / "mount-check").mkdir()
+        (scratch / "mount-check" / "marker").touch()
+        mounts = [f"{solution}:/solution:ro", f"{task_dir.parent.resolve()}:/tasks/{fmt}:ro"]
+        check_mounts([f"{scratch / 'mount-check'}:/mount-check:ro", mounts[1]],
+                     ["/mount-check/marker", f"{container_task}/hidden/run.sh"], f"{scratch} or {task_dir}")
+        command = ["docker", "run", "--rm", "--init", "--name", name, "--user", "candidate",
+                   "--workdir", container_task, "--memory", MEMORY, "--cpus", CPUS,
+                   "--network", RUN_NETWORK, "--security-opt", "no-new-privileges",
+                   "-e", "TZ=UTC"]
+        for mount in mounts:
+            command += ["-v", mount]
+        command += [IMAGE, f"{container_task}/hidden/run.sh", "/solution"]
+        with open(run_dir / "score_stderr.txt", "w") as stderr:
+            proc = subprocess.Popen(command, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=stderr,
+                                    text=True)
+            try:
+                stdout, _ = proc.communicate(timeout=CHECKER_TIMEOUT_S)
+            except subprocess.TimeoutExpired:
+                # Killing the client would leave the container running; this
+                # ends it and everything the checker started inside.
+                subprocess.run(["docker", "kill", name], capture_output=True, check=True)
+                proc.communicate()
+                raise ScoringError(f"{run_dir.name}: checker ran past {CHECKER_TIMEOUT_S} s") from None
+    finally:
+        shutil.rmtree(scratch)
 
     if proc.returncode != 0:
         raise ScoringError(f"{run_dir.name}: checker exited {proc.returncode}; see score_stderr.txt")
@@ -125,6 +195,11 @@ def main(argv: list[str]) -> int:
 
     runs = sorted(p.parent for p in RUNS_DIR.glob("*/result.json"))
     to_score = [r for r in runs if args.rescore or not (r / "score.json").is_file()]
+    if to_score:
+        checked = subprocess.run([str(REPO / "run.sh"), "--check-isolation"])
+        if checked.returncode != 0:
+            print("not scoring: run.sh --check-isolation failed", file=sys.stderr)
+            return 1
     failures = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=WORKERS) as pool:
         futures = {pool.submit(score_run, run): run for run in to_score}

@@ -17,6 +17,7 @@ import difflib
 import json
 import os
 import pathlib
+import stat
 import subprocess
 import sys
 import tempfile
@@ -81,12 +82,15 @@ def judge_items(task_dir: pathlib.Path) -> list[dict]:
 
 
 def tree_files(root: pathlib.Path) -> dict[str, pathlib.Path]:
+    """Regular files only: a symlink an agent planted in its output could
+    point at any of the operator's files, and a FIFO would block the read."""
     files = {}
     for dirpath, dirnames, filenames in os.walk(root):
         dirnames[:] = sorted(d for d in dirnames if d not in SKIPPED_DIRS)
         for name in filenames:
             path = pathlib.Path(dirpath) / name
-            files[path.relative_to(root).as_posix()] = path
+            if stat.S_ISREG(path.lstat().st_mode):
+                files[path.relative_to(root).as_posix()] = path
     return files
 
 
