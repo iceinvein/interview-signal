@@ -1,0 +1,5 @@
+The Node.js order controller, interactive CLI, scripts, tests, and [timestamped demo output](/work/scripts/result.txt) are ready. The CLI supports `normal`, `vip`, `+`, `-`, `status`, and `quit`; run it with `./scripts/run.sh --interactive`.
+
+All six tests and the build check passed. I also ran the real 20 second demo and verified that every result line has an `HH:MM:SS` timestamp.
+
+**The PR remains outstanding.** `/work` has no Git metadata or remote, and no repository URL was supplied, so I could not submit a PR or verify the GitHub Actions check. Send the repository and fork URLs to complete that step.

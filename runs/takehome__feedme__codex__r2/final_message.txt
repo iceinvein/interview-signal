@@ -1,0 +1,5 @@
+Implemented the Node.js order controller with an interactive CLI, timed bot processing, VIP priority, bot removal and order restoration. The [README](/work/README.md) explains the commands; [result.txt](/work/scripts/result.txt) contains a timestamped demo in which all four orders complete.
+
+All six tests pass. The build script, interactive smoke test, and local checks used by `backend-verify-result` also pass. The GitHub workflow itself has not run.
+
+I could not create the required pull request: this workspace has no Git metadata, remote, or GitHub authentication. Please provide the repository or fork URL and an authenticated way to push so I can submit it.

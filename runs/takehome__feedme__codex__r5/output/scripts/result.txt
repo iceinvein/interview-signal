@@ -1,0 +1,35 @@
+[08:44:35] Demo started
+[08:44:35] NORMAL order #1001 created; PENDING
+[08:44:35] VIP order #1002 created; PENDING
+[08:44:35] VIP order #1003 created; PENDING
+[08:44:35] NORMAL order #1004 created; PENDING
+[08:44:35] PENDING: #1002 VIP, #1003 VIP, #1001 NORMAL, #1004 NORMAL
+[08:44:35] PROCESSING: (empty)
+[08:44:35] COMPLETE: (empty)
+[08:44:35] BOTS: (none)
+[08:44:35] Bot #1 created; IDLE
+[08:44:35] Bot #1 picked up VIP order #1002; PROCESSING for 10 seconds
+[08:44:35] Bot #2 created; IDLE
+[08:44:35] Bot #2 picked up VIP order #1003; PROCESSING for 10 seconds
+[08:44:35] Bot #2 stopped VIP order #1003; returned to PENDING
+[08:44:35] Bot #2 removed
+[08:44:35] PENDING: #1003 VIP, #1001 NORMAL, #1004 NORMAL
+[08:44:35] PROCESSING: #1002 VIP
+[08:44:35] COMPLETE: (empty)
+[08:44:35] BOTS: #1 PROCESSING order #1002
+[08:44:35] Bot #3 created; IDLE
+[08:44:35] Bot #3 picked up VIP order #1003; PROCESSING for 10 seconds
+[08:44:45] Bot #1 completed VIP order #1002; COMPLETE after 10 seconds
+[08:44:45] Bot #1 picked up NORMAL order #1001; PROCESSING for 10 seconds
+[08:44:45] Bot #3 completed VIP order #1003; COMPLETE after 10 seconds
+[08:44:45] Bot #3 picked up NORMAL order #1004; PROCESSING for 10 seconds
+[08:44:55] Bot #1 completed NORMAL order #1001; COMPLETE after 10 seconds
+[08:44:55] Bot #1 is IDLE
+[08:44:55] Bot #3 completed NORMAL order #1004; COMPLETE after 10 seconds
+[08:44:55] Bot #3 is IDLE
+[08:44:55] Bot #3 removed
+[08:44:55] Final status
+[08:44:55] PENDING: (empty)
+[08:44:55] PROCESSING: (empty)
+[08:44:55] COMPLETE: #1002 VIP, #1003 VIP, #1001 NORMAL, #1004 NORMAL
+[08:44:55] BOTS: #1 IDLE

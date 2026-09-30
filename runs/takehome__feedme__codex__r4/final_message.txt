@@ -1,0 +1,5 @@
+Implemented the Node.js order controller with an interactive CLI, VIP priority, ten second bot processing, cancellation and requeueing, and a timestamped [demo result](/work/scripts/result.txt). The [README](/work/README.md) covers commands and behavior.
+
+All six unit tests and the build check pass locally. I also ran the demo and checked that every result line has an `HH:MM:SS` timestamp.
+
+**The PR and GitHub Actions check remain outstanding.** This workspace has no `.git` directory or remote, so I can’t push the changes or open a PR. Please provide the repository or fork checkout with push access to complete submission.

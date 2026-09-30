@@ -1,0 +1,36 @@
+[09:11:21] System initialized with 0 bots
+[09:11:21] Created NORMAL Order #1 - PENDING
+[09:11:21] Created NORMAL Order #2 - PENDING
+[09:11:21] Created VIP Order #3 - PENDING
+[09:11:21] PENDING: #3 VIP, #1 NORMAL, #2 NORMAL
+[09:11:21] PROCESSING: (none)
+[09:11:21] COMPLETE: (none)
+[09:11:21] BOTS: (none)
+[09:11:21] Bot #1 created - IDLE
+[09:11:21] Bot #1 picked up VIP Order #3 - PROCESSING
+[09:11:21] Bot #2 created - IDLE
+[09:11:21] Bot #2 picked up NORMAL Order #1 - PROCESSING
+[09:11:21] Bot #2 stopped NORMAL Order #1 - returned to PENDING
+[09:11:21] Bot #2 destroyed
+[09:11:21] PENDING: #1 NORMAL, #2 NORMAL
+[09:11:21] PROCESSING: Bot #1: #3 VIP
+[09:11:21] COMPLETE: (none)
+[09:11:21] BOTS: #1 PROCESSING
+[09:11:21] Bot #3 created - IDLE
+[09:11:21] Bot #3 picked up NORMAL Order #1 - PROCESSING
+[09:11:31] Bot #1 completed VIP Order #3 - COMPLETE (10s)
+[09:11:31] Bot #1 picked up NORMAL Order #2 - PROCESSING
+[09:11:31] Bot #3 completed NORMAL Order #1 - COMPLETE (10s)
+[09:11:31] Bot #3 is IDLE
+[09:11:41] Bot #1 completed NORMAL Order #2 - COMPLETE (10s)
+[09:11:41] Bot #1 is IDLE
+[09:11:41] PENDING: (none)
+[09:11:41] PROCESSING: (none)
+[09:11:41] COMPLETE: #3 VIP, #1 NORMAL, #2 NORMAL
+[09:11:41] BOTS: #1 IDLE, #3 IDLE
+[09:11:41] Bot #3 destroyed
+[09:11:41] Bot #1 destroyed
+[09:11:41] PENDING: (none)
+[09:11:41] PROCESSING: (none)
+[09:11:41] COMPLETE: #3 VIP, #1 NORMAL, #2 NORMAL
+[09:11:41] BOTS: (none)

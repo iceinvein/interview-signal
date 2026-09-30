@@ -1,0 +1,3 @@
+Implemented the Node.js order controller and interactive CLI. It handles VIP priority, 10-second processing, idle bots, and cancellation that returns an order to its original queue position. The real-time demo writes timestamped output to [scripts/result.txt](/work/scripts/result.txt), and [README.md](/work/README.md) explains how to run it.
+
+All seven tests, the build script, and the local result-file check pass. **A PR remains outstanding:** this workspace has no Git history, remote URL, or GitHub credentials, so I could not submit one or verify the GitHub Action itself. Send the repository URL and GitHub access to complete that step.

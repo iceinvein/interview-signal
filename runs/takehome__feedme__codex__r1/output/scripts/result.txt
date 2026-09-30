@@ -1,0 +1,20 @@
+[12:00:00] System initialized with 0 bots
+[12:00:00] Created Normal Order #1 - Status: PENDING
+[12:00:00] Created VIP Order #2 - Status: PENDING
+[12:00:00] Created Normal Order #3 - Status: PENDING
+[12:00:00] Bot #1 created
+[12:00:00] Bot #1 picked up VIP Order #2 - Status: PROCESSING
+[12:00:00] Bot #2 created
+[12:00:00] Bot #2 picked up Normal Order #1 - Status: PROCESSING
+[12:00:03] Created VIP Order #4 - Status: PENDING
+[12:00:04] Bot #2 stopped Normal Order #1; order returned to PENDING
+[12:00:04] Bot #2 destroyed
+[12:00:10] Bot #1 completed VIP Order #2 - Status: COMPLETE (Processing time: 10s)
+[12:00:10] Bot #1 picked up VIP Order #4 - Status: PROCESSING
+[12:00:20] Bot #1 completed VIP Order #4 - Status: COMPLETE (Processing time: 10s)
+[12:00:20] Bot #1 picked up Normal Order #1 - Status: PROCESSING
+[12:00:30] Bot #1 completed Normal Order #1 - Status: COMPLETE (Processing time: 10s)
+[12:00:30] Bot #1 picked up Normal Order #3 - Status: PROCESSING
+[12:00:40] Bot #1 completed Normal Order #3 - Status: COMPLETE (Processing time: 10s)
+[12:00:40] Bot #1 is IDLE
+[12:00:40] Final status: {"pending":[],"processing":[],"complete":[{"id":2,"type":"VIP","status":"COMPLETE"},{"id":4,"type":"VIP","status":"COMPLETE"},{"id":1,"type":"Normal","status":"COMPLETE"},{"id":3,"type":"Normal","status":"COMPLETE"}],"bots":[{"id":1,"status":"IDLE"}]}
