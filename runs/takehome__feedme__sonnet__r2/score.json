@@ -1,0 +1,114 @@
+{
+  "format": "takehome",
+  "task": "feedme",
+  "agent": "sonnet",
+  "rep": 2,
+  "results": [
+    {
+      "id": "ci_verify",
+      "passed": true
+    },
+    {
+      "id": "r1_normal_order_flow",
+      "passed": true
+    },
+    {
+      "id": "r2_vip_priority",
+      "passed": true
+    },
+    {
+      "id": "r3_unique_increasing_numbers",
+      "passed": true
+    },
+    {
+      "id": "r4_bot_processing",
+      "passed": true
+    },
+    {
+      "id": "r5_idle_bot",
+      "passed": true
+    },
+    {
+      "id": "r6_remove_newest_bot",
+      "passed": true
+    },
+    {
+      "id": "demonstrates_all",
+      "passed": false
+    },
+    {
+      "id": "log_parsed",
+      "passed": true
+    },
+    {
+      "id": "r7_in_memory",
+      "passed": true
+    }
+  ],
+  "metrics": {
+    "events_parsed": 21,
+    "timestamped_lines": 35,
+    "silent_lines": 0,
+    "log_unparsed": 0,
+    "r1_normal_order_flow_exercised": 1,
+    "r1_normal_order_flow_violations": 0,
+    "r2_vip_priority_exercised": 1,
+    "r2_vip_priority_violations": 0,
+    "r3_unique_increasing_numbers_exercised": 1,
+    "r3_unique_increasing_numbers_violations": 0,
+    "r4_bot_processing_exercised": 1,
+    "r4_bot_processing_violations": 0,
+    "r5_idle_bot_exercised": 0,
+    "r5_idle_bot_violations": 0,
+    "r6_remove_newest_bot_exercised": 1,
+    "r6_remove_newest_bot_violations": 0,
+    "run_seconds": 26.6,
+    "total_seconds": 26.7,
+    "tests_ok": 1,
+    "build_ok": 1,
+    "run_ok": 1,
+    "files_written_by_run": 0
+  },
+  "auto_criteria": [
+    {
+      "id": "ci-verify",
+      "passed": true
+    },
+    {
+      "id": "req1-normal-flow",
+      "passed": true
+    },
+    {
+      "id": "req2-vip-priority",
+      "passed": true
+    },
+    {
+      "id": "req3-order-numbers",
+      "passed": true
+    },
+    {
+      "id": "req4-bot-processing",
+      "passed": true
+    },
+    {
+      "id": "req5-idle-bot",
+      "passed": true
+    },
+    {
+      "id": "req6-remove-bot",
+      "passed": true
+    },
+    {
+      "id": "req7-in-memory",
+      "passed": true
+    },
+    {
+      "id": "demonstrates-all",
+      "passed": false
+    },
+    {
+      "id": "log-parsed",
+      "passed": true
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+The order controller CLI is built and works locally: all 17 unit tests pass, and I ran the build, the run script and an interactive session. It isn't on GitHub yet. `/work` wasn't a git repository and has no remote, so there's no Pull Request and the `backend-verify-result` workflow hasn't run. I ran its steps locally (test, build, run) and they worked, but on Node 24 rather than the 22.19 the workflow uses. I set up git locally: `main` holds the original files and branch `feature/order-controller` has one commit with the work.
+
+**What's there**
+- `src/orderController.js`: the core logic, with no input/output.
+  - The PENDING queue is kept in order: VIP orders first, then by order number. A new VIP order goes behind existing VIPs and ahead of all Normal orders.
+  - When a bot is removed mid-order, its order goes back to its original place in PENDING by the same rule.
+  - Order numbers start at 1001 and always increase. Bot numbers are never reused.
+  - Each bot handles one order at a time, taking 10 seconds. When it finishes, it takes the next pending order or becomes IDLE. A new order goes to the longest-standing idle bot.
+  - "- Bot" removes the newest bot and cancels its order. If another bot picks that order up later, it starts again from 0 seconds.
+- `src/cli.js` and `src/index.js`: the command-line app. In a terminal it's interactive (`n`, `v`, `+`, `-`, `status`, `wait <sec>`, `quit`). It also reads commands piped in, which is how `run.sh` produces `result.txt`. Every event line starts with an `[HH:MM:SS]` timestamp.
+- `test/`: 17 tests using Node's built-in test runner with simulated timers, so they finish in well under a second. They cover VIP/Normal ordering, unique increasing numbers, the 10-second boundary, going IDLE and resuming, several bots at once, and removing a bot mid-order.
+- `scripts/test.sh`, `build.sh` and `run.sh` are filled in. `run.sh` feeds `scripts/demo-commands.txt` into the app and writes `scripts/result.txt`. It uses real 10-second timers, so it takes about 38 seconds.
+- `README.md` has a new section with usage and design notes. There are no third-party dependencies.
+
+**Checked output**
+The generated `result.txt` came out as expected:
+- VIP #1002 was picked up before Normal #1001.
+- An idle bot picked up a new VIP order straight away.
+- Removing a bot mid-order sent VIP #1004 back to PENDING, and a new bot then completed it after a full 10 seconds.
+- Bots went IDLE when nothing was pending.
+
+**One limitation:** in the interactive terminal, a timer event (like an order completing) can print over the `> ` prompt. It's only cosmetic.
+
+**To finish the submission,** fork the repository on GitHub, then from `/work`:
+```bash
+git remote add origin <your-fork-url>
+git push -u origin main feature/order-controller
+gh pr create --base main --head feature/order-controller
+```
+If your fork already has the upstream history, rebase `feature/order-controller` onto the fork's `main` first. Once the PR is open, the workflow will run. I can push and open the PR for you if you give me the fork URL and access.

@@ -1,0 +1,38 @@
+The take-home is built and tested locally. It's committed on the branch `feature/order-controller`. I haven't pushed anything or opened the PR: `/work` was not a git repository and has no remote, so the fork and PR need your GitHub account (steps below).
+
+## What I built
+Plain Node.js with no dependencies.
+
+- **`src/OrderController.js`** holds the core logic and does no I/O; it reports what happens through events. The pending list is always kept sorted with VIP orders first, then by order number. New orders and orders handed back by a removed bot are inserted the same way, so a returned order lands in its original spot. Order and bot numbers only ever go up and are never reused. Each bot handles one order at a time on a 10-second timer. When bots are added, orders arrive or a bot finishes, idle bots pick up pending orders straight away. **`- Bot`** removes the newest bot, stops its timer and puts its order back in the queue.
+- **`src/logger.js`** turns those events into lines like `[HH:MM:SS] Bot #1 picked up VIP Order #2 - Status: PROCESSING`.
+- **`src/cli.js`** is the interactive CLI you'll need for the next round (`npm start`). Commands: `n`, `v`, `+`, `-`, `s` (show the PENDING/PROCESSING/COMPLETE areas and bots), `h`, `q`.
+- **`src/simulate.js`** is a scripted run used by `run.sh`. It writes **`scripts/result.txt`**, which is where the workflow looks, even though CI runs the script from the repo root.
+- **Scripts:** `test.sh` runs `npm test`, `build.sh` runs a syntax check (there's nothing to compile), and `run.sh` runs the simulation.
+- **README:** I added a Solution section at the top with a quick start, file layout and design notes.
+
+## Testing
+- **Unit tests:** all 17 pass. They cover:
+  - where VIP and Normal orders go in the queue;
+  - order numbers being unique and increasing;
+  - completion at exactly 10 seconds;
+  - bots going idle and then waking for new orders;
+  - removing the newest bot, and its timer never finishing the order;
+  - returned orders going back to the right place.
+- **Full run with real 10-second timers (about 45 seconds):** the log in `result.txt` shows:
+  - VIPs placed ahead of Normals but behind earlier VIPs;
+  - a bot removed mid-order, with that VIP order back at the front of the queue;
+  - a newly added bot picking up work immediately;
+  - bots going idle;
+  - an idle bot being removed.
+- **Interactive CLI:** I drove it with scripted input and found and fixed a crash on `q` (it tried to show the prompt after the input had closed). Quitting, or input ending while an order is still cooking, now exits cleanly.
+
+**Not checked:** I ran everything on Node 24, while CI uses 22.19. The features I rely on (`node --test` and its mock timers) exist in Node 22, but the tests have only been confirmed passing once the GitHub workflow runs.
+
+## Remaining steps for you
+1. Fork the assignment repo, then `git remote add origin <your-fork>`.
+2. `git push origin main feature/order-controller`
+3. Open a PR from `feature/order-controller` into `main` and check that `backend-verify-result` passes.
+
+Commit `c2d526c` ends with the co-author line you specified. If you want the same attribution in the PR description, end it with: `🤖 Generated with [Claude Code](https://claude.com/claude-code)`.
+
+For the demo, `npm start` is the interactive CLI.

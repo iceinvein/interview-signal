@@ -1,0 +1,19 @@
+I built the order controller as a Node.js CLI in `/work`. The 14 unit tests pass, and `build.sh` and `run.sh` run cleanly. I haven't run the GitHub Actions workflow, and nothing is committed or pushed.
+
+`/work` wasn't a git repo, so I ran `git init` there. There is no fork, branch or Pull Request yet. Tell me the fork URL if you want me to set up the branch and open the PR.
+
+**What's there**
+- **Logic:** `src/orderController.js` holds all the rules.
+  - The PENDING queue is always sorted VIP first, then by order number. That one rule gives "VIP behind existing VIPs, ahead of Normal", and it also puts an order back in its original spot when a bot is removed.
+  - `- Bot` removes the newest bot, stops its timer and returns its order to PENDING.
+  - `+ Bot` picks up pending orders immediately, and idle bots pick up new orders immediately.
+- **CLI:** `src/cli.js` is an interactive prompt (`npm start`). Its commands are `normal`, `vip`, `+bot`, `-bot`, `status`, `help` and `exit`. Every output line carries an `HH:MM:SS` timestamp.
+- **Scripts:** `scripts/test.sh`, `build.sh` and `run.sh` are filled in. `run.sh` writes `scripts/result.txt`, which is the path the workflow checks.
+- **Tests:** they use fake timers, so they don't wait 10 seconds per order. They cover priority ordering, unique increasing order numbers, the 10-second processing, idle bots, and bot removal with the order returning to its place.
+- **Docs:** I added a short "Solution" section to `README.md`.
+
+**Things to know**
+- `run.sh` takes about 30 seconds because it uses real 10-second timers.
+- `scripts/result.txt` currently holds my local run's output, replacing the placeholder that came with the repo.
+- I didn't add a `.gitignore`.
+- The workflow also sets up Go, which this solution doesn't use.

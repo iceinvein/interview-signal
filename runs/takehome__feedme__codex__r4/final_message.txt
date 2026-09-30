@@ -1,0 +1,3 @@
+The Node.js order controller is implemented and ready to demonstrate. It includes an interactive CLI, VIP priority, 10-second cooking, bot removal with queue restoration, six passing tests, and a timestamped [demo result](/work/scripts/result.txt). Run `node src/cli.js` to use it interactively; the commands are in the [README](/work/README.md).
+
+The local test, build, and run scripts pass. I could not submit the required PR or verify the GitHub Actions run because this workspace has no Git checkout or remote. Please provide the repository URL and target fork so I can complete that submission.

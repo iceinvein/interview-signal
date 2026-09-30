@@ -1,0 +1,30 @@
+{
+  "format": "takehome",
+  "task": "feedme",
+  "agent": "codex",
+  "rep": 3,
+  "cli": "codex-cli 0.158.0",
+  "skipped_links": [],
+  "model": "gpt-6-sol",
+  "effort": "high",
+  "is_error": false,
+  "cost_usd": null,
+  "turns": 1,
+  "codex_steps": 30,
+  "usage": {
+    "input_tokens": 452486,
+    "cached_input_tokens": 411904,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 13002,
+    "reasoning_output_tokens": 3137
+  },
+  "contamination": [],
+  "external_fetches": [
+    "gh",
+    "gh 2>/dev/null"
+  ],
+  "timed_out": false,
+  "interrupted": null,
+  "exit_code": 0,
+  "wall_s": 755.273
+}

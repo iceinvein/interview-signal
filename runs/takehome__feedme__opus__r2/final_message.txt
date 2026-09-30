@@ -1,0 +1,27 @@
+I've built the order controller as a Node.js CLI with no dependencies, and committed it locally on the branch `feature/order-controller`. The tests, build and run scripts all pass locally, but I haven't pushed anything or opened a Pull Request, so the GitHub Actions check hasn't run yet.
+
+**What's there**
+- `src/OrderController.js`: the core logic.
+  - VIP orders go behind any existing VIP orders and ahead of all Normal ones.
+  - Order numbers are unique and increasing, starting at 1001.
+  - Each bot handles one order at a time for 10 seconds, then picks up the next pending order or goes IDLE.
+  - `- Bot` removes the newest bot, stops its work, and puts its order back where it was in PENDING.
+  - A returned order starts its 10 seconds again from zero when a bot picks it up.
+- `src/cli.js`: a command-line program that reads commands (`n`, `v`, `+`, `-`, `s`, `wait <sec>`, `q`). Every line of output starts with an `[HH:MM:SS]` timestamp. `npm start` gives you the interactive version for the interview demo.
+- `scripts/run.sh` feeds a scripted scenario (`scripts/scenario.txt`) into the same program and writes `scripts/result.txt`. It takes about 45 seconds because it uses the real 10-second timings.
+- `test/`: 16 unit tests using Node's built-in test runner with fake timers, so they finish instantly.
+- `README.md` now has a section covering usage, structure and design notes.
+
+**How I checked it**
+- **Full CI sequence:** ran `test.sh`, `build.sh` and `run.sh` from the repo root, as the workflow does. `result.txt` shows the expected order, the removed bot's VIP order going back to the front of PENDING, and bots going IDLE and waking up for new orders.
+- **Timestamp check:** the workflow's `HH:MM:SS` check matches 44 lines.
+- **Interactive mode:** tested in a real terminal session, including bot events printing while the prompt is waiting for input.
+
+**Still to do (needs your GitHub account)**
+This folder wasn't a git repository, so I set one up: the original files are the first commit on `main`, and my work is one commit on top.
+1. Fork the assignment repo on GitHub.
+2. `git remote add origin <your-fork-url>`
+3. `git push origin main feature/order-controller`
+4. Open a Pull Request from the feature branch into `main` and confirm `backend-verify-result` passes.
+
+I haven't pushed because that publishes the code. I can do steps 2–4 with `gh` once you give me the fork URL.

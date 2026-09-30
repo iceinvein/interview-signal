@@ -1,0 +1,27 @@
+[12:00:00] Order controller demonstration (simulated clock; each order takes 10 seconds)
+[12:00:00] Created NORMAL order #1 - PENDING
+[12:00:00] Created NORMAL order #2 - PENDING
+[12:00:00] Created VIP order #3 - PENDING
+[12:00:00] Created VIP order #4 - PENDING
+[12:00:00] PENDING: VIP #3, VIP #4, NORMAL #1, NORMAL #2 | PROCESSING: none | COMPLETE: none | BOTS: none
+[12:00:00] Added bot #1
+[12:00:00] Bot #1 picked up VIP order #3 - PROCESSING
+[12:00:00] Added bot #2
+[12:00:00] Bot #2 picked up VIP order #4 - PROCESSING
+[12:00:02] Removed bot #2; VIP order #4 returned to PENDING
+[12:00:02] PENDING: VIP #4, NORMAL #1, NORMAL #2 | PROCESSING: bot #1: VIP #3 | COMPLETE: none | BOTS: #1 BUSY
+[12:00:10] Bot #1 completed VIP order #3 - COMPLETE (10s)
+[12:00:10] Bot #1 picked up VIP order #4 - PROCESSING
+[12:00:20] Bot #1 completed VIP order #4 - COMPLETE (10s)
+[12:00:20] Bot #1 picked up NORMAL order #1 - PROCESSING
+[12:00:30] Bot #1 completed NORMAL order #1 - COMPLETE (10s)
+[12:00:30] Bot #1 picked up NORMAL order #2 - PROCESSING
+[12:00:40] Bot #1 completed NORMAL order #2 - COMPLETE (10s)
+[12:00:40] Bot #1 is IDLE
+[12:00:40] PENDING: none | PROCESSING: none | COMPLETE: VIP #3, VIP #4, NORMAL #1, NORMAL #2 | BOTS: #1 IDLE
+[12:00:40] Created NORMAL order #5 - PENDING
+[12:00:40] Bot #1 picked up NORMAL order #5 - PROCESSING
+[12:00:50] Bot #1 completed NORMAL order #5 - COMPLETE (10s)
+[12:00:50] Bot #1 is IDLE
+[12:00:50] Removed idle bot #1
+[12:00:50] PENDING: none | PROCESSING: none | COMPLETE: VIP #3, VIP #4, NORMAL #1, NORMAL #2, NORMAL #5 | BOTS: none

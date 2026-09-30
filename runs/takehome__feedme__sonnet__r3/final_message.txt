@@ -1,0 +1,21 @@
+I built the order controller, the interactive and demo CLI, the three scripts and a README section. There is no Git repo in `/work`, so I haven't created a fork, branch or Pull Request. The `backend-verify-result` workflow hasn't run either, so I can't say it passes.
+
+**What I ran locally**
+- **Tests:** `test.sh` passes all 12 unit tests.
+- **Build and run:** `build.sh` and `run.sh` both complete. `scripts/result.txt` now holds the real demo output, with `[HH:MM:SS]` timestamps. It replaced the sample file that came with the repo.
+- **Interactive mode:** I ran a short session with `vip`, `normal`, `+bot`, `status`, `-bot` and a bad command, and it behaved as expected.
+- **Demo run:** The scripted demo takes about 25 seconds, because it uses real 10-second orders. It shows a VIP order queueing ahead of normal ones. It also shows `-bot` returning an in-progress VIP order to the front of the queue, where another bot picks it up.
+
+**Files**
+- **Core logic:** `src/orderController.js` holds the pending queue, the bots and the 10-second processing. Timers are injectable, so the tests run instantly with a fake clock.
+- **CLI:** `src/index.js` runs interactively by default, with `normal`, `vip`, `+bot`, `-bot`, `status`, `help` and `quit`. `--demo` runs the scripted scenario that `run.sh` uses.
+- **Tests:** `test/orderController.test.js`.
+- **Scripts:** `scripts/test.sh`, `scripts/build.sh` and `scripts/run.sh`. `run.sh` writes to `scripts/result.txt`, the path the workflow checks.
+- **Docs:** `README.md` has a new solution section at the end.
+
+**Design choice**
+- The pending list is sorted by VIP first, then by order number. An order interrupted by `-bot` is re-inserted by the same rule, which puts it back in its original position.
+
+**Not done**
+- The workflow sets up Node 22, and I only ran this on Node 24, so it is untested on 22.
+- To submit, you'll need to fork the repo, push a branch, open the Pull Request into `main` and check that the workflow goes green. I can do the commit if you want.

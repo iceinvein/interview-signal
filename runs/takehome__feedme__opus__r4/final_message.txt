@@ -1,0 +1,26 @@
+I've built the order controller as a Node.js CLI and tested it locally. I haven't submitted the PR, because `/work` wasn't a git repo and has no GitHub remote.
+
+**What's built** (plain Node.js, no dependencies):
+- `src/orderController.js`: the core logic, all in memory. Pending orders are kept sorted by VIP first, then by order number. That one rule puts a new VIP order behind existing VIPs but ahead of Normal orders. It also puts an order back in its original place when its bot is removed. Each bot takes one order at a time with a 10-second timer. Removing a bot cancels its timer and returns its order to PENDING.
+- `src/cli.js`: the interactive CLI for the interview (`npm start`). Commands are `n`, `v`, `+`, `-`, `s`, `h` and `q`, and every line starts with a `[HH:MM:SS]` timestamp.
+- `src/simulate.js`: a fixed scenario that covers every requirement in real time. `scripts/run.sh` writes its output to `scripts/result.txt`.
+- `test/orderController.test.js`: 19 unit tests covering every requirement, using fake timers so they finish in milliseconds.
+- `scripts/test.sh`, `build.sh` and `run.sh`, plus a "Solution" section at the end of `README.md` covering usage and design.
+
+**Checks I ran:**
+- **Tests:** all 19 pass. One test first failed because of how the fake timers work, not a bug in the controller; I split its time step into two.
+- **Build:** `build.sh` passes. There's nothing to compile, so it just checks the syntax of each file.
+- **Simulation:** `run.sh` takes about 31s. In `result.txt`, orders finish as #1002, #1004, #1001, #1005, #1003, which is the correct VIP-first order. It also shows a removed bot's order going back to the front of PENDING.
+- **Interactive CLI:** I piped in a sequence of commands and got the expected results, including the message for an unknown command.
+- **Not tested:** the GitHub Actions workflow itself. I used Node 24 locally, while the workflow uses 22.19.0. The features I relied on exist in Node 22, but only the PR run will confirm it.
+
+**Local git state:** I created a `main` branch holding only `LICENSE` and the workflow as a stand-in base, and put everything else in one commit on `feature/order-controller`.
+
+**What you need to do to submit:**
+1. Fork the assignment repo and clone it.
+2. Copy in `src/`, `test/`, `scripts/`, `package.json`, `package-lock.json`, `.gitignore` and the updated `README.md`, on a new branch.
+3. Push it and open a PR against `main` so the `backend-verify-result` check runs.
+
+I can run steps 2 and 3 with `gh` if you give me the fork URL.
+
+**One rough edge:** in the interactive CLI, when a bot finishes an order in the background, the message can land in the middle of whatever you're typing at the `>` prompt. It's harmless and was left as-is to keep things simple, but worth knowing before the live demo.

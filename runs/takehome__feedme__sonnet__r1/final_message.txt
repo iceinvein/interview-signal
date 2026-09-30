@@ -1,0 +1,16 @@
+The order controller is built, and the unit tests, build and demo run all work locally. I haven't opened a pull request or run the `backend-verify-result` workflow, because `/work` isn't a git repository. To finish, fork the repo, copy these files in, push a branch and open the PR against `main`.
+
+- **Tests:** `./scripts/test.sh` passes 10 tests, using mocked timers. They cover:
+  - VIP ordering
+  - unique increasing order numbers
+  - the 10-second completion
+  - idle bots picking up new orders
+  - removing a bot returning its order to its original position
+  - the `HH:MM:SS` timestamp format
+- **Demo:** `./scripts/run.sh` runs a scripted scenario of about 1 minute and writes `scripts/result.txt` with `[HH:MM:SS]` timestamps. I ran it and the output was correct. The workflow checks `scripts/result.txt`, so the scripts run from the repo root.
+- **Interactive CLI:** `node src/cli.js` accepts `normal`, `vip`, `+bot`, `-bot`, `status`, `help` and `quit`. I tested it with piped input; I haven't tried it in a real terminal.
+- **Design:** `src/orderController.js` holds the core logic and `src/cli.js` holds the CLI. The pending list is always sorted VIP first, then by order number, so VIP orders queue behind earlier VIP orders. The same sort puts a returned order back in its original position. There are no dependencies.
+- **Node versions:** the workflow uses Node 22 and I ran everything on Node 24, so I haven't tried it on 22. I expect it to work, since it only uses `node:test` and built-in modules.
+- **README:** I appended usage and design notes to `README.md`.
+
+The demo uses real 10-second timers, so it takes about a minute. `--processing-ms` shortens the cook time. I hit and fixed one problem along the way: `node --test test/` didn't work on Node 24, so `npm test` now uses the glob `test/*.test.js`.

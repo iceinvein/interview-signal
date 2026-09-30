@@ -1,0 +1,56 @@
+McDonald's Order Management System - Simulation Results
+
+[07:22:34] > normal
+[07:22:34] Created NORMAL Order #1 - Status: PENDING
+[07:22:35] > vip
+[07:22:35] Created VIP Order #2 - Status: PENDING
+[07:22:35] > normal
+[07:22:35] Created NORMAL Order #3 - Status: PENDING
+[07:22:36] > vip
+[07:22:36] Created VIP Order #4 - Status: PENDING
+[07:22:36] > +bot
+[07:22:36] Bot #1 created - Status: ACTIVE
+[07:22:36] Bot #1 picked up VIP Order #2 - Status: PROCESSING
+[07:22:37] > +bot
+[07:22:37] Bot #2 created - Status: ACTIVE
+[07:22:37] Bot #2 picked up VIP Order #4 - Status: PROCESSING
+[07:22:37] > status
+Bots:       [#1 PROCESSING, #2 PROCESSING]
+PENDING:    [NORMAL#1, NORMAL#3]
+PROCESSING: [VIP#2 (bot #1), VIP#4 (bot #2)]
+COMPLETE:   []
+[07:22:38] > -bot
+[07:22:38] Bot #2 destroyed while processing VIP Order #4 - Status: PENDING
+[07:22:38] > status
+Bots:       [#1 PROCESSING]
+PENDING:    [VIP#4, NORMAL#1, NORMAL#3]
+PROCESSING: [VIP#2 (bot #1)]
+COMPLETE:   []
+[07:22:39] > +bot
+[07:22:39] Bot #3 created - Status: ACTIVE
+[07:22:39] Bot #3 picked up VIP Order #4 - Status: PROCESSING
+[07:22:46] Bot #1 completed VIP Order #2 - Status: COMPLETE (Processing time: 10s)
+[07:22:46] Bot #1 picked up NORMAL Order #1 - Status: PROCESSING
+[07:22:49] Bot #3 completed VIP Order #4 - Status: COMPLETE (Processing time: 10s)
+[07:22:49] Bot #3 picked up NORMAL Order #3 - Status: PROCESSING
+[07:22:51] > status
+Bots:       [#1 PROCESSING, #3 PROCESSING]
+PENDING:    []
+PROCESSING: [NORMAL#1 (bot #1), NORMAL#3 (bot #3)]
+COMPLETE:   [VIP#2, VIP#4]
+[07:22:56] Bot #1 completed NORMAL Order #1 - Status: COMPLETE (Processing time: 10s)
+[07:22:56] Bot #1 is now IDLE - No pending orders
+[07:22:59] Bot #3 completed NORMAL Order #3 - Status: COMPLETE (Processing time: 10s)
+[07:22:59] Bot #3 is now IDLE - No pending orders
+[07:23:01] > -bot
+[07:23:01] Bot #3 destroyed while IDLE
+[07:23:01] > -bot
+[07:23:01] Bot #1 destroyed while IDLE
+[07:23:01] > -bot
+No bot to remove
+
+Final Status:
+Bots:       []
+PENDING:    []
+PROCESSING: []
+COMPLETE:   [VIP#2, VIP#4, NORMAL#1, NORMAL#3]

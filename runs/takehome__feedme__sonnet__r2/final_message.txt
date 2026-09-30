@@ -1,0 +1,21 @@
+The order controller is built and works. All 12 unit tests pass, and `scripts/run.sh` ran end to end and wrote `scripts/result.txt` with `HH:MM:SS` timestamps. I haven't run the GitHub Action, and I haven't opened a pull request. `/work` isn't a git repository, so the fork, branch and PR are still yours to do.
+
+I ran the demo and tests locally on Node 24. The workflow uses Node 22.19.0, so I haven't run it on that version.
+
+**How it behaves:**
+- **Queue order:** Pending orders are kept sorted with VIP first, then by order number. That gives the required "VIP behind existing VIPs, ahead of normals". It also means an order handed back by a removed bot goes straight back to its original position.
+- **Bots:** `+bot` and every new order immediately hand work to idle bots, and a bot with nothing to do goes IDLE. `-bot` removes the newest bot, cancels its 10-second timer and puts its order back in PENDING.
+- **Order numbers:** They are unique and increasing.
+
+**CLI:** `npm start` gives the interactive prompt with `normal`, `vip`, `+bot`, `-bot`, `status`, `help` and `quit`. `npm run demo` (what `run.sh` uses) plays a scripted scenario in real time, about 35 seconds. It covers VIP priority, a bot removed mid-order, and bots finishing and going idle.
+
+**Files:**
+- `src/orderController.js`: the core logic.
+- `src/cli.js`: the interactive prompt and the `--demo` mode.
+- `test/orderController.test.js`: the unit tests, which use mocked timers so the 10-second waits run instantly.
+- `scripts/test.sh`, `scripts/build.sh` and `scripts/run.sh`: the scripts the workflow calls. The repo's folder is `scripts/`, not `script/` as the brief says, so I followed the workflow. `build.sh` only syntax-checks the source, because there's no compile step.
+- `README.md` (replaced with usage and design notes) and `.gitignore`.
+
+The `scripts/result.txt` in the repo is my local demo output. Every `run.sh` run overwrites it.
+
+Before the interview, try the interactive mode yourself. My testing only covered the unit tests and the scripted demo.

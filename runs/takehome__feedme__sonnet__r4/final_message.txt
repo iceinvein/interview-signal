@@ -1,0 +1,18 @@
+I built the order controller in Node.js, but I haven't opened a pull request. `/work` isn't a git repository and I have no fork, so the `backend-verify-result` workflow hasn't run.
+
+I ran `test.sh`, `build.sh` and `run.sh` locally; all three succeed. There are 12 unit tests and they pass. The demo wrote `scripts/result.txt` with `HH:MM:SS` timestamps, which is what the workflow checks for. I also tried the interactive CLI with a short piped session.
+
+**What's there**
+- **Core logic:** `src/orderController.js` holds the pending queue, the completed list and the bots.
+  - **Queueing:** VIP orders go ahead of Normal orders and behind earlier VIP orders. A returned order goes back through the same insert, so it regains its original position.
+  - **Bots:** each bot does one order at a time with a 10-second timer. Removing the newest bot cancels its timer and returns its order to PENDING. Adding a bot or an order wakes idle bots.
+  - **Order numbers:** one counter, so Normal and VIP orders share unique increasing numbers.
+- **CLI:** `src/cli.js` has two modes.
+  - **Interactive:** run `npm start`. Commands are `n`, `v`, `+`, `-`, `s`, `help` and `q`.
+  - **Demo:** `--demo` runs a scripted scenario of about 25 seconds and writes `scripts/result.txt`.
+- **Scripts and docs:** `scripts/test.sh`, `build.sh` and `run.sh` are filled in, and I added a short README section on the design.
+
+**Things to know**
+- The workflow sets up Node 22.19.0, but I ran everything on Node 24, so the 22 path is untested. The code uses nothing version-specific.
+- `node --test test/` fails on Node 24, so `package.json` uses the glob `test/*.test.js` instead.
+- You'll need to fork the repo, commit these files, push a branch and open the PR against `main`. Tell me if you want me to do that once there's a repo.

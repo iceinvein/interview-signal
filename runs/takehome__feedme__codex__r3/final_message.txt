@@ -1,0 +1,5 @@
+Implemented the Node.js order controller and interactive CLI. It handles VIP priority, one order per bot, 10-second processing, idle bots, and cancellation that restores an order’s queue position.
+
+The required scripts pass: six tests, the build check, and the scripted run. [result.txt](/work/scripts/result.txt) contains timestamped output ending with all orders complete and the remaining bot idle. Usage is documented in [README.md](/work/README.md).
+
+I couldn’t create the PR or verify GitHub Actions: `/work` has no Git repository or remote. Please provide the repository URL and target branch so I can finish the submission.

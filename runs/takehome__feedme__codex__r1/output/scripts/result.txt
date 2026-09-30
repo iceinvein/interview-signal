@@ -1,0 +1,29 @@
+[07:33:22] Demo started
+[07:33:22] Created NORMAL order #1 - PENDING
+[07:33:22] Created NORMAL order #2 - PENDING
+[07:33:22] Created VIP order #3 - PENDING
+[07:33:22] Bot #1 created
+[07:33:22] Bot #1 picked up VIP order #3 - PROCESSING
+[07:33:22] Bot #2 created
+[07:33:22] Bot #2 picked up NORMAL order #1 - PROCESSING
+[07:33:22] Bot #2 stopped NORMAL order #1; order returned to PENDING
+[07:33:22] Bot #2 removed
+[07:33:22] PENDING: NORMAL #1, NORMAL #2
+[07:33:22] PROCESSING: Bot #1: VIP #3
+[07:33:22] COMPLETE: (none)
+[07:33:22] BOTS: #1 PROCESSING
+[07:33:22] Bot #3 created
+[07:33:22] Bot #3 picked up NORMAL order #1 - PROCESSING
+[07:33:22] Bot #4 created
+[07:33:22] Bot #4 picked up NORMAL order #2 - PROCESSING
+[07:33:32] Bot #1 completed VIP order #3 - COMPLETE (10s)
+[07:33:32] Bot #1 is IDLE
+[07:33:32] Bot #3 completed NORMAL order #1 - COMPLETE (10s)
+[07:33:32] Bot #3 is IDLE
+[07:33:32] Bot #4 completed NORMAL order #2 - COMPLETE (10s)
+[07:33:32] Bot #4 is IDLE
+[07:33:32] PENDING: (none)
+[07:33:32] PROCESSING: (none)
+[07:33:32] COMPLETE: VIP #3, NORMAL #1, NORMAL #2
+[07:33:32] BOTS: #1 IDLE, #3 IDLE, #4 IDLE
+[07:33:32] Demo finished

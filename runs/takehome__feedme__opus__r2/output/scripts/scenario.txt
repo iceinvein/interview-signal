@@ -1,0 +1,22 @@
+# Scripted demo fed into the interactive CLI by scripts/run.sh.
+normal
+vip
+normal
++bot
++bot
+wait 1
+vip
+normal
+status
+# A third bot picks up VIP #1004, then is removed: the order returns to the front of PENDING.
++bot
+wait 2
+-bot
+status
+wait 10
+status
+wait 18
+# All orders complete, both bots IDLE. A new VIP order wakes the oldest idle bot immediately.
+vip
+-bot
+wait 11

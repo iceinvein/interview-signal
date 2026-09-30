@@ -1,0 +1,35 @@
+[07:36:16] Order controller ready. Type help for commands.
+[07:36:16] Normal order #1001 created - PENDING
+[07:36:16] Normal order #1002 created - PENDING
+[07:36:16] VIP order #1003 created - PENDING
+[07:36:16] Bot #1 added - IDLE
+[07:36:16] Bot #1 picked up VIP order #1003 - PROCESSING
+[07:36:16] Bot #2 added - IDLE
+[07:36:16] Bot #2 picked up Normal order #1001 - PROCESSING
+[07:36:16] Bot #2 removed; Normal order #1001 returned to PENDING
+[07:36:16] PENDING: Normal #1001, Normal #1002
+[07:36:16] PROCESSING: Bot #1: VIP #1003
+[07:36:16] COMPLETE: (none)
+[07:36:16] BOTS: #1 PROCESSING
+[07:36:16] Waiting 11s
+[07:36:26] Bot #1 completed VIP order #1003 - COMPLETE (10.013s)
+[07:36:26] Bot #1 picked up Normal order #1001 - PROCESSING
+[07:36:27] PENDING: Normal #1002
+[07:36:27] PROCESSING: Bot #1: Normal #1001
+[07:36:27] COMPLETE: VIP #1003
+[07:36:27] BOTS: #1 PROCESSING
+[07:36:27] Waiting 11s
+[07:36:36] Bot #1 completed Normal order #1001 - COMPLETE (10.009s)
+[07:36:36] Bot #1 picked up Normal order #1002 - PROCESSING
+[07:36:38] PENDING: (none)
+[07:36:38] PROCESSING: Bot #1: Normal #1002
+[07:36:38] COMPLETE: VIP #1003, Normal #1001
+[07:36:38] BOTS: #1 PROCESSING
+[07:36:38] Waiting 11s
+[07:36:46] Bot #1 completed Normal order #1002 - COMPLETE (10.012s)
+[07:36:46] Bot #1 is IDLE
+[07:36:49] PENDING: (none)
+[07:36:49] PROCESSING: (none)
+[07:36:49] COMPLETE: VIP #1003, Normal #1001, Normal #1002
+[07:36:49] BOTS: #1 IDLE
+[07:36:49] Session ended

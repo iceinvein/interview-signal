@@ -1,0 +1,29 @@
+I've built the order controller. On this machine, all three scripts run and pass the same checks the GitHub Action does. I haven't opened the pull request: `/work` wasn't a git repo, and there's no GitHub CLI or credentials here. So I made the git repo locally and committed the work on a `feature/order-controller` branch, on top of a baseline commit of the original files.
+
+**What's there** (plain Node.js, no dependencies, everything in memory)
+- `src/orderController.js`: the core logic, with no printing.
+  - Pending orders are sorted VIP first, then by order number. Order numbers only go up, so one rule does two jobs: a new VIP order goes behind existing VIPs and ahead of all normal orders, and an order put back by a removed bot lands in its original place.
+  - Each busy bot has one 10-second timer. When it finishes, the bot takes the next pending order or goes idle. New orders and new bots put idle bots to work right away.
+  - "- Bot" removes the newest bot, cancels its timer and puts its order back in PENDING. When another bot picks that order up, it starts over from 0.
+- `src/logger.js`: prints each event as an `[HH:MM:SS]` line, plus a status view.
+- `src/cli.js`: an interactive mode (`npm start`, commands `n`, `v`, `+`, `-`, `s`, `h`, `q`) and a scripted demo (`--demo`) that `run.sh` uses to write `scripts/result.txt`.
+- `test/orderController.test.js`: 15 unit tests using Node's built-in test runner with fake timers. They cover priority ordering, unique increasing order numbers, the exact 10-second processing time, bots going idle and waking up, several bots working at once, and removing the newest bot while it's cooking.
+- `SOLUTION.md`: usage, structure and design decisions. I left the original README as it was.
+
+**Testing I did**
+- `test.sh`: 15 of 15 pass.
+- `build.sh`: passes.
+- `run.sh`: takes about 25 seconds because it uses the real 10-second cook time, and `result.txt` has timestamps on every line. The demo covers a VIP order jumping the queue, a bot being removed mid-order and the order going back to its original place, a new bot picking work up immediately, bots going idle, and a final status.
+- Interactive mode: I piped commands in with the cook time set to 1 second, and the ordering, requeueing and error messages ("No bot to remove", unknown command) all behaved correctly.
+
+**Worth knowing for the interview**
+- Order numbers start at 1. The sample `result.txt` in the repo started at 1001; that's a one-line change if you want it.
+- `PROCESSING_MS=2000 npm start` shortens the cook time for a quicker live demo.
+- I tested on Node 24; the workflow uses Node 22.19. Everything I used is supported there, but I haven't run it on 22.
+
+**Your steps to submit**
+1. Fork the assignment repo on GitHub.
+2. `git remote add origin <your-fork-url>`, then `git push -u origin main feature/order-controller`.
+3. Open a pull request from `feature/order-controller` into `main` on your fork. That triggers the `backend-verify-result` workflow; check it passes.
+
+If you give me the fork URL and set up credentials, I can do the push myself.

@@ -1,0 +1,56 @@
+{
+  "format": "takehome",
+  "task": "feedme",
+  "agent": "opus",
+  "rep": 1,
+  "cli": "2.1.285 (Claude Code)",
+  "skipped_links": [],
+  "model": "claude-opus-5-5",
+  "effort": null,
+  "is_error": false,
+  "cost_usd": 0.4390064,
+  "turns": 13,
+  "codex_steps": null,
+  "usage": {
+    "input_tokens": 20,
+    "cache_creation_input_tokens": 19331,
+    "cache_read_input_tokens": 157492,
+    "output_tokens": 12639,
+    "output_tokens_details": {
+      "thinking_tokens": 2152
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 19331,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "not_available",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 1150,
+        "cache_read_input_tokens": 24784,
+        "cache_creation_input_tokens": 1606,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 1606
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "contamination": [],
+  "external_fetches": [
+    "gh auth status 2>"
+  ],
+  "timed_out": false,
+  "interrupted": null,
+  "exit_code": 0,
+  "wall_s": 156.587
+}

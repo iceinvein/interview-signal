@@ -1,0 +1,21 @@
+normal
+vip
+normal
+status
++
+wait 1
++
+status
+wait 10
+status
+vip
+wait 5
+-
+status
++
+wait 11
+status
+wait 10
+-
+wait 1
+quit

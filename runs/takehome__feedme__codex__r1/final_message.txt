@@ -1,0 +1,5 @@
+Implemented the Node.js take-home on branch `feat/node-order-controller` (commit `c369b38`). The [interactive CLI](/work/src/cli.js) supports normal and VIP orders, bot changes, queue status, and 10-second processing. The [controller](/work/src/order-controller.js) restores an unfinished order to its priority position when a bot is removed.
+
+All 7 unit tests and the build check pass. I also tested interactive commands and ran the live demo; its timestamped output is in [scripts/result.txt](/work/scripts/result.txt). Usage is documented in the [README](/work/README.md).
+
+**The PR and GitHub Actions check remain outstanding.** I found the matching upstream repository, but the connected GitHub account has no fork, and this environment has no way to create one. Provide a writable fork URL so I can push the prepared branch and open the PR.

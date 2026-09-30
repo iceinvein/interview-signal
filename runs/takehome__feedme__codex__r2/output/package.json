@@ -1,0 +1,15 @@
+{
+  "name": "feedme-order-controller",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "build": "node --check src/order-controller.js && node --check src/cli.js && node --check src/manual-clock.js",
+    "start": "node src/cli.js",
+    "demo": "node src/cli.js --demo"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

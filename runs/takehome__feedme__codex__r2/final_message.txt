@@ -1,0 +1,5 @@
+Implemented the Node.js order controller and interactive CLI. It supports VIP priority, 10-second processing, idle bots, and cancellation when the newest bot is removed. The [README](/work/README.md) has run instructions; [result.txt](/work/scripts/result.txt) contains a timestamped demonstration.
+
+All 8 tests and the build check pass. I also ran the interactive CLI with a real clock and confirmed an order completed 10 seconds after pickup.
+
+**The PR is still outstanding.** This workspace has no Git remote or history, and the available GitHub connection has no writable repository. Send the repository URL with write access so I can submit the PR and verify its Actions check.

@@ -1,0 +1,5 @@
+The Node.js backend is implemented and committed locally on `feature/node-order-controller` (`70485bb`). It includes an [interactive CLI](/work/src/cli.js), an [in-memory order controller](/work/src/order-controller.js), eight [tests](/work/test/order-controller.test.js), documentation, and a real-timer demo in [result.txt](/work/scripts/result.txt).
+
+All eight tests and the build check pass. The demo completed four orders, and every result line has an `HH:MM:SS` timestamp.
+
+**The pull request and GitHub Actions check remain outstanding.** This workspace had no Git remote or writable fork. Please provide your fork URL so I can push the branch, open the PR, and verify `backend-verify-result`.
