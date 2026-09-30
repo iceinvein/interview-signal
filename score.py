@@ -13,8 +13,9 @@ The checker runs code the agent wrote, so it runs where the agent did: in a
 fresh container of run.sh's agent image, as the user candidate, on the runs
 network (which reaches the internet but not the Mac or Docker's VM), seeing
 only a copy of the output's regular files at /solution and the task's
-format directory at /tasks/<format>, both read-only. Before scoring, the
-command runs run.sh --check-isolation, the checks every agent run makes.
+format directory at /tasks/<format>, both read-only. Before its first
+checker, the process runs run.sh --check-isolation, the checks every agent
+run makes.
 SCRATCH_DIR is where the copies are made, as for run.sh.
 """
 
@@ -29,6 +30,7 @@ import stat
 import subprocess
 import sys
 import tempfile
+import threading
 
 REPO = pathlib.Path(__file__).resolve().parent
 TASKS_DIR = pathlib.Path(os.environ.get("TASKS_DIR", REPO / "tasks"))
@@ -42,6 +44,11 @@ IMAGE = "interview-signal-agent"
 RUN_NETWORK = "interview-signal-runs"
 MEMORY = os.environ.get("AGENT_MEMORY", "4g")
 CPUS = os.environ.get("AGENT_CPUS", "2")
+ISOLATION_CHECK = [str(REPO / "run.sh"), "--check-isolation"]
+# The check's outcome, made once per process: None until it has run, then ""
+# when it passed or the reason it failed.
+_isolation_error = None
+_isolation_lock = threading.Lock()
 
 
 class ScoringError(Exception):
@@ -116,8 +123,32 @@ def check_mounts(mounts: list[str], probes: list[str], what: str) -> None:
                            f"{proc.stderr.strip()[-300:]}")
 
 
+def check_isolation() -> None:
+    """Raises unless run.sh's isolation check has passed in this process."""
+    global _isolation_error
+    with _isolation_lock:
+        if _isolation_error is None:
+            proc = subprocess.run(ISOLATION_CHECK, capture_output=True, text=True)
+            _isolation_error = "" if proc.returncode == 0 else proc.stderr.strip()[-500:]
+    if _isolation_error:
+        raise ScoringError(f"isolation check failed, so no checker runs: {_isolation_error}")
+
+
+def kill_container(name: str) -> None:
+    """Ends a container; one that has already exited (and been removed by
+    --rm) is fine, but one docker could not kill is an error."""
+    proc = subprocess.run(["docker", "kill", name], capture_output=True, text=True)
+    if proc.returncode == 0:
+        return
+    running = subprocess.run(["docker", "ps", "--all", "--quiet", "--filter", f"name=^{name}$"],
+                             capture_output=True, text=True, check=True).stdout
+    if running.strip():
+        raise ScoringError(f"docker kill {name} failed and the container is still there: {proc.stderr.strip()}")
+
+
 def run_checker(task_dir: pathlib.Path, run_dir: pathlib.Path) -> dict:
     """Run hidden/run.sh on the run's output in a container and return its parsed JSON."""
+    check_isolation()
     fmt, task = task_dir.parent.name, task_dir.name
     container_task = f"/tasks/{fmt}/{task}"
     SCRATCH_DIR.mkdir(mode=0o700, parents=True, exist_ok=True)
@@ -149,7 +180,7 @@ def run_checker(task_dir: pathlib.Path, run_dir: pathlib.Path) -> dict:
             except subprocess.TimeoutExpired:
                 # Killing the client would leave the container running; this
                 # ends it and everything the checker started inside.
-                subprocess.run(["docker", "kill", name], capture_output=True, check=True)
+                kill_container(name)
                 proc.communicate()
                 raise ScoringError(f"{run_dir.name}: checker ran past {CHECKER_TIMEOUT_S} s") from None
     finally:
@@ -195,11 +226,6 @@ def main(argv: list[str]) -> int:
 
     runs = sorted(p.parent for p in RUNS_DIR.glob("*/result.json"))
     to_score = [r for r in runs if args.rescore or not (r / "score.json").is_file()]
-    if to_score:
-        checked = subprocess.run([str(REPO / "run.sh"), "--check-isolation"])
-        if checked.returncode != 0:
-            print("not scoring: run.sh --check-isolation failed", file=sys.stderr)
-            return 1
     failures = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=WORKERS) as pool:
         futures = {pool.submit(score_run, run): run for run in to_score}

@@ -144,6 +144,38 @@ class Isolation(RunDirs):
         self.assertEqual(set(score.SCRATCH_DIR.iterdir()), before)
 
 
+class IsolationCheck(RunDirs):
+    """score_run itself makes run.sh's isolation check, once per process."""
+
+    def use_check(self, script):
+        check = self.tmp / "check.sh"
+        check.write_text(script)
+        check.chmod(0o755)
+        original = score.ISOLATION_CHECK, score._isolation_error
+        score.ISOLATION_CHECK, score._isolation_error = [str(check)], None
+        self.addCleanup(lambda: setattr(score, "ISOLATION_CHECK", original[0]))
+        self.addCleanup(lambda: setattr(score, "_isolation_error", original[1]))
+
+    def test_failed_isolation_check_stops_a_direct_score_run(self):
+        self.use_check("#!/usr/bin/env bash\necho 'no runs network' >&2\nexit 1\n")
+        run = self.make_run("answer", "reference")
+        with self.assertRaisesRegex(score.ScoringError, "isolation check failed"):
+            score.score_run(run, tasks_dir=FIXTURE_TASKS)
+        self.assertFalse((run / "score.json").exists())
+
+    def test_isolation_check_runs_once_for_many_runs(self):
+        calls = self.tmp / "calls.txt"
+        self.use_check(f"#!/usr/bin/env bash\necho call >> '{calls}'\n")
+        for rep in (1, 2):
+            score.score_run(self.make_run("answer", "reference", rep=rep), tasks_dir=FIXTURE_TASKS)
+        self.assertEqual(calls.read_text(), "call\n")
+
+
+class KillContainer(unittest.TestCase):
+    def test_killing_a_container_that_already_exited_is_not_an_error(self):
+        score.kill_container("interview-signal-score.never-started")
+
+
 class Cli(RunDirs):
     def test_every_finished_run_gets_a_score_and_the_summary_counts_passes(self):
         self.make_run("answer", "reference", rep=1)
