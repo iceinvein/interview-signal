@@ -380,3 +380,10 @@
   candidate's handle from every commit. Commit hashes cited earlier in this
   record are from before the rewrite; the pre-rewrite history is kept only
   in the local, unpushed branch `pre-scrub-backup`.
+- **Published (2026-09-30):** `github.com/iceinvein/interview-signal`
+  created public and `main` pushed (only `main`; task branches and
+  `pre-scrub-backup` stay local). GitHub push protection flagged the
+  made-up Stripe-format canary in the webhook checker; the operator marked
+  it as a test value. Blog post pushed to `who-is-iceinvein` master
+  (b44fb27), live on its date, 2026-10-05, at
+  /blog/interview-measures-agent/.
